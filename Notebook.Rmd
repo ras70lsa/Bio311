@@ -78,6 +78,39 @@ ggplot(kuang_t.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs
 
 ## Clustering 
 
+**Complete method, with 1-Pearson correlation as the distance matrix**
+ 
+First, we attempted hierarchical clustering using the complete method with 1-Pearson's correlation as the distance metric. The first thing we did was create the correlation matrix and then distance matrix of the transpose of the original data (with genes and the columns). We are clustered the transpose of the original matrix because we wanted to cluster genes based on their relative correlation over time. All of the clustering techniques we know cluster the columns, not rows, of the dataset. 
 
+```{r}
+## These take a lot of time so they are moved into their own code segment
+kuang_t.cor <- kuang_t %>% cor(use="pairwise.complete.obs")  ##generate correlation measurements
+kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measurements 
+```
+
+```{r}
+kuang.tree <- hclust(kuang.dist, method="complete")
+kuang.dend <- as.dendrogram(kuang.tree) ## created & priviewed dendrogram object
+plot(kuang.dend, leaflab = "none")  ## removing labels 
+```
+
+```{r}
+clusters_2 <- cutree(kuang.dend, k=2)
+plot(color_branches(kuang.dend, k=2),leaflab="none")
+table(clusters_2)
+```
+
+
+```{r}
+clusters_4 <- cutree(kuang.dend, k=4)
+plot(color_branches(kuang.dend, k=4),leaflab="none")
+table(clusters_4)
+```
+
+```{r}
+clusters_8 <- cutree(kuang.dend, k=8)
+plot(color_branches(kuang.dend, k=8),leaflab="none")
+table(clusters_8)
+```
 
 
