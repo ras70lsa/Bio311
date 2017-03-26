@@ -25,8 +25,8 @@ library(cluster);
 ```
 
 ```{r}
-kuang <- read.csv("../datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
-time <- read.csv("../datasets/kuang-2014-microarry-expression-timepts.csv")
+kuang <- read.csv("../../kuang-2014-microarray-expression.csv") ##local- needs to be changed 
+time <- read.csv("../../kuang-2014-microarry-expression-timepts.csv")
 head(kuang[0:5])  ##preview data sets
 tail(kuang[0:5]) 
 ```
@@ -48,6 +48,13 @@ kuang_t.time <- cbind(kuang_t, time = time$minute)
 head(kuang_t.time[6241:6242])
 ```
 
+```{r, echo = TRUE}
+colnames(kuang_t) %>% length()
+unique.genes <- colnames(kuang_t) %>% unique()
+length(unique.genes)
+
+```
+While looking at the data set we observed multiple genes that were present more than once.  Using the unique function we can see that there are 6241 genes in the data set, but only 6035 unique genes.  We are not sure for the reasoning behind this, our best guess is redundancy, but it is something to keep in mind.
 
 ## Time plots 
 
