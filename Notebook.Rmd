@@ -27,8 +27,14 @@ library(cluster);
 ```{r}
 kuang <- read.csv("../../kuang-2014-microarray-expression.csv") ##local- needs to be changed 
 time <- read.csv("../../kuang-2014-microarry-expression-timepts.csv")
+
 head(kuang[0:5])  ##preview data sets
 tail(kuang[0:5]) 
+```
+
+```{r}
+rnaseq <- read.csv("../../kuang-2014-rnaseq-expression.csv") #local needs to be changed
+rnatime <- read.csv("../../kuang-2014-rnaseq-expression-timepts.csv")
 ```
 
 ```{r}
@@ -126,5 +132,65 @@ clusters_8 <- cutree(kuang.dend, k=8)
 plot(color_branches(kuang.dend, k=8),leaflab="none")
 table(clusters_8)
 ```
+
+##RNAseq clustering
+
+```{r}
+# first remember the names
+nrna <- rnaseq$Gene.name
+
+# transpose all but the first column (Gene.name)
+rnaseq_t <- as.data.frame(t(rnaseq[,-1]))
+colnames(rnaseq_t) <- nrna
+
+#dim(rnaseq_t)
+#dim(rnatime)
+#tail(rnaseq_t[0:5])
+rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
+#head(rnaseq_t.time[6241:6242])
+```
+
+## Time plots for rnaseq
+
+```{r, echo = TRUE, fig.align="center"}
+#visual of first 10 genes
+first.10.genes <- c("YAL001C", "YAL002W", "YAL003W", "YAL004W", "YAL005C", "YAL007C", "YAL008W", "YAL009W", "YAL010C", "YAL011W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL001C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL001C")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL002W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL002W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL003W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL003W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL004W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL004W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL005C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL005C")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL007C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL007C")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL008W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL008W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL009W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL009W")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL010C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL010C")
+
+ggplot(rnaseq_t.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL011W")
+```
+
+```{r}
+rnaseq.cor <- cor(rnaseq_t, use = "pairwise.complete.obs") #warning that standard deviation is zero
+rnaseq.dist <- as.dist(1-rnaseq.cor)
+```
+
+```{r}
+rnaseq.tree <- hclust(rnaseq.dist, method = "complete") 
+rnaseq.dend <- as.dendrogram(rnaseq.tree)
+```
+
+```{r}
+plot(rnaseq.dend, leaflab="none", main = "Gasch1k Dendrogram Complete Linkage")
+```
+
+
 
 
