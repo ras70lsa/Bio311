@@ -25,8 +25,8 @@ library(cluster);
 ```
 
 ```{r}
-kuang <- read.csv("../../kuang-2014-microarray-expression.csv") ##local- needs to be changed 
-time <- read.csv("../..//kuang-2014-microarry-expression-timepts.csv")
+kuang <- read.csv("../datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
+time <- read.csv("../datasets/kuang-2014-microarry-expression-timepts.csv")
 head(kuang[0:5])  ##preview data sets
 tail(kuang[0:5]) 
 ```
@@ -51,31 +51,6 @@ head(kuang_t.time[6241:6242])
 
 ## Time plots 
 
-```{r, echo = TRUE, fig.align="center"}
-#visual of first 10 genes
-first.10.genes <- c("YAL001C", "YAL002W", "YAL003W", "YAL004W", "YAL005C", "YAL007C", "YAL008W", "YAL009W", "YAL010C", "YAL011W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL001C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL001C")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL002W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL002W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL003W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL003W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL004W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL004W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL005C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL005C")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL007C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL007C")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL008W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL008W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL009W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL009W")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL010C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL010C")
-
-ggplot(kuang_t.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL011W")
-```
-
 ## Clustering 
 
 **Complete method, with 1-Pearson correlation as the distance matrix**
@@ -91,8 +66,15 @@ kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measu
 ```{r}
 kuang.tree <- hclust(kuang.dist, method="complete")
 kuang.dend <- as.dendrogram(kuang.tree) ## created & priviewed dendrogram object
+```
+
+To get an idea of the data we plotted the dendrogram.  From the dendrogram it is clear that there are significant clusters in the dataset. 
+
+```{r}
 plot(kuang.dend, leaflab = "none")  ## removing labels 
 ```
+
+To further get a feel for the dataset we plotted the dendrogram at several different cluster values (2, 4, and 8)- color coded to best analyze the data.
 
 ```{r}
 clusters_2 <- cutree(kuang.dend, k=2)
