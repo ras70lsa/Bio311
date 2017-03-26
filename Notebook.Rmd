@@ -26,6 +26,20 @@ library(cluster);
 
 ```{r}
 kuang <- read.csv("../datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
-head(kuang[0:5])  ##preview data set 
+time <- read.csv("../datasets/kuang-2014-microarry-expression-timepts.csv")
+head(kuang[0:5])  ##preview data sets
+tail(kuang[0:5])
+```
+
+```{r}
+# first remember the names
+n <- kuang$Gene.name
+# transpose all but the first column (Gene.name)
+kuang_t <- as.data.frame(t(kuang[,-1]))
+colnames(kuang_t) <- n
+
+str(kuang_t) # Check the column types
+dim(kuang_t)
+kuang_t.time <- mutate(kuang_t, time$minute)
 ```
 
