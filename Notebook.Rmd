@@ -121,12 +121,6 @@ table(clusters_2)
 ```
 
 ```{r}
-clusters_3 <- cutree(kuang.dend, k=3)
-plot(color_branches(kuang.dend, k=3),leaflab="none")
-table(clusters_3)
-```
-
-```{r}
 clusters_4 <- cutree(kuang.dend, k=4)
 plot(color_branches(kuang.dend, k=4),leaflab="none")
 table(clusters_4)
@@ -158,6 +152,44 @@ nleaves(cluster7.final)
 nleaves(cluster8.final)
 ```
 
+
+After reading our paper, we saw that they found three major clusters.  We next did hierarchical clustering using k = 3 to see if our clusters align with the clusters found in the paper.
+
+```{r}
+clusters_3 <- cutree(kuang.dend, k=3)
+plot(color_branches(kuang.dend, k=3),leaflab="none")
+table(clusters_3)
+```
+We then cut the tree to extract these three clusters.
+```{r}
+cut1 <- cut(kuang.dend, h = 1.9)
+cut1$lower
+```
+Perfect.  The first cluster countains 2956 genes, the second contains 972 genes, and the third contains 2313 genes.
+
+First we looked at the smallest cluster ([[2]]).  
+```{r}
+plot(color_branches(cut1$lower[[2]], k=2), leaflab="none", main = "Cluster 2 dendrogram cut with k = 2")
+```
+Looking at this we saw there were two main clusters.  We then cut this subtree again in order to extract these two subclusters.
+```{r}
+cut1.cut2 <- cut(cut1$lower[[2]], h = 1.6)
+cut1.cut2$lower
+```
+The smaller cluster (green) had 208 genes in it.  This is a good size to work with, so we continued exploring this subcluster.  First we plotted it.
+```{r}
+plot(cut1.cut2$lower[[2]], leaflab = "none", main = "Subcluster of Cluster 2")
+```
+4 main clusters stuck out to us when looking at the above plot, so we plotted with color and k = 4.
+```{r}
+plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subcluster of Cluster 2 dendrogram cut with k = 4")
+```
+We then extracted these four clusters.
+```{r}
+cut1.cut2.cutTo4 <- cut(cut1.cut2$lower[[2]], h = 1.25)
+cut1.cut2.cutTo4$lower
+```
+The sizes looked reasonable to work with.  
 =======
 ##RNAseq clustering
 
