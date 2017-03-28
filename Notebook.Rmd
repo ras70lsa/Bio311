@@ -165,6 +165,16 @@ We then cut the tree to extract these three clusters.
 cut1 <- cut(kuang.dend, h = 1.9)
 cut1$lower
 ```
+
+```{r}
+cut1.cut2.cutTo4 <- cut(cut1.cut2$lower[[2]], h = 1.25)
+cluster.genes <- as.character(labels(cut1$lower[[1]])
+cat(cluster.genes)
+kuang_t.cor.few <- kuang_t.cor[cluster.genes,cluster.genes]
+f <- upper.tri(kuang_t.cor.few, diag=FALSE)
+in.vector.form <- data.frame(vals = as.vector(kuang_t.cor.few[f]))
+ggplot(in.vector.form, aes(x=vals)) + geom_histogram(bins=50)
+```
 Perfect.  The first cluster countains 2956 genes, the second contains 972 genes, and the third contains 2313 genes.
 
 First we looked at the smallest cluster ([[2]]).  
@@ -187,9 +197,15 @@ plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subclust
 We then extracted these four clusters.
 ```{r}
 cut1.cut2.cutTo4 <- cut(cut1.cut2$lower[[2]], h = 1.25)
-cut1.cut2.cutTo4$lower
+cluster.genes <- as.character(labels(cut1.cut2.cutTo4$lower[[1]]))
+cat(cluster.genes)
+kuang_t.cor.few <- kuang_t.cor[cluster.genes,cluster.genes]
+f <- upper.tri(kuang_t.cor.few, diag=FALSE)
+in.vector.form <- data.frame(vals = as.vector(kuang_t.cor.few[f]))
+ggplot(in.vector.form, aes(x=vals)) + geom_histogram(bins=50)
 ```
 The sizes looked reasonable to work with.  
+
 =======
 ##RNAseq clustering
 
