@@ -133,7 +133,7 @@ table(clusters_8)
 ```
 
 ```{r}
-sub.trees <- cut(kuang.dend, h = 1.75)  ##Height retrieved from 8 cluster Figure above
+sub.trees <- cut(kuang.dend, h = 1.75)  ##Height retrieved from 4 cluster Figure above
 cluster1.final <- sub.trees$lower[[1]]
 cluster2.final <- sub.trees$lower[[2]]
 cluster3.final <- sub.trees$lower[[3]]
