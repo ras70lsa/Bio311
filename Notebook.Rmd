@@ -228,7 +228,6 @@ cluster3.cut1 <- cut(cut1$lower[[3]], h = 1.6)
 cluster3.cut1$lower
 ```
 
-=======
 ##RNAseq clustering
 
 ```{r}
