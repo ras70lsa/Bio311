@@ -27,8 +27,14 @@ library(cluster);
 ```{r}
 kuang <- read.csv("../datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
 time <- read.csv("../datasets/kuang-2014-microarry-expression-timepts.csv")
+
 head(kuang[0:5])  ##preview data sets
 tail(kuang[0:5]) 
+```
+
+```{r}
+rnaseq <- read.csv("../datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
+rnatime <- read.csv("../datasets/kuang-2014-rnaseq-expression-timepts.csv")
 ```
 
 ```{r}
@@ -48,6 +54,13 @@ kuang_t.time <- cbind(kuang_t, time = time$minute)
 head(kuang_t.time[6241:6242])
 ```
 
+```{r, echo = TRUE}
+colnames(kuang_t) %>% length()
+unique.genes <- colnames(kuang_t) %>% unique()
+length(unique.genes)
+
+```
+While looking at the data set we observed multiple genes that were present more than once.  Using the unique function we can see that there are 6241 genes in the data set, but only 6035 unique genes.  We are not sure for the reasoning behind this, our best guess is redundancy, but it is something to keep in mind.
 
 ## Time plots 
 
@@ -145,19 +158,78 @@ nleaves(cluster7.final)
 nleaves(cluster8.final)
 ```
 
-```{r fig.width = 12, fig.height = 12}
-color.scheme <- rev(brewer.pal(8,"RdBu"))
-kuang.mtx <- as.matrix(kuang_t)
-row.names(kuang.mtx) <- NULL
-transpose.kuang.mtx <- t(kuang.mtx)
-heatmap.2(transpose.kuang.mtx,
-          Rowv = cluster1.tree.final,  # use the dendrogram previously calculated
-          Colv = NULL, # don't mess with my columns! (i.e. keep current ordering )
-          dendrogram = "row",   # only draw row dendrograms
-          breaks = seq(-2, 2, length.out = 9),  # OPTIONAL: set break points for colors
-          col = color.scheme,  # use previously defined colors
-          trace = "none", density.info = "none",  # remove distracting elements of plot
-          xlab = "Perturbations",
-          main = "Cluster 1 over all Perturbations")
+=======
+##RNAseq clustering
+
+```{r}
+# first remember the names
+nrna <- rnaseq$Gene.name
+
+# transpose all but the first column (Gene.name)
+rnaseq_t_zeros <- as.data.frame(t(rnaseq[,-1]))
+colnames(rnaseq_t_zeros) <- nrna
+
+#dim(rnaseq_t_zeros)
+#dim(rnatime)
+#tail(rnaseq_t_zeros[0:5])
+rnaseq_t_zeros.time <- cbind(rnaseq_t_zeros, time = rnatime$hour)
+#head(rnaseq_t_zeros.time[6241:6242])
+```
+
+## Time plots for rnaseq
+
+```{r, echo = TRUE, fig.align="center"}
+#visual of first 10 genes
+first.10.genes <- c("YAL001C", "YAL002W", "YAL003W", "YAL004W", "YAL005C", "YAL007C", "YAL008W", "YAL009W", "YAL010C", "YAL011W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL001C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL001C")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL002W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL002W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL003W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL003W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL004W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL004W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL005C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL005C")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL007C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL007C")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL008W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL008W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL009W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL009W")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL010C, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL010C")
+
+ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL011W")
+```
+
+```{r}
+dim(rnaseq_t_zeros)
+head(rnaseq_t_zeros[,6240:6241])
+```
+
+Some of these genes have zero expression and need to be removed!
+
+```{r}
+head(rnaseq_t_zeros[, colSums(rnaseq_t_zeros == 0) > 0])
+```
+
+```{r}
+rnaseq_t <- rnaseq_t_zeros[, colSums(rnaseq_t_zeros != 0) > 0]
+head(rnaseq_t)
+```
+
+```{r}
+rnaseq.cor <- cor(rnaseq_t, use = "pairwise.complete.obs") 
+rnaseq.dist <- as.dist(1-rnaseq.cor)
+```
+
+```{r}
+rnaseq.tree <- hclust(rnaseq.dist, method = "complete") 
+rnaseq.dend <- as.dendrogram(rnaseq.tree)
+```
+
+```{r}
+plot(rnaseq.dend, leaflab="none", main = "Gasch1k Dendrogram Complete Linkage")
 ```
 
