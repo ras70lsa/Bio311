@@ -107,6 +107,11 @@ plot(color_branches(kuang.dend, k=2),leaflab="none")
 table(clusters_2)
 ```
 
+```{r}
+clusters_3 <- cutree(kuang.dend, k=3)
+plot(color_branches(kuang.dend, k=3),leaflab="none")
+table(clusters_3)
+```
 
 ```{r}
 clusters_4 <- cutree(kuang.dend, k=4)
@@ -120,4 +125,39 @@ plot(color_branches(kuang.dend, k=8),leaflab="none")
 table(clusters_8)
 ```
 
+```{r}
+sub.trees <- cut(kuang.dend, h = 1.75)  ##Height retrieved from 4 cluster Figure above
+cluster1.final <- sub.trees$lower[[1]]
+cluster2.final <- sub.trees$lower[[2]]
+cluster3.final <- sub.trees$lower[[3]]
+cluster4.final <- sub.trees$lower[[4]]
+cluster5.final <- sub.trees$lower[[5]]
+cluster6.final <- sub.trees$lower[[6]]
+cluster7.final <- sub.trees$lower[[7]]
+cluster8.final <- sub.trees$lower[[8]]
+nleaves(cluster1.final)
+nleaves(cluster2.final)
+nleaves(cluster3.final)
+nleaves(cluster4.final)
+nleaves(cluster5.final)
+nleaves(cluster6.final)
+nleaves(cluster7.final)
+nleaves(cluster8.final)
+```
+
+```{r fig.width = 12, fig.height = 12}
+color.scheme <- rev(brewer.pal(8,"RdBu"))
+kuang.mtx <- as.matrix(kuang_t)
+row.names(kuang.mtx) <- NULL
+transpose.kuang.mtx <- t(kuang.mtx)
+heatmap.2(transpose.kuang.mtx,
+          Rowv = cluster1.tree.final,  # use the dendrogram previously calculated
+          Colv = NULL, # don't mess with my columns! (i.e. keep current ordering )
+          dendrogram = "row",   # only draw row dendrograms
+          breaks = seq(-2, 2, length.out = 9),  # OPTIONAL: set break points for colors
+          col = color.scheme,  # use previously defined colors
+          trace = "none", density.info = "none",  # remove distracting elements of plot
+          xlab = "Perturbations",
+          main = "Cluster 1 over all Perturbations")
+```
 
