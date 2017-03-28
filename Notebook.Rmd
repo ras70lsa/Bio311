@@ -25,16 +25,16 @@ library(cluster);
 ```
 
 ```{r}
-kuang <- read.csv("../datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
-time <- read.csv("../datasets/kuang-2014-microarry-expression-timepts.csv")
+kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
+time <- read.csv("./datasets/kuang-2014-microarry-expression-timepts.csv")
 
 head(kuang[0:5])  ##preview data sets
 tail(kuang[0:5]) 
 ```
 
 ```{r}
-rnaseq <- read.csv("../datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
-rnatime <- read.csv("../datasets/kuang-2014-rnaseq-expression-timepts.csv")
+rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
+rnatime <- read.csv("./datasets/kuang-2014-rnaseq-expression-timepts.csv")
 ```
 
 ```{r}
