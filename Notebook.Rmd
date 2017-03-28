@@ -157,7 +157,7 @@ After reading our paper, we saw that they found three major clusters.  We next d
 
 ```{r}
 clusters_3 <- cutree(kuang.dend, k=3)
-plot(color_branches(kuang.dend, k=3),leaflab="none")
+plot(color_branches(kuang.dend, k=3),leaflab="none", main = "Original Cluster with k = 3")
 table(clusters_3)
 ```
 We then cut the tree to extract these three clusters.
@@ -167,9 +167,30 @@ cut1$lower
 ```
 Perfect.  The first cluster countains 2956 genes, the second contains 972 genes, and the third contains 2313 genes.
 
-First we looked at the smallest cluster ([[2]]).  
+To get a better idea we performed hierarchical clustering, starting with the first cluster on the left (pink)
 ```{r}
-plot(color_branches(cut1$lower[[2]], k=2), leaflab="none", main = "Cluster 2 dendrogram cut with k = 2")
+plot(cut1$lower[[1]], leaflab="none", main = "Cluster 1 dendrogram")
+```
+We then tried plotting this at dendrogram at different k values to see what looks good.
+```{r}
+plot(color_branches(cut1$lower[[1]], k=3), leaflab="none", main = "Cluster 1 dendrogram with k = 3")
+```
+The first two clusters (pink and green) looked pretty compact to us, so we did not explore them anymore.  The third (blue) cluster appeared to have some significant subclusters in it, so we explored it more.
+
+We saw that there appeared to be 4 main clusters.  Adding color allowed us to visualize if our observation held true.
+```{r}
+plot(color_branches(cluster1.cut1$lower[[3]], k=4), leaflab="none", main = "Cluster 1 subtree dendrogram with k = 4")
+```
+That looked good to us.  We then extracted these four clusters to see how large they were and what genes they contained.
+```{r}
+cluster1.cut1.cutAgain <- cut(cluster1.cut1$lower[[3]], h = 1.4)
+cluster1.cut1.cutAgain$lower
+```
+
+
+Next we looked at the smallest cluster ([[2]]).  
+```{r}
+plot(color_branches(cut1$lower[[2]], k=2), leaflab="none", main = "Cluster 2 dendrogram with k = 2")
 ```
 Looking at this we saw there were two main clusters.  We then cut this subtree again in order to extract these two subclusters.
 ```{r}
@@ -182,14 +203,31 @@ plot(cut1.cut2$lower[[2]], leaflab = "none", main = "Subcluster of Cluster 2")
 ```
 4 main clusters stuck out to us when looking at the above plot, so we plotted with color and k = 4.
 ```{r}
-plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subcluster of Cluster 2 dendrogram cut with k = 4")
+plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subcluster of Cluster 2 dendrogram with k = 4")
 ```
 We then extracted these four clusters.
 ```{r}
 cut1.cut2.cutTo4 <- cut(cut1.cut2$lower[[2]], h = 1.25)
-cut1.cut2.cutTo4$lower
+#labels(cut1.cut2.cutTo4$lower[[1]])
+
 ```
-The sizes looked reasonable to work with.  
+The sizes looked reasonable to work with.
+
+Lastly we analyzed the third ([[3]]) cluster (blue in the original dendrogram).
+
+```{r}
+plot(cut1$lower[[3]], leaflab="none", main = "Cluster 3 dendrogram")
+```
+On this dendrogram we tried plotting it with different k values to see which made the most sense.
+```{r}
+plot(color_branches(cut1$lower[[3]], k=5), leaflab="none", main = "Cluster 3 dendrogram with k = 5")
+```
+A k value of 5 looked good.  As we have before, we then extracted these clusters by cutting the dendrogram.
+```{r}
+cluster3.cut1 <- cut(cut1$lower[[3]], h = 1.6)
+cluster3.cut1$lower
+```
+
 =======
 ##RNAseq clustering
 
