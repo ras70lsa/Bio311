@@ -234,15 +234,7 @@ plot(cut1.cut2$lower[[2]], leaflab = "none", main = "Subcluster of Cluster 2")
 plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subcluster of Cluster 2 dendrogram with k = 4")
 ```
 We then extracted these four clusters.
-```{r}
-cut1.cut2.cutTo4 <- cut(cut1.cut2$lower[[2]], h = 1.25)
-cluster.genes <- as.character(labels(cut1.cut2.cutTo4$lower[[1]]))
-cat(cluster.genes)
-kuang_t.cor.few <- kuang_t.cor[cluster.genes,cluster.genes]
-f <- upper.tri(kuang_t.cor.few, diag=FALSE)
-in.vector.form <- data.frame(vals = as.vector(kuang_t.cor.few[f]))
-ggplot(in.vector.form, aes(x=vals)) + geom_histogram(bins=50)
-```
+
 The sizes looked reasonable to work with.  
 
 Lastly we analyzed the third ([[3]]) cluster (blue in the original dendrogram).
@@ -259,6 +251,124 @@ A k value of 5 looked good.  As we have before, we then extracted these clusters
 cluster3.cut1 <- cut(cut1$lower[[3]], h = 1.6)
 cluster3.cut1$lower
 ```
+
+## Correlation Distribution
+
+When examing what clusters were best and how many clusters we should have we thought it might be useful to look at the distributions of correlations within clusters.  
+
+Let's first look at the correlation distribitions of the original 3 (top 3) clusters we made.
+
+```{r}
+cluster1.genes <- as.character(labels(cut1$lower[[1]]))
+cluster2.genes <- as.character(labels(cut1$lower[[2]]))
+cluster3.genes <- as.character(labels(cut1$lower[[3]]))
+kuang_t.cor1 <- kuang_t.cor[cluster1.genes,cluster1.genes]
+kuang_t.cor2 <- kuang_t.cor[cluster2.genes,cluster2.genes]
+kuang_t.cor3 <- kuang_t.cor[cluster3.genes,cluster3.genes]
+f1 <- upper.tri(kuang_t.cor1, diag=FALSE)
+f2 <- upper.tri(kuang_t.cor2, diag=FALSE)
+f3 <- upper.tri(kuang_t.cor3, diag=FALSE)
+df1 <- data.frame(corr = as.vector(kuang_t.cor1[f1]))
+df2 <- data.frame(corr = as.vector(kuang_t.cor2[f2]))
+df3 <- data.frame(corr = as.vector(kuang_t.cor3[f3]))
+Histogram <- rbind(df1, df2, df3)
+ggplot(Histogram, aes(corr)) + 
+    geom_histogram(data = df1, fill = "red", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df2, fill = "green", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df3, fill = "blue", alpha = 0.2, bins = 30)
+```
+
+In the above plot the distribution of correlation for the top 3 clusters (before subclustering).  From this plot we concluded that cluster 2 was the best cluster out of the three, since more of its elements have a correlation near 1 to other members in the group. From this visulization it was also made clear that cluster 2 had less members than the other two clusters, which helped to describe why its distribution was tighter.
+
+Although the figure above is a nice visualization, it is not too enlightening. It told us behavior about the first three clusters, but not necessarily if we should sub-cluster further. Thus, we thought it would be helpful to plot the distribution of some clusters with their sub-clusters, to see if sub-clustering one more level improved the correlation distribution significantly.  
+
+```{r}
+cluster1.genes <- as.character(labels(cut1$lower[[1]]))
+cluster1.cut1.genes1 <- as.character(labels(cluster1.cut1$lower[[1]]))
+cluster1.cut1.genes2 <- as.character(labels(cluster1.cut1$lower[[2]]))
+cluster1.cut1.genes3 <- as.character(labels(cluster1.cut1$lower[[3]]))
+kuang_t.cor1 <- kuang_t.cor[cluster1.genes,cluster1.genes]
+kuang_t.cor1.1 <- kuang_t.cor[cluster1.cut1.genes1,cluster1.cut1.genes1]
+kuang_t.cor1.2 <- kuang_t.cor[cluster1.cut1.genes2,cluster1.cut1.genes2]
+kuang_t.cor1.3 <- kuang_t.cor[cluster1.cut1.genes3,cluster1.cut1.genes3]
+f1 <- upper.tri(kuang_t.cor1, diag=FALSE)
+f1.1 <- upper.tri(kuang_t.cor1.1, diag=FALSE)
+f1.2 <- upper.tri(kuang_t.cor1.2, diag=FALSE)
+f1.3 <- upper.tri(kuang_t.cor1.3, diag=FALSE)
+df1 <- data.frame(corr = as.vector(kuang_t.cor1[f1]))
+df1.1 <- data.frame(corr = as.vector(kuang_t.cor1.1[f1.1]))
+df1.2 <- data.frame(corr = as.vector(kuang_t.cor1.2[f1.2]))
+df1.3 <- data.frame(corr = as.vector(kuang_t.cor1.3[f1.3]))
+Histogram <- rbind(df1, df1.1, df1.2, df1.3)
+ggplot(Histogram, aes(corr)) + 
+    geom_histogram(data = df1, fill = "black", alpha = 0.05, bins = 30)  + 
+    geom_histogram(data = df1.1, fill = "blue", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df1.2, fill = "green", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df1.3, fill = "red", alpha = 0.2, bins = 30)
+```
+
+The above figure shows the correlation distribution in the first original cluster (faint gray). Additionally, it shows the distribution of the three sub-clusters that we formed from this original cluster. The correlation of the original cluster appeared to be a bell curve, centered around 0.25. However, the sub-clusters looked more like bell-curves centered around 0.3-0.5, with a tighter overal distribution. We found from these results that the subclustering of the original first cluster into three is likely significant, given the shift in distribution by a significant amount. 
+
+The most significant of these shifts occurred on the third sub-cluster. In our previous Hierarchical clustering we further sub-clustered this third cluster. However, given these results it is likely that this sub-clustering was not needed.
+
+We repeated this process with the second original cluster, which was further clustered into two subclusters in our previous Hierarchical clustering. 
+
+```{r}
+cluster2.genes <- as.character(labels(cut1$lower[[2]]))
+length(cluster2.genes)
+cut1.cut2.genes1 <- as.character(labels(cut1.cut2$lower[[1]]))
+cut1.cut2.genes2 <- as.character(labels(cut1.cut2$lower[[2]]))
+length(cut1.cut2.genes1)
+length(cut1.cut2.genes2)
+kuang_t.cor2 <- kuang_t.cor[cluster2.genes,cluster2.genes]
+kuang_t.cor2.1 <- kuang_t.cor[cut1.cut2.genes1,cut1.cut2.genes1]
+kuang_t.cor2.2 <- kuang_t.cor[cut1.cut2.genes2,cut1.cut2.genes2]
+f2 <- upper.tri(kuang_t.cor2, diag=FALSE)
+f2.1 <- upper.tri(kuang_t.cor2.1, diag=FALSE)
+f2.2 <- upper.tri(kuang_t.cor2.2, diag=FALSE)
+df2 <- data.frame(corr = as.vector(kuang_t.cor2[f2]))
+df2.1 <- data.frame(corr = as.vector(kuang_t.cor2.1[f2.1]))
+df2.2 <- data.frame(corr = as.vector(kuang_t.cor2.2[f2.2]))
+Histogram <- rbind(df2, df2.1, df2.2)
+ggplot(Histogram, aes(corr)) + 
+    geom_histogram(data = df2, fill = "black", alpha = 0.1, bins = 30)  + 
+    geom_histogram(data = df2.1, fill = "blue", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df2.2, fill = "red", alpha = 0.2, bins = 30)  
+```
+
+The first observation made from the above figure was that the original cluster 2 (faint gray) was not a good cluster. A lot of its values have negative correlation with other genes in its cluster, evident by the genes to the left of the zero correlation mark. Conversely, the sub-clusters did not have this problem, as they both have much tighter distributions that had little genes with negative correlation values. From this figure we concluded that the further sub-clustering of the original second cluster was justified.
+
+## Final Hierarchical Clusters 
+
+**TODO: list all clusters used** 
+
+Our final hierarchical clusters, based on the work shown above (hierarchical and correlation distributions), are given below.
+
+```{r}
+nleaves(cluster1.cut1$lower[[1]])  
+nleaves(cluster1.cut1$lower[[2]]) 
+nleaves(cluster1.cut1$lower[[3]]) 
+nleaves(cut1.cut2$lower[[1]]) 
+nleaves(cut1.cut2$lower[[2]])  
+nleaves(cut1$lower[[3]])
+```
+
+As a sanity check we made sure we didn't lose any genes. 
+
+```{r}
+nleaves(cluster1.cut1$lower[[1]]) + 
+nleaves(cluster1.cut1$lower[[2]]) +
+nleaves(cluster1.cut1$lower[[3]]) +
+nleaves(cut1.cut2$lower[[1]]) +
+nleaves(cut1.cut2$lower[[2]]) + 
+nleaves(cut1$lower[[3]]) 
+```
+
+## Heat maps 
+
+Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. 
+
+** TODO: Heatmaps ** 
 
 ##RNAseq clustering
 
