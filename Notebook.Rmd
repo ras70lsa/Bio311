@@ -111,6 +111,26 @@ To get an idea of the data we plotted the dendrogram.  From the dendrogram it is
 ```{r}
 plot(kuang.dend, leaflab = "none")  ## removing labels 
 ```
+We wanted to figure out how many clusters to choose for this assignment. In the Kuang paper, they chose 3 main clusters of 537, 1608, and 980. Below is a plot showing how the number of clusters relates to the average cluster size.
+```{r}
+plot(c(
+mean(table(cutree(kuang.dend, k=1))),
+mean(table(cutree(kuang.dend, k=2))),
+mean(table(cutree(kuang.dend, k=3))),
+mean(table(cutree(kuang.dend, k=4))),
+mean(table(cutree(kuang.dend, k=5))),
+mean(table(cutree(kuang.dend, k=6))),
+mean(table(cutree(kuang.dend, k=7))),
+mean(table(cutree(kuang.dend, k=8))),
+mean(table(cutree(kuang.dend, k=9))),
+mean(table(cutree(kuang.dend, k=10))),
+mean(table(cutree(kuang.dend, k=11))),
+mean(table(cutree(kuang.dend, k=12))),
+mean(table(cutree(kuang.dend, k=13))),
+mean(table(cutree(kuang.dend, k=14))),
+mean(table(cutree(kuang.dend, k=15)))), xlab="Num Clusters", ylab="Average size of Cluster")
+```
+From the plot above, we can see that as the number of clusters increases, the average size of the clusters decreases with a 1/x relationship. From our prior knowledge of clustering and machine learning, the cluster size at the "elbow" is the best choice because it minimizes overfitting while still representing the data appropriately. The ideal number of clusters from this analysis is between 3 and 8.
 
 To further get a feel for the dataset we plotted the dendrogram at several different cluster values (2, 4, and 8)- color coded to best analyze the data.
 
