@@ -111,6 +111,9 @@ To get an idea of the data we plotted the dendrogram.  From the dendrogram it is
 ```{r}
 plot(kuang.dend, leaflab = "none")  ## removing labels 
 ```
+
+## Average cluster size and Number of Clusters relationshups 
+
 We wanted to figure out how many clusters to choose for this assignment. In the Kuang paper, they chose 3 main clusters of 537, 1608, and 980. Below is a plot showing how the number of clusters relates to the average cluster size.
 ```{r}
 plot(c(
@@ -315,11 +318,8 @@ We repeated this process with the second original cluster, which was further clu
 
 ```{r}
 cluster2.genes <- as.character(labels(cut1$lower[[2]]))
-length(cluster2.genes)
 cut1.cut2.genes1 <- as.character(labels(cut1.cut2$lower[[1]]))
 cut1.cut2.genes2 <- as.character(labels(cut1.cut2$lower[[2]]))
-length(cut1.cut2.genes1)
-length(cut1.cut2.genes2)
 kuang_t.cor2 <- kuang_t.cor[cluster2.genes,cluster2.genes]
 kuang_t.cor2.1 <- kuang_t.cor[cut1.cut2.genes1,cut1.cut2.genes1]
 kuang_t.cor2.2 <- kuang_t.cor[cut1.cut2.genes2,cut1.cut2.genes2]
@@ -338,11 +338,50 @@ ggplot(Histogram, aes(corr)) +
 
 The first observation made from the above figure was that the original cluster 2 (faint gray) was not a good cluster. A lot of its values have negative correlation with other genes in its cluster, evident by the genes to the left of the zero correlation mark. Conversely, the sub-clusters did not have this problem, as they both have much tighter distributions that had little genes with negative correlation values. From this figure we concluded that the further sub-clustering of the original second cluster was justified.
 
+Lastly, we repeated this for the original third cluster. 
+
+```{r}
+cluster3.genes <- as.character(labels(cut1$lower[[3]]))
+cluster3.cut1.genes1 <- as.character(labels(cluster3.cut1$lower[[1]]))
+cluster3.cut1.genes2 <- as.character(labels(cluster3.cut1$lower[[2]]))
+cluster3.cut1.genes3 <- as.character(labels(cluster3.cut1$lower[[3]]))
+cluster3.cut1.genes4 <- as.character(labels(cluster3.cut1$lower[[4]]))
+cluster3.cut1.genes5 <- as.character(labels(cluster3.cut1$lower[[5]]))
+kuang_t.cor3 <- kuang_t.cor[cluster3.genes,cluster3.genes]
+kuang_t.cor3.1 <- kuang_t.cor[cluster3.cut1.genes1,cluster3.cut1.genes1]
+kuang_t.cor3.2 <- kuang_t.cor[cluster3.cut1.genes2,cluster3.cut1.genes2]
+kuang_t.cor3.3 <- kuang_t.cor[cluster3.cut1.genes1,cluster3.cut1.genes3]
+kuang_t.cor3.4 <- kuang_t.cor[cluster3.cut1.genes2,cluster3.cut1.genes4]
+kuang_t.cor3.5 <- kuang_t.cor[cluster3.cut1.genes1,cluster3.cut1.genes5]
+f3 <- upper.tri(kuang_t.cor3, diag=FALSE)
+f3.1 <- upper.tri(kuang_t.cor3.1, diag=FALSE)
+f3.2 <- upper.tri(kuang_t.cor3.2, diag=FALSE)
+f3.3 <- upper.tri(kuang_t.cor3.3, diag=FALSE)
+f3.4 <- upper.tri(kuang_t.cor3.4, diag=FALSE)
+f3.5 <- upper.tri(kuang_t.cor3.5, diag=FALSE)
+df3 <- data.frame(corr = as.vector(kuang_t.cor3[f3]))
+df3.1 <- data.frame(corr = as.vector(kuang_t.cor3.1[f3.1]))
+df3.2 <- data.frame(corr = as.vector(kuang_t.cor3.2[f3.2]))
+df3.3 <- data.frame(corr = as.vector(kuang_t.cor3.3[f3.3]))
+df3.4 <- data.frame(corr = as.vector(kuang_t.cor3.4[f3.4]))
+df3.5 <- data.frame(corr = as.vector(kuang_t.cor3.5[f3.5]))
+Histogram <- rbind(df3, df3.1, df3.2, df3.3, df3.4, df3.5)
+ggplot(Histogram, aes(corr)) + 
+    geom_histogram(data = df3, fill = "black", alpha = 0.1, bins = 30)  + 
+    geom_histogram(data = df3.1, fill = "blue", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df3.2, fill = "red", alpha = 0.2, bins = 30)  +
+    geom_histogram(data = df3.3, fill = "yellow", alpha = 0.2, bins = 30) + 
+    geom_histogram(data = df3.4, fill = "purple", alpha = 0.2, bins = 30)  + 
+    geom_histogram(data = df3.5, fill = "pink", alpha = 0.2, bins = 30)  
+```
+
+Again, we found that the further sub-clustering produced a substatial improvement in the clustering of the data. 
+
 ## Final Hierarchical Clusters 
 
 **TODO: list all clusters used** 
 
-Our final hierarchical clusters, based on the work shown above (hierarchical and correlation distributions), are given below.
+Our final hierarchical clusters, based on the work shown above (average cluster size vs number of clusters, hierarchical and correlation distributions), are given below.
 
 ```{r}
 nleaves(cluster1.cut1$lower[[1]])  
@@ -350,7 +389,11 @@ nleaves(cluster1.cut1$lower[[2]])
 nleaves(cluster1.cut1$lower[[3]]) 
 nleaves(cut1.cut2$lower[[1]]) 
 nleaves(cut1.cut2$lower[[2]])  
-nleaves(cut1$lower[[3]])
+nleaves(cluster3.cut1$lower[[1]])
+nleaves(cluster3.cut1$lower[[2]])
+nleaves(cluster3.cut1$lower[[3]])
+nleaves(cluster3.cut1$lower[[4]])
+nleaves(cluster3.cut1$lower[[5]])
 ```
 
 As a sanity check we made sure we didn't lose any genes. 
@@ -361,7 +404,11 @@ nleaves(cluster1.cut1$lower[[2]]) +
 nleaves(cluster1.cut1$lower[[3]]) +
 nleaves(cut1.cut2$lower[[1]]) +
 nleaves(cut1.cut2$lower[[2]]) + 
-nleaves(cut1$lower[[3]]) 
+nleaves(cluster3.cut1$lower[[1]]) +
+nleaves(cluster3.cut1$lower[[2]]) + 
+nleaves(cluster3.cut1$lower[[3]]) + 
+nleaves(cluster3.cut1$lower[[4]]) +
+nleaves(cluster3.cut1$lower[[5]])
 ```
 
 ## Heat maps 
