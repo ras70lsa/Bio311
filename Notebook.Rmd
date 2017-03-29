@@ -445,6 +445,83 @@ plot(rnaseq.dend, leaflab = "none", main = "Original RNAdeq dendrogram")
 ```
 Compared to the microarray dendrogram, it looked like these clusters are more compact and therefore stronger.  We predicted this based off of the lower heights of most clusters.  In order to see how true this was, we explored the clusters more.
 ```{r}
-plot(color_branches(rnaseq.dend, k=3),leaflab="none", main = "Original RNAseq dendrogram with k = 3")
+plot(color_branches(rnaseq.dend, k=4),leaflab="none", main = "Original RNAseq dendrogram with k = 4")
+```
+```{r}
+rnaseq.clusters <- cut(rnaseq.dend, h = 1.9)
+rnaseq.clusters$lower
+```
+Time to go through these one by one.  We started with the first cluster (pink).
+```{r}
+plot(rnaseq.clusters$lower[[1]], leaflab = "none", main = "RNAseq Cluster 1")
+```
+Two cluster were apparent.  We then cut the tree to expore them more.
+```{r}
+rnaseq.clusters.cluster1 <- cut(rnaseq.clusters$lower[[1]], h = 1.5)
+rnaseq.clusters.cluster1$lower
+```
+The second cluster did not need to be expored more here, but the first one certainly did.
+```{r}
+plot(rnaseq.clusters.cluster1$lower[[1]], leaflab = "none", main = "RNAseq Cluster 1 Subcluster 1")
+```
+Next we added color.
+```{r}
+plot(color_branches(rnaseq.clusters.cluster1$lower[[1]], k=4),leaflab="none", main = "RNAseq Cluster 1 Subcluster 1 with color")
+```
+Next was a cut to extract these four clusters.
+```{r}
+rnaseq.clusters.cluster1.clusterAgain <- cut(rnaseq.clusters.cluster1$lower[[1]], h = 1)
+rnaseq.clusters.cluster1.clusterAgain$lower
 ```
 
+That is sufficient for cluster 1.  We next moved to cluster 2.
+```{r}
+plot(rnaseq.clusters$lower[[2]], leaflab = "none", main = "RNAseq Cluster 2")
+```
+There appeared to be a fair amount of clusters.  We added color for different k values to see which one fit the best.
+```{r}
+plot(color_branches(rnaseq.clusters$lower[[2]], k=5),leaflab="none", main = "RNAseq Cluster 2 with color")
+
+```
+None of these clusters needed to be explored further.  We did extract them however.
+```{r}
+rnaseq.clusters.cluster2 <- cut(rnaseq.clusters$lower[[2]], h = 1.5)
+rnaseq.clusters.cluster2$lower
+```
+
+The third cluster was next.
+```{r}
+plot(rnaseq.clusters$lower[[3]], leaflab = "none", main = "RNAseq Cluster 3")
+```
+In the above plot we saw 3 large clusters, so we added color to get a visual.
+```{r}
+plot(color_branches(rnaseq.clusters$lower[[3]], k=3),leaflab="none", main = "RNAseq Cluster 3 with color")
+
+```
+We saw the first cluster (pink) needed to be explored further, so we cut the tree to extract it.
+```{r}
+rnaseq.clusters.cluster3 <- cut(rnaseq.clusters$lower[[3]], h = 1.3)
+rnaseq.clusters.cluster3$lower
+```
+```{r}
+plot(rnaseq.clusters.cluster3$lower[[1]], leaflab = "none", main = "RNAseq Cluster 3 Subcluster 1")
+```
+Four main clusters popped out to us.
+```{r}
+plot(color_branches(rnaseq.clusters.cluster3$lower[[1]], k=5),leaflab="none", main = "RNAseq Cluster 3 Subcluster1 with color")
+```
+```{r}
+rnaseq.clusters.cluster3.cutAgain <- cut(rnaseq.clusters.cluster3$lower[[1]], h = .85)
+rnaseq.clusters.cluster3.cutAgain$lower
+```
+Lastly, we looked at the fourth cluster.
+```{r}
+plot(rnaseq.clusters$lower[[4]], leaflab = "none", main = "RNAseq Cluster 4")
+```
+```{r}
+plot(color_branches(rnaseq.clusters$lower[[4]], k=5),leaflab="none", main = "RNAseq Cluster 4 with color")
+```
+```{r}
+rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
+rnaseq.clusters.cluster4$lower
+```
