@@ -157,7 +157,7 @@ After reading our paper, we saw that they found three major clusters.  We next d
 
 ```{r}
 clusters_3 <- cutree(kuang.dend, k=3)
-plot(color_branches(kuang.dend, k=3),leaflab="none", main = "Original Cluster with k = 3")
+plot(color_branches(kuang.dend, k=3),leaflab="none", main = "Original Microarray dendrogram with k = 3")
 table(clusters_3)
 ```
 We then cut the tree to extract these three clusters.
@@ -176,6 +176,12 @@ We then tried plotting this at dendrogram at different k values to see what look
 plot(color_branches(cut1$lower[[1]], k=3), leaflab="none", main = "Cluster 1 dendrogram with k = 3")
 ```
 The first two clusters (pink and green) looked pretty compact to us, so we did not explore them anymore.  The third (blue) cluster appeared to have some significant subclusters in it, so we explored it more.
+
+```{r}
+cluster1.cut1 <- cut(cut1$lower[[1]], h = 1.75)
+cluster1.cut1$lower
+plot(cluster1.cut1$lower[[3]], leaflab = "none")
+```
 
 We saw that there appeared to be 4 main clusters.  Adding color allowed us to visualize if our observation held true.
 ```{r}
@@ -299,6 +305,10 @@ rnaseq.dend <- as.dendrogram(rnaseq.tree)
 ```
 
 ```{r}
-plot(rnaseq.dend, leaflab="none", main = "Gasch1k Dendrogram Complete Linkage")
+plot(rnaseq.dend, leaflab = "none", main = "Original RNAdeq dendrogram")
+```
+Compared to the microarray dendrogram, it looked like these clusters are more compact and therefore stronger.  We predicted this based off of the lower heights of most clusters.  In order to see how true this was, we explored the clusters more.
+```{r}
+plot(color_branches(rnaseq.dend, k=3),leaflab="none", main = "Original RNAseq dendrogram with k = 3")
 ```
 
