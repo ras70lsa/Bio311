@@ -528,12 +528,12 @@ Next, we grabbed the gene names from the first final cluster.
 
 ```{r}
 clusterf1.genes <- as.character(labels(cluster1.cut1$lower[[1]]))
-clusterf1.genes.first10 <- clusterf1.genes[1:10]
+clusterf1.genes.first5 <- clusterf1.genes[1:5]
 ```
 
 ```{r}
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first10) %>%
+  filter(gene %in% clusterf1.genes.first5) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
@@ -543,32 +543,36 @@ We repeated this step from our other clusters with similar results.
 
 ```{r}
 clusterf2.genes <- as.character(labels(cluster1.cut1$lower[[2]]))
-clusterf2.genes.first10 <- clusterf2.genes[1:10]
+clusterf2.genes.first5 <- clusterf2.genes[1:5]
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.genes.first10) %>%
+  filter(gene %in% clusterf2.genes.first5) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
 
 ```{r}
 clusterf3.genes <- as.character(labels(cluster1.cut1$lower[[3]]))
-clusterf3.genes.first10 <- clusterf3.genes[1:10]
+clusterf3.genes.first5 <- clusterf3.genes[1:5]
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf3.genes.first10) %>%
+  filter(gene %in% clusterf3.genes.first5) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
+The above plots support the conclusion that the genes within the clusters chosen express similar oscillatory behavior.
+
+Next, we wanted to explore how different clusters were expressed over time with relation to one another. First, we chose the three subclusters that were created from the original first cluster. 
+
 ```{r}
 cluster1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first10) %>%
+  filter(gene %in% clusterf1.genes.first5) %>%
   mutate(cluster = 1)
 
 cluster2 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.genes.first10) %>%
+  filter(gene %in% clusterf2.genes.first5) %>%
   mutate(cluster = 2)
 
 cluster3 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf3.genes.first10) %>%
+  filter(gene %in% clusterf3.genes.first5) %>%
   mutate(cluster = 3)
 
 combined.df <- rbind(cluster1, cluster2, cluster3)
@@ -577,16 +581,18 @@ ggplot(combined.df, aes(x = time, y = expression,
   geom_line(alpha=0.5) 
 ```
 
+The above figure is the result of plotting the expression of the three subclusters of the original cluster over time. 
+
 ```{r}
 cluster1.1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first10) %>%
+  filter(gene %in% clusterf1.genes.first5) %>%
   mutate(cluster = 1)
 
 clusterf2.1.genes <- as.character(labels(cut1.cut2$lower[[2]]))
-clusterf2.1.genes.first10 <- clusterf2.1.genes[1:10]
+clusterf2.1.genes.first5 <- clusterf2.1.genes[1:10]
 
 cluster2.1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.1.genes.first10) %>%
+  filter(gene %in% clusterf2.1.genes.first5) %>%
   mutate(cluster = 2)
 
 combined.df <- rbind(cluster1.1, cluster2.1)
