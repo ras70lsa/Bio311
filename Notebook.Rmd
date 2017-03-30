@@ -2,7 +2,9 @@
 title: "Group 10 Group Clustering HW"
 author: "Group 10 members"
 date: "March 30, 2017"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 # Group 10
@@ -1193,5 +1195,5 @@ Described earlier in the assignment. Large distributions for 3 clusters. Broke t
 ## Comparison to paper
 Our findings were similar to the Kuang paper. We found 3 large clusters that behaved with similar oscillatory patterns but with different phases, suggesting a delay between the clusters' oscillatory patterns. This supports the claim of the paper that there is a *just in time supply* chain in the function of the metabolic cycle. We broke the 3 large clusters into 10 subclusters and found that genes within a subcluster behaved with even more similar oscillatory patterns.
 
-## Overview Figures TODO
-Dendogram (line ), Heat Map (line ), Separate Cluster Line Plot (line )
+## Overview Figures
+Dendogram (line 180), Heat Maps (lines 483-524), Separate Cluster Line Plot (lines 586-601)
