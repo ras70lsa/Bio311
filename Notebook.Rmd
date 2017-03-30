@@ -629,6 +629,8 @@ Unlike the three sub-clusters from the same parent cluster, the sub-clusters wit
 
 ##RNAseq clustering
 
+In this section we carried out hierarchical clustering with the rnaSeq data similar to how it was performed with the microarray data.
+
 ```{r}
 # first remember the names
 nrna <- rnaseq$Gene.name
@@ -671,6 +673,10 @@ ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL010C, group = 1)) + geom_line()
 ggplot(rnaseq_t_zeros.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL011W")
 ```
 
+From these time plots we made a meaningful conclusion about the rnaSeq data in comparrison to the microarry: the rnaSeq is sampled higher, but over a shorter period of time, thus it appears that one cycle of oscillation expression is recorded, rather than several. 
+
+## Filtering
+
 ```{r}
 dim(rnaseq_t_zeros)
 head(rnaseq_t_zeros[,6240:6241])
@@ -688,6 +694,8 @@ head(rnaseq_t)
 rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
 ```
 
+## Clustering
+
 ```{r}
 rnaseq.cor <- cor(rnaseq_t, use = "pairwise.complete.obs") 
 rnaseq.dist <- as.dist(1-rnaseq.cor)
@@ -701,62 +709,82 @@ rnaseq.dend <- as.dendrogram(rnaseq.tree)
 ```{r}
 plot(rnaseq.dend, leaflab = "none", main = "Original RNAdeq dendrogram")
 ```
+
 Compared to the microarray dendrogram, it looked like these clusters are more compact and therefore stronger.  We predicted this based off of the lower heights of most clusters.  In order to see how true this was, we explored the clusters more.
+
 ```{r}
 plot(color_branches(rnaseq.dend, k=4),leaflab="none", main = "Original RNAseq dendrogram with k = 4")
 ```
+
 ```{r}
 rnaseq.clusters <- cut(rnaseq.dend, h = 1.9)
 rnaseq.clusters$lower
 ```
+
 Time to go through these one by one.  We started with the first cluster (pink).
 ```{r}
 plot(rnaseq.clusters$lower[[1]], leaflab = "none", main = "RNAseq Cluster 1")
 ```
-Two cluster were apparent.  We then cut the tree to expore them more.
+
+Two clusters were apparent.  We then cut the tree to expore them more.
+
 ```{r}
 rnaseq.clusters.cluster1 <- cut(rnaseq.clusters$lower[[1]], h = 1.5)
 rnaseq.clusters.cluster1$lower
 ```
+
 The second cluster did not need to be expored more here, but the first one certainly did.
+
 ```{r}
 plot(rnaseq.clusters.cluster1$lower[[1]], leaflab = "none", main = "RNAseq Cluster 1 Subcluster 1")
 ```
+
 Next we added color.
+
 ```{r}
-plot(color_branches(rnaseq.clusters.cluster1$lower[[1]], k=4),leaflab="none", main = "RNAseq Cluster 1 Subcluster 1 with color")
+plot(color_branches(rnaseq.clusters.cluster1$lower[[1]], k=2),leaflab="none", main = "RNAseq Cluster 1 Subcluster 1 with color")
 ```
-Next was a cut to extract these four clusters.
+
+Next was a cut to extract these two clusters.
+
 ```{r}
-rnaseq.clusters.cluster1.clusterAgain <- cut(rnaseq.clusters.cluster1$lower[[1]], h = 1)
+rnaseq.clusters.cluster1.clusterAgain <- cut(rnaseq.clusters.cluster1$lower[[1]], h = 1.2)
 rnaseq.clusters.cluster1.clusterAgain$lower
 ```
 
-That is sufficient for cluster 1.  We next moved to cluster 2.
+That is sufficient for cluster 1. We next moved to cluster 2.
+
 ```{r}
 plot(rnaseq.clusters$lower[[2]], leaflab = "none", main = "RNAseq Cluster 2")
 ```
-There appeared to be a fair amount of clusters.  We added color for different k values to see which one fit the best.
-```{r}
-plot(color_branches(rnaseq.clusters$lower[[2]], k=5),leaflab="none", main = "RNAseq Cluster 2 with color")
 
-```
-None of these clusters needed to be explored further.  We did extract them however.
+There appeared to be a fair amount of clusters.  We added color for different k values to see which one fit the best.
+
 ```{r}
-rnaseq.clusters.cluster2 <- cut(rnaseq.clusters$lower[[2]], h = 1.5)
+plot(color_branches(rnaseq.clusters$lower[[2]], k=4),leaflab="none", main = "RNAseq Cluster 2 with color")
+```
+
+None of these clusters needed to be explored further.  We did extract them however.
+
+```{r}
+rnaseq.clusters.cluster2 <- cut(rnaseq.clusters$lower[[2]], h = 1.6)
 rnaseq.clusters.cluster2$lower
 ```
 
 The third cluster was next.
+
 ```{r}
 plot(rnaseq.clusters$lower[[3]], leaflab = "none", main = "RNAseq Cluster 3")
 ```
+
 In the above plot we saw 3 large clusters, so we added color to get a visual.
+
 ```{r}
 plot(color_branches(rnaseq.clusters$lower[[3]], k=3),leaflab="none", main = "RNAseq Cluster 3 with color")
-
 ```
+
 We saw the first cluster (pink) needed to be explored further, so we cut the tree to extract it.
+
 ```{r}
 rnaseq.clusters.cluster3 <- cut(rnaseq.clusters$lower[[3]], h = 1.3)
 rnaseq.clusters.cluster3$lower
@@ -764,21 +792,28 @@ rnaseq.clusters.cluster3$lower
 ```{r}
 plot(rnaseq.clusters.cluster3$lower[[1]], leaflab = "none", main = "RNAseq Cluster 3 Subcluster 1")
 ```
+
 Four main clusters popped out to us.
+
 ```{r}
 plot(color_branches(rnaseq.clusters.cluster3$lower[[1]], k=5),leaflab="none", main = "RNAseq Cluster 3 Subcluster1 with color")
 ```
+
 ```{r}
 rnaseq.clusters.cluster3.cutAgain <- cut(rnaseq.clusters.cluster3$lower[[1]], h = .85)
 rnaseq.clusters.cluster3.cutAgain$lower
 ```
+
 Lastly, we looked at the fourth cluster.
+
 ```{r}
 plot(rnaseq.clusters$lower[[4]], leaflab = "none", main = "RNAseq Cluster 4")
 ```
+
 ```{r}
 plot(color_branches(rnaseq.clusters$lower[[4]], k=5),leaflab="none", main = "RNAseq Cluster 4 with color")
 ```
+
 ```{r}
 rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 rnaseq.clusters.cluster4$lower
@@ -793,6 +828,7 @@ Below we carry out k-means clustering on both the microarray and rnaseq data, us
 # k-means clustering - kuang microarray data
 
 ## k = 3
+
 ```{r}
 k=3
 kuang.kmedoids <- pam(kuang.dist, k) # create k-medoids clustering with k clusters
@@ -800,9 +836,11 @@ kclusters <- kuang.kmedoids$cluster
 table(kclusters)
 
 ```
+
 Using the microarray data, k-means clustering with k=3 resulted in clusters of sizes 2534, 1593, and 2114. In the Kuang paper, they chose 3 main clusters of 537, 1608, and 980. This suggests that a larger k may produce smaller, more significant clusters.
 
 ### Compare to hierarchical clustering results
+
 ```{r}
  # reorder genes so they match the dendrogram
 kclusters <- kclusters[order.dendrogram(kuang.dend)]
@@ -814,13 +852,16 @@ dend.colors <- unique(get_leaves_branches_attr(color_branches(kuang.dend, k=k), 
 plot(branches_attr_by_clusters(kuang.dend, kclusters, dend.colors),leaflab="none")
 ```
 
-### Heatmap - cluster 1
+The figure above is the dendrogram with the k-means' clusters superimposed using color as an indicator. If the k-means method matched the hierarchical method perfectly the three colors would be partitioned perfectly. This is not the case. However, the colors do clump together, which suggests the two methods produce similar results. Going forward, in each of the *Compare to hierarchical clustering results* sections please note that the more clumped the given colors are the closer the k-means results matches the hierarchical.
+
+### Heat map - cluster 1
+
 ```{r}
 kuang_t.unique = subset(kuang_t.time, select=c(unique.genes, "time"))
 kuang_t.long = gather(kuang_t.unique, gene, expression, -time) 
-head(kuang_t)
-head(kuang_t.long)
-head(kuang_t.unique)
+#head(kuang_t)
+#head(kuang_t.long)
+#head(kuang_t.unique)
 
 color.scheme <- rev(brewer.pal(8,"RdBu")) # generate the color scheme to use
 kcluster1.genes <- names(kclusters[kclusters == 1])
@@ -830,10 +871,14 @@ kuang_t.long %>%
   ggplot(aes(x = time, y = gene)) + 
     geom_tile(aes(fill = expression)) +
     scale_fill_gradientn(colors=color.scheme, limits=c(-2,2)) + 
-    labs(title = "K-medoids (k=1) Clustering of Kuang et al. Data\nCluster 1") + 
-    theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
+    labs(title = "K-medoids (k=3) Clustering of Kuang et al. Data\nCluster 1") + 
+    theme(axis.text.y = element_text(size = 2))  # set size of y axis labels
 ```
-### Heatmap - cluster 2
+
+This heat map shows gene expression over time. Again, we can clearly see oscillating expression (red, then red, then blue). It appears the pattern repeats three time. 
+
+### Heat map - cluster 2
+
 ```{r}
 kcluster2.genes <- names(kclusters[kclusters == 2])
 
@@ -842,10 +887,14 @@ kuang_t.long %>%
   ggplot(aes(x = time, y = gene)) + 
     geom_tile(aes(fill = expression)) +
     scale_fill_gradientn(colors=color.scheme, limits=c(-2,2)) + 
-    labs(title = "K-medoids (k=2) Clustering of Kuang et al. Data\nCluster 2") + 
+    labs(title = "K-medoids (k=3) Clustering of Kuang et al. Data\nCluster 2") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
-### Heatmap - cluster 3
+
+This shows the expression of the second cluster. Again there is repeated expression patterns. Also, this cluster starts with negative correlation, suggesting a delay from the first cluster. However, the expression across genes for a given time is not greatly correlated. Thus, it is clearly apparent k needs to be increased.
+
+### Heat map - cluster 3
+
 ```{r}
 kcluster3.genes <- names(kclusters[kclusters == 3])
 
@@ -854,9 +903,10 @@ kuang_t.long %>%
   ggplot(aes(x = time, y = gene)) + 
     geom_tile(aes(fill = expression)) +
     scale_fill_gradientn(colors=color.scheme, limits=c(-2,2)) + 
-    labs(title = "K-medoids (k=1) Clustering of Kuang et al. Data\nCluster 3") + 
+    labs(title = "K-medoids (k=3) Clustering of Kuang et al. Data\nCluster 3") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
+
 
 ## k = 6
 ```{r}
@@ -865,9 +915,11 @@ kuang.kmedoids <- pam(kuang.dist, k) # create k-medoids clustering with k cluste
 kclusters <- kuang.kmedoids$cluster
 table(kclusters)
 ```
+
 Using the microarray data, k-means clustering with k=6 resulted in clusters of sizes 769, 872, 585, 1372, 977 and 1666. These sizes are more similar in size to the 3 main clusters that the Kuang paper picked.
 
 ### Compare to hierarchical clustering results
+
 ```{r}
  # reorder genes so they match the dendrogram
 kclusters <- kclusters[order.dendrogram(kuang.dend)]
@@ -879,7 +931,7 @@ dend.colors <- unique(get_leaves_branches_attr(color_branches(kuang.dend, k=k), 
 plot(branches_attr_by_clusters(kuang.dend, kclusters, dend.colors),leaflab="none")
 ```
 
-### Heatmap - cluster 1
+### Heat map - cluster 1
 ```{r}
 kcluster1.genes <- names(kclusters[kclusters == 1])
 
@@ -916,7 +968,7 @@ dend.colors <- unique(get_leaves_branches_attr(color_branches(kuang.dend, k=k), 
 plot(branches_attr_by_clusters(kuang.dend, kclusters, dend.colors),leaflab="none")
 ```
 
-### Heatmap - cluster 1
+### Heat map - cluster 1
 ```{r}
 kcluster1.genes <- names(kclusters[kclusters == 1])
 
@@ -956,7 +1008,7 @@ plot(branches_attr_by_clusters(rnaseq.dend, kclusters, dend.colors),leaflab="non
 ```
 
 
-### Heatmap - cluster 1
+### Heat map - cluster 1
 ```{r}
 rnaseq.unique.genes <- colnames(rnaseq_t) %>% unique()
 rnaseq_t.unique = subset(rnaseq_t.time, select=c(rnaseq.unique.genes, "time"))
@@ -978,7 +1030,7 @@ rnaseq_t.long %>%
 head(rnaseq_t.long)
 ```
 
-### Heatmap - cluster 2
+### Heat map - cluster 2
 ```{r}
 kcluster2.genes <- names(kclusters[kclusters == 2])
 
@@ -990,7 +1042,7 @@ rnaseq_t.long %>%
     labs(title = "K-medoids (k=2) Clustering of Rnaseq Data\nCluster 2") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
-### Heatmap - cluster 3
+### Heat map - cluster 3
 ```{r}
 kcluster3.genes <- names(kclusters[kclusters == 3])
 
@@ -1026,7 +1078,7 @@ dend.colors <- unique(get_leaves_branches_attr(color_branches(rnaseq.dend, k=k),
 plot(branches_attr_by_clusters(rnaseq.dend, kclusters, dend.colors),leaflab="none")
 ```
 
-### Heatmap - cluster 1
+### Heat map - cluster 1
 ```{r}
 kcluster1.genes <- names(kclusters[kclusters == 1])
 
@@ -1040,7 +1092,6 @@ rnaseq_t.long %>%
 ```
 
 
-
 ## k = 8
 ```{r}
 k=8
@@ -1049,6 +1100,7 @@ kclusters <- rnaseq.kmedoids$cluster
 table(kclusters)
 
 ```
+
 Using the rnaseq data, k-means clustering with k=8 resulted in clusters of sizes 935, 443, 1198, 836, 718, 668, 627, 766. These are similar in size to those in the microarray k-means analysis. 
 
 ### Compare to hierarchical clustering results
@@ -1063,7 +1115,7 @@ dend.colors <- unique(get_leaves_branches_attr(color_branches(rnaseq.dend, k=k),
 plot(branches_attr_by_clusters(rnaseq.dend, kclusters, dend.colors),leaflab="none")
 ```
 
-### Heatmap - cluster 1
+### Heat map - cluster 1
 ```{r}
 kcluster1.genes <- names(kclusters[kclusters == 1])
 
