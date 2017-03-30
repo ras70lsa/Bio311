@@ -692,7 +692,6 @@ head(rnaseq_t_zeros[, colSums(rnaseq_t_zeros == 0) > 0])
 
 ```{r}
 rnaseq_t <- rnaseq_t_zeros[, colSums(rnaseq_t_zeros != 0) > 0]
-head(rnaseq_t)
 rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
 ```
 
