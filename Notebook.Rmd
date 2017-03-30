@@ -1,13 +1,22 @@
 ---
-title: "Group 10"
+title: "Group 10 Group Clustering HW"
+author: "Group 10 members"
+date: "March 30, 2017"
 output: html_notebook
 ---
 
 # Group 10
 
+Ryan St.Pierre (ras70)
+Dakota Brinkman (dlb46)
+Matt Olson (meo8)
+Jeremy Schreck (jes85)
+
 # Biological question and Project Scope
 
+The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. The two papers we were given try to correlate the chromatin states and this metabolic expression. We will first be focusing on the gene expression under these conditions, what this expression reveals about the function of the cell under these conditions, and finally what TFs control the given clusters and how their manner of control creates complex functionality. We will also try to confirm that the metabolic processes respond in an oscillatory fashion in which there is a "just in-time supply chain," meaning the clusters should oscillate in a delayed fashion with respect to each other.
 
+The scope of this project is to investigate the clusters of the data given and their expression patterns (done in this homework) and the transcription factor networks that control this oscillatory behavior (done in the next homework).
 
 **Data scope** 
 
@@ -46,6 +55,8 @@ rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs t
 rnatime <- read.csv("./datasets/kuang-2014-rnaseq-expression-timepts.csv")
 ```
 
+## rnaSeq vs Microarray
+
 ```{r}
 dim(kuang) ##Get a sense of the size
 dim(rnaseq)
@@ -55,7 +66,6 @@ dim(rnaseq)
 head(time)
 head(rnatime)
 ```
-
 
 Using the dim command we were able to get a sense of the differences between the microarray and rnaSeq data. Given the dimensions they both contain the same amount of genes (6241). However, the rnaSeq has less time data points. 
 
@@ -81,20 +91,6 @@ length(unique.genes)
 ```
 
 While looking at the data set we observed multiple genes that were present more than once.  Using the unique function we can see that there are 6241 genes in the data set, but only 6035 unique genes.  We are not sure for the reasoning behind this, our best guess is redundancy, but it is something to keep in mind going forward.
-
-## Variance 
-
-//TODO 
-
-```{r}
-##kuang_t.var <- 
-##  kuang_t %>%
-##  summarize(var = var(expression, na.rm=TRUE))
-
-## make a quick histogram of the variances
-##ggplot(kuang_t.var, aes(var)) + geom_histogram()
-
-```
 
 ## Time plots 
 
@@ -124,6 +120,8 @@ ggplot(kuang_t.time, aes(x = time, y = YAL010C, group = 1)) + geom_line() + labs
 
 ggplot(kuang_t.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs(x = "Time (minutes)", y = "Expression of Gene", title = "YAL011W")
 ```
+
+It is clear from these plots that all the genes show an oscillating pattern of expression. However, these ten genes don't necessarily have oscillations that are similar over time.
 
 ## Clustering 
 
@@ -177,27 +175,6 @@ plot(color_branches(kuang.dend, k=8),leaflab="none")
 table(clusters_8)
 ```
 
-```{r}
-sub.trees <- cut(kuang.dend, h = 1.75)  ##Height retrieved from 8 cluster Figure above
-cluster1.final <- sub.trees$lower[[1]]
-cluster2.final <- sub.trees$lower[[2]]
-cluster3.final <- sub.trees$lower[[3]]
-cluster4.final <- sub.trees$lower[[4]]
-cluster5.final <- sub.trees$lower[[5]]
-cluster6.final <- sub.trees$lower[[6]]
-cluster7.final <- sub.trees$lower[[7]]
-cluster8.final <- sub.trees$lower[[8]]
-nleaves(cluster1.final)
-nleaves(cluster2.final)
-nleaves(cluster3.final)
-nleaves(cluster4.final)
-nleaves(cluster5.final)
-nleaves(cluster6.final)
-nleaves(cluster7.final)
-nleaves(cluster8.final)
-```
-
-
 After reading our paper, we saw that they found three major clusters.  We next did hierarchical clustering using k = 3 to see if our clusters align with the clusters found in the paper.
 
 ```{r}
@@ -205,23 +182,27 @@ clusters_3 <- cutree(kuang.dend, k=3)
 plot(color_branches(kuang.dend, k=3),leaflab="none", main = "Original Microarray dendrogram with k = 3")
 table(clusters_3)
 ```
+
 We then cut the tree to extract these three clusters.
+
 ```{r}
 cut1 <- cut(kuang.dend, h = 1.9)
 cut1$lower
 ```
 
-
-Perfect.  The first cluster countains 2956 genes, the second contains 972 genes, and the third contains 2313 genes.
+The first cluster countains 2956 genes, the second contains 972 genes, and the third contains 2313 genes.
 
 To get a better idea we performed hierarchical clustering, starting with the first cluster on the left (pink)
+
 ```{r}
 plot(cut1$lower[[1]], leaflab="none", main = "Cluster 1 dendrogram")
 ```
+
 We then tried plotting this at dendrogram at different k values to see what looks good.
 ```{r}
 plot(color_branches(cut1$lower[[1]], k=3), leaflab="none", main = "Cluster 1 dendrogram with k = 3")
 ```
+
 The first two clusters (pink and green) looked pretty compact to us, so we did not explore them anymore.  The third (blue) cluster appeared to have some significant subclusters in it, so we explored it more.
 
 ```{r}
@@ -231,33 +212,43 @@ plot(cluster1.cut1$lower[[3]], leaflab = "none")
 ```
 
 We saw that there appeared to be 4 main clusters.  Adding color allowed us to visualize if our observation held true.
+
 ```{r}
 plot(color_branches(cluster1.cut1$lower[[3]], k=4), leaflab="none", main = "Cluster 1 subtree dendrogram with k = 4")
 ```
+
 That looked good to us.  We then extracted these four clusters to see how large they were and what genes they contained.
+
 ```{r}
 cluster1.cut1.cutAgain <- cut(cluster1.cut1$lower[[3]], h = 1.4)
 cluster1.cut1.cutAgain$lower
 ```
 
+Next we looked at the smallest cluster ([[2]]). 
 
-Next we looked at the smallest cluster ([[2]]).  
 ```{r}
 plot(color_branches(cut1$lower[[2]], k=2), leaflab="none", main = "Cluster 2 dendrogram with k = 2")
 ```
+
 Looking at this we saw there were two main clusters.  We then cut this subtree again in order to extract these two subclusters.
+
 ```{r}
 cut1.cut2 <- cut(cut1$lower[[2]], h = 1.6)
 cut1.cut2$lower
 ```
+
 The smaller cluster (green) had 208 genes in it.  This is a good size to work with, so we continued exploring this subcluster.  First we plotted it.
+
 ```{r}
 plot(cut1.cut2$lower[[2]], leaflab = "none", main = "Subcluster of Cluster 2")
 ```
+
 4 main clusters stuck out to us when looking at the above plot, so we plotted with color and k = 4.
+
 ```{r}
 plot(color_branches(cut1.cut2$lower[[2]], k=4), leaflab="none", main = "Subcluster of Cluster 2 dendrogram with k = 4")
 ```
+
 We then extracted these four clusters.
 
 The sizes looked reasonable to work with.  
@@ -267,15 +258,34 @@ Lastly we analyzed the third ([[3]]) cluster (blue in the original dendrogram).
 ```{r}
 plot(cut1$lower[[3]], leaflab="none", main = "Cluster 3 dendrogram")
 ```
+
 On this dendrogram we tried plotting it with different k values to see which made the most sense.
+
 ```{r}
 plot(color_branches(cut1$lower[[3]], k=5), leaflab="none", main = "Cluster 3 dendrogram with k = 5")
 ```
+
 A k value of 5 looked good.  As we have before, we then extracted these clusters by cutting the dendrogram.
+
 ```{r}
 cluster3.cut1 <- cut(cut1$lower[[3]], h = 1.6)
 cluster3.cut1$lower
 ```
+
+Given our hierarchical clustering we found the following clusters: 
+
+* cluster1.cut1$lower[[1]]
+* cluster1.cut1$lower[[2]] 
+* cluster1.cut1$lower[[3]] 
+* cut1.cut2$lower[[1]] 
+* cut1.cut2$lower[[2]]  
+* cluster3.cut1$lower[[1]]
+* cluster3.cut1$lower[[2]]
+* cluster3.cut1$lower[[3]]
+* cluster3.cut1$lower[[4]]
+* cluster3.cut1$lower[[5]]
+
+However, at this point we were unsure if the number of clusters we found was "correct". Specifically we were unsure if the sub-clustering work we did of original clusters was significant. To explore these questions we tried investigating the data further, shown below.
 
 ## Average cluster size and Number of Clusters relationshups 
 
@@ -300,7 +310,7 @@ mean(table(cutree(kuang.dend, k=14))),
 mean(table(cutree(kuang.dend, k=15)))), xlab="Num Clusters", ylab="Average size of Cluster")
 ```
 
-From the plot above, we can see that as the number of clusters increases, the average size of the clusters decreases with a 1/x relationship. From our prior knowledge of clustering and machine learning, the cluster size at the "elbow" is the best choice because it minimizes overfitting while still representing the data appropriately. The ideal number of clusters from this analysis is between 3 and 8.
+From the plot above, we can see that as the number of clusters increases, the average size of the clusters decreases with a 1/x relationship. From our prior knowledge of clustering and machine learning, the cluster size at the "elbow" is the best choice because it minimizes overfitting while still representing the data appropriately. The ideal number of clusters from this analysis is between 3 and 10. This graph seems to support our previous findings, but may suggest that 10 may be on the high end of potential number of clusters in the data.
 
 ## Correlation Distribution
 
@@ -426,8 +436,6 @@ Again, we found that the further sub-clustering produced a substatial improvemen
 
 ## Final Hierarchical Clusters 
 
-**TODO: list all clusters used** 
-
 Our final hierarchical clusters, based on the work shown above (average cluster size vs number of clusters, hierarchical and correlation distributions), are given below.
 
 ```{r}
@@ -458,7 +466,9 @@ nleaves(cluster3.cut1$lower[[4]]) +
 nleaves(cluster3.cut1$lower[[5]])
 ```
 
-## Heat maps 
+The total number of leaves matches the original number of genes in the dataset.
+
+## Expression Heat maps 
 
 Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. Below are a few of the heat maps we decided to look at:
 
@@ -476,7 +486,8 @@ heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster3.cut1$lower[[3]]))]),
           dendrogram = "none",
           breaks = seq(-2, 2, length.out = 9),
           col = color.scheme, 
-          trace = "none", density.info = "none",cexRow=0.5  
+          trace = "none", density.info = "none",cexRow=0.1,
+          main = "cluster3.cut1$lower[[3]]"
           )
 ```
 ```{r}
@@ -486,7 +497,8 @@ heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster1.cut1$lower[[3]]))]),
           dendrogram = "none",
           breaks = seq(-2, 2, length.out = 9),
           col = color.scheme, 
-          trace = "none", density.info = "none",cexRow=0.5  
+          trace = "none", density.info = "none",cexRow=0.1,
+          main = "cluster1.cut1$lower[[3]]"
           )
 ```
 ```{r}
@@ -496,7 +508,8 @@ heatmap.2(t(kuang_t.matrix[,as.character(labels(cut1.cut2$lower[[1]]))]),
           dendrogram = "none",
           breaks = seq(-2, 2, length.out = 9),
           col = color.scheme, 
-          trace = "none", density.info = "none",cexRow=0.5  
+          trace = "none", density.info = "none",cexRow=0.1,
+          main = "cut1.cut2$lower[[1]]"
           )
 ```
 ```{r}
@@ -506,12 +519,18 @@ heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster3.cut1$lower[[4]]))]),
           dendrogram = "none",
           breaks = seq(-2, 2, length.out = 9),
           col = color.scheme, 
-          trace = "none", density.info = "none",cexRow=0.5  
+          trace = "none", density.info = "none",cexRow=0.1,
+          main = "cluster3.cut1$lower[[4]]"
           )
 ```
-We were amazed by the four heat maps above. The x axis for these heat maps was the microarray number (which corresponds to time). It is clear that the expression of these genes move in oscillatory patterns, which confirms the findings from the paper. Furthermore, the genes in a specific cluster behave very similarly. 
+
+We were satisfied with the results of our heatmaps as they seemed to suggest similar expression within clusters over time. The x axis for these heat maps was the microarray number (which corresponds to time). It is clear that the expression of these genes move in oscillatory patterns, which confirms the findings from the paper. Furthermore, the genes in a specific cluster behave very similarly. 
+
+Each of the cluster express vertical strips of blue, then red, then blue, which suggest the oscillatory patterns. Even more significantly between the clusters these strips seem to be offset, suggesting that there is a delay between the clusters' oscillatory patterns. This supports the claim of the paper that there is a *just in time supply chain* in the function of the metabolic cycle. 
 
 ## Time plots - repeated with clusters
+
+At the beginning of the paper we generated time plots of a random sample of genes in the dataset. In this section we repeated the process for genes within the same cluster. 
 
 First, we converted the time data to long format.
 
@@ -524,12 +543,14 @@ dim(kuang_t.time.long.fitered)
 head(kuang_t.time.long.fitered)
 ```
 
-Next, we grabbed the gene names from the first final cluster.
+Next, we grabbed the gene names from the first final cluster and selected the first five genes.
 
 ```{r}
 clusterf1.genes <- as.character(labels(cluster1.cut1$lower[[1]]))
 clusterf1.genes.first5 <- clusterf1.genes[1:5]
 ```
+
+Next, we filtered the kuang dataset for genes in this first cluster and plotted them on the same figure.
 
 ```{r}
 kuang_t.time.long.fitered %>%
@@ -537,9 +558,9 @@ kuang_t.time.long.fitered %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
-From this plot it is clear the first couple of genes in this cluster have similar expression over time.
+From this plot it is clear the first couple of genes in this cluster have similar expression over time. This confirms the findings from the expression heat maps.
 
-We repeated this step from our other clusters with similar results.
+We repeated this step with our other clusters with similar results.
 
 ```{r}
 clusterf2.genes <- as.character(labels(cluster1.cut1$lower[[2]]))
@@ -548,7 +569,6 @@ kuang_t.time.long.fitered %>%
   filter(gene %in% clusterf2.genes.first5) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
-
 
 ```{r}
 clusterf3.genes <- as.character(labels(cluster1.cut1$lower[[3]]))
@@ -560,7 +580,7 @@ kuang_t.time.long.fitered %>%
 
 The above plots support the conclusion that the genes within the clusters chosen express similar oscillatory behavior.
 
-Next, we wanted to explore how different clusters were expressed over time with relation to one another. First, we chose the three subclusters that were created from the original first cluster. 
+Next, we wanted to explore how different clusters were expressed over time with relation to one another in an attempt to investigate the *just in time supply chain* conclusion from the paper. First, we chose the three subclusters that were created from the original first cluster. 
 
 ```{r}
 cluster1 <- kuang_t.time.long.fitered %>%
@@ -581,7 +601,11 @@ ggplot(combined.df, aes(x = time, y = expression,
   geom_line(alpha=0.5) 
 ```
 
-The above figure is the result of plotting the expression of the three subclusters of the original cluster over time. 
+The above figure is the result of plotting the expression of the three subclusters of the first cluster from the original clustering over time. There are three different clusters depicted in this figure. It is clear from the figure that these three clusters have relatively the same expression pattern. Specifically, they peak and reach their minimums at the same time. It is important to note that only the first 5 genes from these clusters were used for clarity. 
+
+Also, this may work to suggest that even though further sub-clustering the original first cluster may have improved the correlation distribution in a meaningful way, it may not have significantly improved the synchrony of oscillation within the clusters. 
+
+Next, we investigated the gene expression difference between clusters. Specifically, we chose the first sub-cluster from the first original cluster (from hierarchical clustering) and the second sub-cluster from the second original cluster. This is shown below. 
 
 ```{r}
 cluster1.1 <- kuang_t.time.long.fitered %>%
@@ -600,6 +624,8 @@ ggplot(combined.df, aes(x = time, y = expression,
                         color = cluster, group = gene)) + 
   geom_line(alpha=0.5) 
 ```
+
+Unlike the three sub-clusters from the same parent cluster, the sub-clusters with different parents produced functions that were not in phase. This is easily seen as the two functions peak at different times. This further suggests that clusters exhibit the same oscillatory tendancies, but each cluster may be delayed or out of phase with others. Again, this supports the *just in time chain*.
 
 ##RNAseq clustering
 
