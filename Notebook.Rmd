@@ -5,8 +5,6 @@ output: html_notebook
 
 # Group 10
 
-*Libraries needed* 
-
 # Biological question and Project Scope
 
 
@@ -20,6 +18,8 @@ The sure size of the dataset did create some complications. Particuarly, we crea
 # Data Analysis
 
 Before starting clustering analysis we first wanted to import the data and manipulate it into a more usable form. The original data, both for the rnaSeq and microarray, was given with genes as rows and time as columns. However, all clustering techniques we know involve clustering columns, not rows. Thus, we had to take the transpose of the original data. Additionally, the original columns corresponded to time. However, the absolute time in each column was not given. Thus, we incorporated this time into the data for certain uses, such as time plots. 
+
+*Libraries Needed*
 
 ```{r setup, include=FALSE}
 library(dplyr);
@@ -87,12 +87,12 @@ While looking at the data set we observed multiple genes that were present more 
 //TODO 
 
 ```{r}
-kuang_t.var <- 
-  kuang_t %>%
-  summarize(var = var(expression, na.rm=TRUE))
+##kuang_t.var <- 
+##  kuang_t %>%
+##  summarize(var = var(expression, na.rm=TRUE))
 
 ## make a quick histogram of the variances
-ggplot(kuang_t.var, aes(var)) + geom_histogram()
+##ggplot(kuang_t.var, aes(var)) + geom_histogram()
 
 ```
 
@@ -528,12 +528,12 @@ Next, we grabbed the gene names from the first final cluster.
 
 ```{r}
 clusterf1.genes <- as.character(labels(cluster1.cut1$lower[[1]]))
-clusterf1.genes.first4 <- clusterf1.genes[1:20]
+clusterf1.genes.first10 <- clusterf1.genes[1:10]
 ```
 
 ```{r}
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first4) %>%
+  filter(gene %in% clusterf1.genes.first10) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
@@ -543,32 +543,32 @@ We repeated this step from our other clusters with similar results.
 
 ```{r}
 clusterf2.genes <- as.character(labels(cluster1.cut1$lower[[2]]))
-clusterf2.genes.first4 <- clusterf2.genes[1:4]
+clusterf2.genes.first10 <- clusterf2.genes[1:10]
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.genes.first4) %>%
+  filter(gene %in% clusterf2.genes.first10) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
 
 ```{r}
 clusterf3.genes <- as.character(labels(cluster1.cut1$lower[[3]]))
-clusterf3.genes.first4 <- clusterf3.genes[1:4]
+clusterf3.genes.first10 <- clusterf3.genes[1:10]
 kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf3.genes.first4) %>%
+  filter(gene %in% clusterf3.genes.first10) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
 ```{r}
 cluster1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first4) %>%
+  filter(gene %in% clusterf1.genes.first10) %>%
   mutate(cluster = 1)
 
 cluster2 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.genes.first4) %>%
+  filter(gene %in% clusterf2.genes.first10) %>%
   mutate(cluster = 2)
 
 cluster3 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf3.genes.first4) %>%
+  filter(gene %in% clusterf3.genes.first10) %>%
   mutate(cluster = 3)
 
 combined.df <- rbind(cluster1, cluster2, cluster3)
@@ -579,14 +579,14 @@ ggplot(combined.df, aes(x = time, y = expression,
 
 ```{r}
 cluster1.1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf1.genes.first4) %>%
+  filter(gene %in% clusterf1.genes.first10) %>%
   mutate(cluster = 1)
 
 clusterf2.1.genes <- as.character(labels(cut1.cut2$lower[[2]]))
-clusterf2.1.genes.first4 <- clusterf2.1.genes[1:20]
+clusterf2.1.genes.first10 <- clusterf2.1.genes[1:10]
 
 cluster2.1 <- kuang_t.time.long.fitered %>%
-  filter(gene %in% clusterf2.1.genes.first4) %>%
+  filter(gene %in% clusterf2.1.genes.first10) %>%
   mutate(cluster = 2)
 
 combined.df <- rbind(cluster1.1, cluster2.1)
@@ -594,7 +594,6 @@ ggplot(combined.df, aes(x = time, y = expression,
                         color = cluster, group = gene)) + 
   geom_line(alpha=0.5) 
 ```
-
 
 ##RNAseq clustering
 
@@ -654,6 +653,7 @@ head(rnaseq_t_zeros[, colSums(rnaseq_t_zeros == 0) > 0])
 ```{r}
 rnaseq_t <- rnaseq_t_zeros[, colSums(rnaseq_t_zeros != 0) > 0]
 head(rnaseq_t)
+rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
 ```
 
 ```{r}
@@ -826,8 +826,6 @@ kuang_t.long %>%
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
 
-
-
 ## k = 6
 ```{r}
 k=6
@@ -928,8 +926,8 @@ plot(branches_attr_by_clusters(rnaseq.dend, kclusters, dend.colors),leaflab="non
 
 ### Heatmap - cluster 1
 ```{r}
-rnaseq.unique.genes <- colnames(rnaseq_t_zeros) %>% unique()
-rnaseq_t.unique = subset(rnaseq_t_zeros.time, select=c(rnaseq.unique.genes, "time"))
+rnaseq.unique.genes <- colnames(rnaseq_t) %>% unique()
+rnaseq_t.unique = subset(rnaseq_t.time, select=c(rnaseq.unique.genes, "time"))
 rnaseq_t.long = gather(rnaseq_t.unique, gene, expression, -time) 
 
 color.scheme <- rev(brewer.pal(8,"RdBu")) # generate the color scheme to use
@@ -943,6 +941,11 @@ rnaseq_t.long %>%
     labs(title = "K-medoids (k=1) Clustering of Rnaseq Data\nCluster 1") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
+
+```{r}
+head(rnaseq_t.long)
+```
+
 ### Heatmap - cluster 2
 ```{r}
 kcluster2.genes <- names(kclusters[kclusters == 2])
