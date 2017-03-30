@@ -819,6 +819,40 @@ rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 rnaseq.clusters.cluster4$lower
 ```
 
+## rnaSeq Final Clusters 
+
+**Cluster 1**
+
+rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
+rnaseq.clusters.cluster1.clusterAgain$lower[[2]]
+
+**Cluster 2**
+
+rnaseq.clusters.cluster2$lower[[1]]
+rnaseq.clusters.cluster2$lower[[2]]
+rnaseq.clusters.cluster2$lower[[3]]
+rnaseq.clusters.cluster2$lower[[4]]
+
+**Cluster 3**
+
+rnaseq.clusters.cluster3.cutAgain$lower[[1]]
+rnaseq.clusters.cluster3.cutAgain$lower[[2]]
+rnaseq.clusters.cluster3.cutAgain$lower[[3]]
+rnaseq.clusters.cluster3.cutAgain$lower[[4]]
+rnaseq.clusters.cluster3.cutAgain$lower[[5]]
+rnaseq.clusters.cluster3$lower[[2]]
+rnaseq.clusters.cluster3$lower[[3]]
+
+**Cluster 4**
+
+rnaseq.clusters.cluster4$lower[[1]]
+rnaseq.clusters.cluster4$lower[[2]]
+rnaseq.clusters.cluster4$lower[[3]]
+rnaseq.clusters.cluster4$lower[[4]]
+rnaseq.clusters.cluster4$lower[[5]]
+
+The rnaSeq data seemed to produce more clusters than the microarray data. Specifically, smaller, more tightly bound clusters were found. This we believe is directly linked to the higher sampling rate used to record the rnaSeq data. 
+
 # K-means clustering
 
 Using our "elbow" anaylsis, we determined that a small number of clusters is probably more meaningful than a large number. Specifically, we decided to do k-means analysis with k = 3, 6, and 8, because for more than 8 clusters, the elbow curve we generated started leveling out, meaning the added benefits (increased similarity between data points in a cluster) were minimal. The goal was to minimize the number of clusters while maximizes their internal similarity.
@@ -907,6 +941,7 @@ kuang_t.long %>%
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
 
+To repeat the heatmap did not look "clean," and thus k needs to be increased.
 
 ## k = 6
 ```{r}
@@ -981,8 +1016,13 @@ kuang_t.long %>%
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
 
+## Heat maps k-relation
 
-# k-means clustering - rnaseq data
+We wanted to highlight that as k increases the vibrancy of the vertical expression lines in the heat maps increased, as expected.
+
+# k-means clustering - rnaSeq data
+
+We repeated the heat map analysis for the rnaSeq data
 
 ## k = 3
 ```{r}
@@ -1025,6 +1065,8 @@ rnaseq_t.long %>%
     labs(title = "K-medoids (k=1) Clustering of Rnaseq Data\nCluster 1") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
+
+One note-worthy occurence in performing a heat map on the rnaSeq data is the visible gaps. This is because the time data we use is given in discrete time intervals, but the heat map function assumes the input data in given in a continuous spectrum. This is true for the microarray data too, but the time intervals are closer together so the heatmaps look less sparse. The discrepancy in gap size (some are larger than others) indicate that certain time intervals were further apart than others.
 
 ```{r}
 head(rnaseq_t.long)
@@ -1127,3 +1169,29 @@ rnaseq_t.long %>%
     labs(title = "K-medoids (k=8) Clustering of Rnaseq Data\nCluster 1") + 
     theme(axis.text.y = element_text(size = 6))  # set size of y axis labels
 ```
+
+# Conclusions
+
+## Clustering methods
+We performed complete linkage heirarchial cluster and K-means clustering for this assignment. The k-means and heirarchial clustering data produce similar result as shown by the figures that map k-means onto heirarchial clustering. We decided to use heirarchial clustering because we were used to breaking clusters into subclusters with this method.
+
+### Distance metrics 
+We used 1-correlation as the measure of dissimilarity for the hierarchial clustering.
+
+### Cut height + Rational
+To determine the cut height, we looked how different number of clusters changed the dendogram (as shown in the *Clustering* section). We determined that 3 main clusters best fit the data. Then, we broke these 3 clusters into separate subclusters. Then we produced heat maps and line plots to see that the genes had similar expression over time.
+
+### Value of k for k-means
+We chose 3, 6, and 8 as the k for k-means. The reason we chose these values was described in the *K-means clustering* section.
+
+### What worked best
+Both forms of clustering worked well for our data. We chose to explore the hierarchial clustering more because we were more used to that form of analysis.  
+
+## Distribution sizes
+Described earlier in the assignment. Large distributions for 3 clusters. Broke those large clusters into subclusters of fewer genes.
+
+## Comparison to paper
+Our findings were similar to the Kuang paper. We found 3 large clusters that behaved with similar oscillatory patterns but with different phases, suggesting a delay between the clusters' oscillatory patterns. This supports the claim of the paper that there is a *just in time supply* chain in the function of the metabolic cycle. We broke the 3 large clusters into 10 subclusters and found that genes within a subcluster behaved with even more similar oscillatory patterns.
+
+## Overview Figures TODO
+Dendogram (line ), Heat Map (line ), Separate Cluster Line Plot (line )
