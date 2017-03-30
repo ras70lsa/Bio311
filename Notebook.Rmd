@@ -528,7 +528,7 @@ Next, we grabbed the gene names from the first final cluster.
 
 ```{r}
 clusterf1.genes <- as.character(labels(cluster1.cut1$lower[[1]]))
-clusterf1.genes.first4 <- clusterf1.genes[1:4]
+clusterf1.genes.first4 <- clusterf1.genes[1:20]
 ```
 
 ```{r}
@@ -557,6 +557,44 @@ kuang_t.time.long.fitered %>%
   filter(gene %in% clusterf3.genes.first4) %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
+
+```{r}
+cluster1 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf1.genes.first4) %>%
+  mutate(cluster = 1)
+
+cluster2 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf2.genes.first4) %>%
+  mutate(cluster = 2)
+
+cluster3 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf3.genes.first4) %>%
+  mutate(cluster = 3)
+
+combined.df <- rbind(cluster1, cluster2, cluster3)
+ggplot(combined.df, aes(x = time, y = expression, 
+                        color = cluster, group = gene)) + 
+  geom_line(alpha=0.5) 
+```
+
+```{r}
+cluster1.1 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf1.genes.first4) %>%
+  mutate(cluster = 1)
+
+clusterf2.1.genes <- as.character(labels(cut1.cut2$lower[[2]]))
+clusterf2.1.genes.first4 <- clusterf2.1.genes[1:20]
+
+cluster2.1 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf2.1.genes.first4) %>%
+  mutate(cluster = 2)
+
+combined.df <- rbind(cluster1.1, cluster2.1)
+ggplot(combined.df, aes(x = time, y = expression, 
+                        color = cluster, group = gene)) + 
+  geom_line(alpha=0.5) 
+```
+
 
 ##RNAseq clustering
 
@@ -719,8 +757,6 @@ rnaseq.clusters.cluster4$lower
 Using our "elbow" anaylsis, we determined that a small number of clusters is probably more meaningful than a large number. Specifically, we decided to do k-means analysis with k = 3, 6, and 8, because for more than 8 clusters, the elbow curve we generated started leveling out, meaning the added benefits (increased similarity between data points in a cluster) were minimal. The goal was to minimize the number of clusters while maximizes their internal similarity.
 
 Below we carry out k-means clustering on both the microarray and rnaseq data, using k = 3, 6, and 8. For each k value, we also provide dendrograms to compare to hierarchical clustering results, and sample heatmaps for some of the clusters produced.
-
-
 
 # k-means clustering - kuang microarray data
 
