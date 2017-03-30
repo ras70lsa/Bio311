@@ -97,6 +97,15 @@ ggplot(kuang_t.time, aes(x = time, y = YAL011W, group = 1)) + geom_line() + labs
 First, we attempted hierarchical clustering using the complete method with 1-Pearson's correlation as the distance metric. The first thing we did was create the correlation matrix and then distance matrix of the transpose of the original data (with genes and the columns). We are clustered the transpose of the original matrix because we wanted to cluster genes based on their relative correlation over time. All of the clustering techniques we know cluster the columns, not rows, of the dataset. 
 
 ```{r}
+## Getting unique names for all the columns
+genes_used <- c()
+for (i in 1:length(kuang_t)) {
+  if (names(kuang_t)[i] %in% genes_used) {
+    names(kuang_t)[i]<-paste(names(kuang_t)[i],i)
+  }
+  genes_used <- c(genes_used,names(kuang_t)[i])
+}
+
 ## These take a lot of time so they are moved into their own code segment
 kuang_t.cor <- kuang_t %>% cor(use="pairwise.complete.obs")  ##generate correlation measurements
 kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measurements 
@@ -416,9 +425,56 @@ nleaves(cluster3.cut1$lower[[5]])
 
 ## Heat maps 
 
-Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. 
+Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. Below are a few of the heat maps we decided to look at
 
-** TODO: Heatmaps ** 
+```{r}
+color.scheme <- rev(brewer.pal(8,"RdBu"))
+kuang_t.matrix <- data.matrix(kuang_t, rownames.force = NA)
+```
+
+```{r}
+
+
+heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster3.cut1$lower[[3]]))]),
+          Rowv = NULL,
+          Colv = NULL,
+          dendrogram = "none",
+          breaks = seq(-2, 2, length.out = 9),
+          col = color.scheme, 
+          trace = "none", density.info = "none",cexRow=0.5  
+          )
+```
+```{r}
+heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster1.cut1$lower[[3]]))]),
+          Rowv = NULL,
+          Colv = NULL,
+          dendrogram = "none",
+          breaks = seq(-2, 2, length.out = 9),
+          col = color.scheme, 
+          trace = "none", density.info = "none",cexRow=0.5  
+          )
+```
+```{r}
+heatmap.2(t(kuang_t.matrix[,as.character(labels(cut1.cut2$lower[[1]]))]),
+          Rowv = NULL,
+          Colv = NULL,
+          dendrogram = "none",
+          breaks = seq(-2, 2, length.out = 9),
+          col = color.scheme, 
+          trace = "none", density.info = "none",cexRow=0.5  
+          )
+```
+```{r}
+heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster3.cut1$lower[[4]]))]),
+          Rowv = NULL,
+          Colv = NULL,
+          dendrogram = "none",
+          breaks = seq(-2, 2, length.out = 9),
+          col = color.scheme, 
+          trace = "none", density.info = "none",cexRow=0.5  
+          )
+```
+We were amazed by the four heat maps above. The x axis for these heat maps was the microarray number (which corresponds to time). It is clear that the expression of these genes move in oscillatory patterns, which confirms the findings from the paper. Furthermore, the genes in a specific cluster behave very similarly. 
 
 ##RNAseq clustering
 
