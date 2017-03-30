@@ -11,7 +11,15 @@ output: html_notebook
 
 
 
-# Clustering
+**Data scope** 
+
+In our clustering analysis we used *most* of the data given. We were given two expression sets: microarray and rnaSeq. We used all of the microarray data, since we noticed no irregularities, such as NaN or zero expression. In the rnaSeq we filtered the data slightly to remove genes from the dataset that had contant zero expression. This filtering is done within the code itself, not manually in the *.csv* file, and can be referenced in the code section below. We did notice that in both datasets some of the genes are included twice. We considered removing these duplications. However, we noticed that even though the genes were repeated their expression over time was not the same across duplicated. For this reason we kept these genes in the dataset. 
+
+The sure size of the dataset did create some complications. Particuarly, we created large clusters, which made generating heatmaps for each cluster too computationally intensive to complete in a timely manner. We did consider taking a subset of the original data for this reason. However, we could not come up with a sensable way to cut the size of the data down. We briefly considered cutting the size of the data down based on gene expression variance (removing the least variant genes). However, we decided that this really had no true justification, especially in the context of the findings in our primary papers, since gene expression variance isn't correlated to the particular clustering of genes necessarily. Our primary papers found large "super-clusters" and we did not want to eliminate this result by improperly taking a subset of the data. Thus, as a compromise we decided to visualize sub-sets of clusters with heatmaps once the clusters were already generated. 
+
+# Data Analysis
+
+Before starting clustering analysis we first wanted to import the data and manipulate it into a more usable form. The original data, both for the rnaSeq and microarray, was given with genes as rows and time as columns. However, all clustering techniques we know involve clustering columns, not rows. Thus, we had to take the transpose of the original data. Additionally, the original columns corresponded to time. However, the absolute time in each column was not given. Thus, we incorporated this time into the data for certain uses, such as time plots. 
 
 ```{r setup, include=FALSE}
 library(dplyr);
@@ -39,12 +47,23 @@ rnatime <- read.csv("./datasets/kuang-2014-rnaseq-expression-timepts.csv")
 ```
 
 ```{r}
-dim(kuang)
+dim(kuang) ##Get a sense of the size
+dim(rnaseq)
 ```
 
 ```{r}
-# first remember the names
-n <- kuang$Gene.name
+head(time)
+head(rnatime)
+```
+
+
+Using the dim command we were able to get a sense of the differences between the microarray and rnaSeq data. Given the dimensions they both contain the same amount of genes (6241). However, the rnaSeq has less time data points. 
+
+Also, by previewing the different time data sets we concluded that the microarray expression is sampled every 23 minutes, while the rnaSeq expression is sampled every 0.31 hours or 18.6 minutes. This led us to conclude that the rnaSeq has a **higher sampling rate.** We thought that this may allow us to see more granular changes in expression oscillation over time in the rnaSeq data. 
+
+```{r}
+# Transpose of kuang saved as kuang_t 
+n <- kuang$Gene.name # first remember the names
 # transpose all but the first column (Gene.name)
 kuang_t <- as.data.frame(t(kuang[,-1]))
 colnames(kuang_t) <- n
@@ -52,18 +71,34 @@ colnames(kuang_t) <- n
 dim(kuang_t)
 dim(time)
 kuang_t.time <- cbind(kuang_t, time = time$minute)
-head(kuang_t.time[6241:6242])
+head(kuang_t.time[6241:6242]) ##preview end of transpose dataframe to ensure the work was done correctly
 ```
 
 ```{r, echo = TRUE}
 colnames(kuang_t) %>% length()
 unique.genes <- colnames(kuang_t) %>% unique()
 length(unique.genes)
+```
+
+While looking at the data set we observed multiple genes that were present more than once.  Using the unique function we can see that there are 6241 genes in the data set, but only 6035 unique genes.  We are not sure for the reasoning behind this, our best guess is redundancy, but it is something to keep in mind going forward.
+
+## Variance 
+
+//TODO 
+
+```{r}
+kuang_t.var <- 
+  kuang_t %>%
+  summarize(var = var(expression, na.rm=TRUE))
+
+## make a quick histogram of the variances
+ggplot(kuang_t.var, aes(var)) + geom_histogram()
 
 ```
-While looking at the data set we observed multiple genes that were present more than once.  Using the unique function we can see that there are 6241 genes in the data set, but only 6035 unique genes.  We are not sure for the reasoning behind this, our best guess is redundancy, but it is something to keep in mind.
 
 ## Time plots 
+
+At this point we were still trying to get familiar with our dataset. Thus, we generated time plots of the first 10 genes in the dataset.
 
 ```{r, echo = TRUE, fig.align="center"}
 #visual of first 10 genes
@@ -425,7 +460,7 @@ nleaves(cluster3.cut1$lower[[5]])
 
 ## Heat maps 
 
-Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. Below are a few of the heat maps we decided to look at
+Given our final clusters we generated some heatmaps to show the correlation between genes within clusters. In most cases, the number of genes in a given cluster was too large to create one heatmap. Thus, often we were forced to create heatmaps with certain subsets of clusters. Below are a few of the heat maps we decided to look at:
 
 ```{r}
 color.scheme <- rev(brewer.pal(8,"RdBu"))
@@ -475,6 +510,53 @@ heatmap.2(t(kuang_t.matrix[,as.character(labels(cluster3.cut1$lower[[4]]))]),
           )
 ```
 We were amazed by the four heat maps above. The x axis for these heat maps was the microarray number (which corresponds to time). It is clear that the expression of these genes move in oscillatory patterns, which confirms the findings from the paper. Furthermore, the genes in a specific cluster behave very similarly. 
+
+## Time plots - repeated with clusters
+
+First, we converted the time data to long format.
+
+```{r}
+dim(kuang_t.time)
+kuang_t.time.long <- gather(kuang_t.time, gene, expression, -time) ##This produces a dataframe with 209 columns due to duplicated column names
+cols <- c("time", "gene", "expression")
+kuang_t.time.long.fitered <- kuang_t.time.long[,cols]
+dim(kuang_t.time.long.fitered)
+head(kuang_t.time.long.fitered)
+```
+
+Next, we grabbed the gene names from the first final cluster.
+
+```{r}
+clusterf1.genes <- as.character(labels(cluster1.cut1$lower[[1]]))
+clusterf1.genes.first4 <- clusterf1.genes[1:4]
+```
+
+```{r}
+kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf1.genes.first4) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
+
+From this plot it is clear the first couple of genes in this cluster have similar expression over time.
+
+We repeated this step from our other clusters with similar results.
+
+```{r}
+clusterf2.genes <- as.character(labels(cluster1.cut1$lower[[2]]))
+clusterf2.genes.first4 <- clusterf2.genes[1:4]
+kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf2.genes.first4) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
+
+
+```{r}
+clusterf3.genes <- as.character(labels(cluster1.cut1$lower[[3]]))
+clusterf3.genes.first4 <- clusterf3.genes[1:4]
+kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf3.genes.first4) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
 
 ##RNAseq clustering
 
@@ -631,3 +713,5 @@ plot(color_branches(rnaseq.clusters$lower[[4]], k=5),leaflab="none", main = "RNA
 rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 rnaseq.clusters.cluster4$lower
 ```
+
+## Focal Papers 
