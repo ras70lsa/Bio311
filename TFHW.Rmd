@@ -36,6 +36,11 @@ kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 #Correlation
 
 ```{r}
+Gcn <- kuangtf[,c(1:15)]
+Esa <- kuangtf[,c(1:15)]
+Set <- kuangtf[,c(1:15)]
+
+
 Gcn.data <- as.data.frame(t(Gcn[,-1]))
 colnames(Gcn.data) <- Gcn$Gene.ID
 Gcn.time <- cbind(Gcn.data, time = time$hour)
@@ -76,16 +81,20 @@ dim(rna.Genes)
 dim(kuangtf.new)
 
 #now extract the different TFs
-Gcn <- kuangtf.new[,c(1:15)]
+Gcn.new <- kuangtf.new[,c(1:15)]
 dim(Gcn)
-Esa <- kuangtf.new[,c(1,16:29)]
+Esa.new <- kuangtf.new[,c(1,16:29)]
 dim(Esa)
-Set <- kuangtf.new[,c(1,30:43)]
+Set.new <- kuangtf.new[,c(1,30:43)]
 dim(Set)
 
 #here we see the 69 genes that are in the TF data but not the rnaseq
 length(which( ! TF.genes %in% rna.genes))
+```
 
+
+#Plotting
+```{R}
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
 
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL033C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL033C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL033C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL033C")
