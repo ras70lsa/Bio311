@@ -13,3 +13,16 @@ Ryan St.Pierre (ras70)
 Dakota Brinkman (dlb46)
 Matt Olson (meo8)
 Jeremy Schreck (jes85)
+
+```{r}
+kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
+time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
+
+Gcn <- kuangtf[,c(1:15)]
+head(Gcn)
+Esa <- kuangtf[,c(1,16:29)]
+head(Esa)
+Set <- kuangtf[,c(1,30:43)]
+head(Set)
+```
+
