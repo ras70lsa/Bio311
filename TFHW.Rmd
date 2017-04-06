@@ -33,10 +33,24 @@ kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 
 ```
 
-
-
 #Correlation
+
 ```{r}
+Gcn.data <- as.data.frame(t(Gcn[,-1]))
+colnames(Gcn.data) <- Gcn$Gene.ID
+Gcn.time <- cbind(Gcn.data, time = time$hour)
+
+Esa.data <- as.data.frame(t(Esa[,-1]))
+colnames(Esa.data) <- Esa$Gene.ID
+Esa.time <- cbind(Esa.data, time = time$hour)
+
+Set.data <- as.data.frame(t(Set[,-1]))
+colnames(Set.data) <- Set$Gene.ID
+Set.time <- cbind(Set.data, time = time$hour)
+```
+
+```{r}
+
 #get the genes in the tf and rna data
 TF.genes <- unique(kuangtf[,1])
 rna.genes <- unique(kuangrna[,1])
@@ -72,5 +86,20 @@ dim(Set)
 #here we see the 69 genes that are in the TF data but not the rnaseq
 length(which( ! TF.genes %in% rna.genes))
 
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL033C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL033C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL033C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL033C")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL039C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL039C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL039C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL039C")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL053W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL053W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL053W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL053W")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL087C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL087C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL087C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL087C")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YER086W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YER086W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YER086W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YER086W")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YJL045W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YJL045W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YJL045W")
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YGL236C")
 ```
 
