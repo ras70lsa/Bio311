@@ -31,18 +31,46 @@ kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
 time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
 kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 
-Gcn <- kuangtf[,c(1:15)]
-head(Gcn)
-Esa <- kuangtf[,c(1,16:29)]
-head(Esa)
-Set <- kuangtf[,c(1,30:43)]
-head(Set)
 ```
 
 
 
 #Correlation
 ```{r}
+#get the genes in the tf and rna data
+TF.genes <- unique(kuangtf[,1])
+rna.genes <- unique(kuangrna[,1])
+
+#get rid of duplicated rows in the rna data
+rna.unique <- unique(kuangrna)
+
+#filter the rna data for the tf genes
+rna.Genes <- filter(rna.unique, rna.unique[,1] %in% TF.genes)
+
+#get the unique genes from this rna data
+#may not need to do this again but did it just to be safe
+rna.genes.u <- unique(rna.Genes[,1])
+
+#It appears that all of the genes present in the TF data are not present in the rna data
+#So need to filter again to get rid of these genes
+kuangtf.new <- filter(kuangtf, TF.genes %in% rna.genes.u)
+
+#now remove alst two columns so the times add up
+rna.Genes <- rna.Genes[,1:15]
+
+dim(rna.Genes)
+dim(kuangtf.new)
+
+#now extract the different TFs
+Gcn <- kuangtf.new[,c(1:15)]
+dim(Gcn)
+Esa <- kuangtf.new[,c(1,16:29)]
+dim(Esa)
+Set <- kuangtf.new[,c(1,30:43)]
+dim(Set)
+
+#here we see the 69 genes that are in the TF data but not the rnaseq
+length(which( ! TF.genes %in% rna.genes))
 
 ```
 
