@@ -180,9 +180,68 @@ $(document).ready(function () {
 <h1>Group 10</h1>
 <p>Ryan St.Pierre (ras70) Dakota Brinkman (dlb46) Matt Olson (meo8) Jeremy Schreck (jes85)</p>
 <!-- rnb-text-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxua3Vhbmd0ZiA8LSByZWFkLmNzdihcIi4vZGF0YXNldHMva3VhbmctMjAxNC1URmJpbmRpbmcuY3N2XCIpXG50aW1lIDwtIHJlYWQuY3N2KFwiLi9kYXRhc2V0cy9rdWFuZy0yMDE0LVRGYmluZGluZy10aW1lcHRzLmNzdlwiKVxua3VhbmdybmEgPC0gcmVhZC5jc3YoXCIuL2RhdGFzZXRzL2t1YW5nLTIwMTQtcm5hc2VxLWV4cHJlc3Npb24uY3N2XCIpXG5cbkdjbiA8LSBrdWFuZ3RmWyxjKDE6MTUpXVxuaGVhZChHY24pXG5Fc2EgPC0ga3Vhbmd0ZlssYygxLDE2OjI5KV1cbmhlYWQoRXNhKVxuU2V0IDwtIGt1YW5ndGZbLGMoMSwzMDo0MyldXG5oZWFkKFNldClcbmBgYCJ9 -->
+<pre class="r"><code>kuangtf &lt;- read.csv(&quot;./datasets/kuang-2014-TFbinding.csv&quot;)
+time &lt;- read.csv(&quot;./datasets/kuang-2014-TFbinding-timepts.csv&quot;)
+kuangrna &lt;- read.csv(&quot;./datasets/kuang-2014-rnaseq-expression.csv&quot;)
+
+Gcn &lt;- kuangtf[,c(1:15)]
+head(Gcn)
+Esa &lt;- kuangtf[,c(1,16:29)]
+head(Esa)
+Set &lt;- kuangtf[,c(1,30:43)]
+head(Set)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="correlation" class="section level1">
+<h1>Correlation</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuR2NuLmRhdGEgPC0gYXMuZGF0YS5mcmFtZSh0KEdjblssLTFdKSlcbmNvbG5hbWVzKEdjbi5kYXRhKSA8LSBHY24kR2VuZS5JRFxuR2NuLnRpbWUgPC0gY2JpbmQoR2NuLmRhdGEsIHRpbWUgPSB0aW1lJGhvdXIpXG5cbkVzYS5kYXRhIDwtIGFzLmRhdGEuZnJhbWUodChFc2FbLC0xXSkpXG5jb2xuYW1lcyhFc2EuZGF0YSkgPC0gRXNhJEdlbmUuSURcbkVzYS50aW1lIDwtIGNiaW5kKEVzYS5kYXRhLCB0aW1lID0gdGltZSRob3VyKVxuXG5TZXQuZGF0YSA8LSBhcy5kYXRhLmZyYW1lKHQoU2V0WywtMV0pKVxuY29sbmFtZXMoU2V0LmRhdGEpIDwtIFNldCRHZW5lLklEXG5TZXQudGltZSA8LSBjYmluZChTZXQuZGF0YSwgdGltZSA9IHRpbWUkaG91cilcbmBgYCJ9 -->
+<pre class="r"><code>Gcn.data &lt;- as.data.frame(t(Gcn[,-1]))
+colnames(Gcn.data) &lt;- Gcn$Gene.ID
+Gcn.time &lt;- cbind(Gcn.data, time = time$hour)
+
+Esa.data &lt;- as.data.frame(t(Esa[,-1]))
+colnames(Esa.data) &lt;- Esa$Gene.ID
+Esa.time &lt;- cbind(Esa.data, time = time$hour)
+
+Set.data &lt;- as.data.frame(t(Set[,-1]))
+colnames(Set.data) &lt;- Set$Gene.ID
+Set.time &lt;- cbind(Set.data, time = time$hour)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUFMMDEyVywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlBTDAxMlcsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQUwwMTJXLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllBTDAwMUNcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDMzQywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDAzM0MsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwMzNDLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllCTDAzM0NcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDM5QywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDAzOUMsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwMzlDLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllCTDAzOUNcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDUzVywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDA1M1csIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwNTNXLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllCTDA1M1dcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDg3QywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDA4N0MsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwODdDLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllCTDA4N0NcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUVSMDg2VywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlFUjA4NlcsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZRVIwODZXLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllFUjA4NldcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUpMMDQ1VywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlKTDA0NVcsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZSkwwNDVXLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllKTDA0NVdcIilcblxuZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUdMMjM2QywgY29sb3I9XCJHY25cIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlHTDIzNkMsIGNvbG9yPVwiU2V0XCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZR0wyMzZDLCBjb2xvcj1cIkVzYVwiKSkgKyBsYWJzKHggPSBcIlRpbWUgKGhvdXJzKVwiLCB5ID0gXCJCaW5kaW5nIG9mIEdlbmVcIiwgdGl0bGUgPSBcIllHTDIzNkNcIilcbmBgYCJ9 -->
+<pre class="r"><code>ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YAL001C&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL033C, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YBL033C, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YBL033C, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YBL033C&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL039C, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YBL039C, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YBL039C, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YBL039C&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL053W, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YBL053W, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YBL053W, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YBL053W&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL087C, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YBL087C, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YBL087C, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YBL087C&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YER086W, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YER086W, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YER086W, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YER086W&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YJL045W, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YJL045W, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YJL045W&quot;)
+
+ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color=&quot;Gcn&quot;)) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color=&quot;Set&quot;)) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color=&quot;Esa&quot;)) + labs(x = &quot;Time (hours)&quot;, y = &quot;Binding of Gene&quot;, title = &quot;YGL236C&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiR3JvdXAgMTAgVEYgSFciCmF1dGhvcjogIkdyb3VwIDEwIG1lbWJlcnMiCmRhdGU6ICJNYXJjaCAzMCwgMjAxNyIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyBHcm91cCAxMAoKUnlhbiBTdC5QaWVycmUgKHJhczcwKQpEYWtvdGEgQnJpbmttYW4gKGRsYjQ2KQpNYXR0IE9sc29uIChtZW84KQpKZXJlbXkgU2NocmVjayAoamVzODUpCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiR3JvdXAgMTAgVEYgSFciCmF1dGhvcjogIkdyb3VwIDEwIG1lbWJlcnMiCmRhdGU6ICJNYXJjaCAzMCwgMjAxNyIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyBHcm91cCAxMAoKUnlhbiBTdC5QaWVycmUgKHJhczcwKQpEYWtvdGEgQnJpbmttYW4gKGRsYjQ2KQpNYXR0IE9sc29uIChtZW84KQpKZXJlbXkgU2NocmVjayAoamVzODUpCgpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0KbGlicmFyeShkcGx5cik7CmxpYnJhcnkoInN0cmluZ3IiKTsKbGlicmFyeShnZ3Bsb3QyKTsKbGlicmFyeShkcGx5cik7CmxpYnJhcnkodGlkeXIpOwpsaWJyYXJ5KFJDb2xvckJyZXdlcik7CmxpYnJhcnkoZGVuZGV4dGVuZCk7CmxpYnJhcnkoZ3Bsb3RzKTsKbGlicmFyeShjbHVzdGVyKTsKYGBgCgpgYGB7cn0Ka3Vhbmd0ZiA8LSByZWFkLmNzdigiLi9kYXRhc2V0cy9rdWFuZy0yMDE0LVRGYmluZGluZy5jc3YiKQp0aW1lIDwtIHJlYWQuY3N2KCIuL2RhdGFzZXRzL2t1YW5nLTIwMTQtVEZiaW5kaW5nLXRpbWVwdHMuY3N2IikKa3VhbmdybmEgPC0gcmVhZC5jc3YoIi4vZGF0YXNldHMva3VhbmctMjAxNC1ybmFzZXEtZXhwcmVzc2lvbi5jc3YiKQoKR2NuIDwtIGt1YW5ndGZbLGMoMToxNSldCmhlYWQoR2NuKQpFc2EgPC0ga3Vhbmd0ZlssYygxLDE2OjI5KV0KaGVhZChFc2EpClNldCA8LSBrdWFuZ3RmWyxjKDEsMzA6NDMpXQpoZWFkKFNldCkKYGBgCgojQ29ycmVsYXRpb24KCmBgYHtyfQpHY24uZGF0YSA8LSBhcy5kYXRhLmZyYW1lKHQoR2NuWywtMV0pKQpjb2xuYW1lcyhHY24uZGF0YSkgPC0gR2NuJEdlbmUuSUQKR2NuLnRpbWUgPC0gY2JpbmQoR2NuLmRhdGEsIHRpbWUgPSB0aW1lJGhvdXIpCgpFc2EuZGF0YSA8LSBhcy5kYXRhLmZyYW1lKHQoRXNhWywtMV0pKQpjb2xuYW1lcyhFc2EuZGF0YSkgPC0gRXNhJEdlbmUuSUQKRXNhLnRpbWUgPC0gY2JpbmQoRXNhLmRhdGEsIHRpbWUgPSB0aW1lJGhvdXIpCgpTZXQuZGF0YSA8LSBhcy5kYXRhLmZyYW1lKHQoU2V0WywtMV0pKQpjb2xuYW1lcyhTZXQuZGF0YSkgPC0gU2V0JEdlbmUuSUQKU2V0LnRpbWUgPC0gY2JpbmQoU2V0LmRhdGEsIHRpbWUgPSB0aW1lJGhvdXIpCmBgYAoKYGBge3J9CmdncGxvdCgpICsgZ2VvbV9saW5lKGRhdGE9R2NuLnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlBTDAxMlcsIGNvbG9yPSJHY24iKSkgKyBnZW9tX2xpbmUoZGF0YT1TZXQudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUFMMDEyVywgY29sb3I9IlNldCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQUwwMTJXLCBjb2xvcj0iRXNhIikpICsgbGFicyh4ID0gIlRpbWUgKGhvdXJzKSIsIHkgPSAiQmluZGluZyBvZiBHZW5lIiwgdGl0bGUgPSAiWUFMMDAxQyIpCgpnZ3Bsb3QoKSArIGdlb21fbGluZShkYXRhPUdjbi50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwMzNDLCBjb2xvcj0iR2NuIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDAzM0MsIGNvbG9yPSJTZXQiKSkgKyBnZW9tX2xpbmUoZGF0YT1Fc2EudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDMzQywgY29sb3I9IkVzYSIpKSArIGxhYnMoeCA9ICJUaW1lIChob3VycykiLCB5ID0gIkJpbmRpbmcgb2YgR2VuZSIsIHRpdGxlID0gIllCTDAzM0MiKQoKZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDM5QywgY29sb3I9IkdjbiIpKSArIGdlb21fbGluZShkYXRhPVNldC50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwMzlDLCBjb2xvcj0iU2V0IikpICsgZ2VvbV9saW5lKGRhdGE9RXNhLnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDAzOUMsIGNvbG9yPSJFc2EiKSkgKyBsYWJzKHggPSAiVGltZSAoaG91cnMpIiwgeSA9ICJCaW5kaW5nIG9mIEdlbmUiLCB0aXRsZSA9ICJZQkwwMzlDIikKCmdncGxvdCgpICsgZ2VvbV9saW5lKGRhdGE9R2NuLnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDA1M1csIGNvbG9yPSJHY24iKSkgKyBnZW9tX2xpbmUoZGF0YT1TZXQudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDUzVywgY29sb3I9IlNldCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwNTNXLCBjb2xvcj0iRXNhIikpICsgbGFicyh4ID0gIlRpbWUgKGhvdXJzKSIsIHkgPSAiQmluZGluZyBvZiBHZW5lIiwgdGl0bGUgPSAiWUJMMDUzVyIpCgpnZ3Bsb3QoKSArIGdlb21fbGluZShkYXRhPUdjbi50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZQkwwODdDLCBjb2xvcj0iR2NuIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlCTDA4N0MsIGNvbG9yPSJTZXQiKSkgKyBnZW9tX2xpbmUoZGF0YT1Fc2EudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUJMMDg3QywgY29sb3I9IkVzYSIpKSArIGxhYnMoeCA9ICJUaW1lIChob3VycykiLCB5ID0gIkJpbmRpbmcgb2YgR2VuZSIsIHRpdGxlID0gIllCTDA4N0MiKQoKZ2dwbG90KCkgKyBnZW9tX2xpbmUoZGF0YT1HY24udGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUVSMDg2VywgY29sb3I9IkdjbiIpKSArIGdlb21fbGluZShkYXRhPVNldC50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZRVIwODZXLCBjb2xvcj0iU2V0IikpICsgZ2VvbV9saW5lKGRhdGE9RXNhLnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlFUjA4NlcsIGNvbG9yPSJFc2EiKSkgKyBsYWJzKHggPSAiVGltZSAoaG91cnMpIiwgeSA9ICJCaW5kaW5nIG9mIEdlbmUiLCB0aXRsZSA9ICJZRVIwODZXIikKCmdncGxvdCgpICsgZ2VvbV9saW5lKGRhdGE9R2NuLnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlKTDA0NVcsIGNvbG9yPSJHY24iKSkgKyBnZW9tX2xpbmUoZGF0YT1TZXQudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUpMMDQ1VywgY29sb3I9IlNldCIpKSArIGdlb21fbGluZShkYXRhPUVzYS50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZSkwwNDVXLCBjb2xvcj0iRXNhIikpICsgbGFicyh4ID0gIlRpbWUgKGhvdXJzKSIsIHkgPSAiQmluZGluZyBvZiBHZW5lIiwgdGl0bGUgPSAiWUpMMDQ1VyIpCgpnZ3Bsb3QoKSArIGdlb21fbGluZShkYXRhPUdjbi50aW1lLCBhZXMoeCA9IHRpbWUsIHkgPSBZR0wyMzZDLCBjb2xvcj0iR2NuIikpICsgZ2VvbV9saW5lKGRhdGE9U2V0LnRpbWUsIGFlcyh4ID0gdGltZSwgeSA9IFlHTDIzNkMsIGNvbG9yPSJTZXQiKSkgKyBnZW9tX2xpbmUoZGF0YT1Fc2EudGltZSwgYWVzKHggPSB0aW1lLCB5ID0gWUdMMjM2QywgY29sb3I9IkVzYSIpKSArIGxhYnMoeCA9ICJUaW1lIChob3VycykiLCB5ID0gIkJpbmRpbmcgb2YgR2VuZSIsIHRpdGxlID0gIllHTDIzNkMiKQpgYGAKCg==</div>
 
 
 
