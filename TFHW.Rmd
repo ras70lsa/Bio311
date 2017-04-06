@@ -14,9 +14,22 @@ Dakota Brinkman (dlb46)
 Matt Olson (meo8)
 Jeremy Schreck (jes85)
 
+```{r setup, include=FALSE}
+library(dplyr);
+library("stringr");
+library(ggplot2);
+library(dplyr);
+library(tidyr);
+library(RColorBrewer);
+library(dendextend);
+library(gplots);
+library(cluster);
+```
+
 ```{r}
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
 time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
+kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 
 Gcn <- kuangtf[,c(1:15)]
 head(Gcn)
@@ -24,5 +37,12 @@ Esa <- kuangtf[,c(1,16:29)]
 head(Esa)
 Set <- kuangtf[,c(1,30:43)]
 head(Set)
+```
+
+
+
+#Correlation
+```{r}
+
 ```
 
