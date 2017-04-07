@@ -74,27 +74,32 @@ rna.genes.u <- unique(rna.Genes[,1])
 #So need to filter again to get rid of these genes
 kuangtf.new <- filter(kuangtf, TF.genes %in% rna.genes.u)
 
-#now remove alst two columns so the times add up
-rna.Genes <- rna.Genes[,1:15]
+#now remove last two columns so the times add up
+rna.new <- rna.Genes[,1:15]
 
-dim(rna.Genes)
+dim(rna.new)
 dim(kuangtf.new)
 
 #now extract the different TFs
 Gcn.new <- kuangtf.new[,c(1:15)]
-dim(Gcn)
+dim(Gcn.new)
 Esa.new <- kuangtf.new[,c(1,16:29)]
-dim(Esa)
+dim(Esa.new)
 Set.new <- kuangtf.new[,c(1,30:43)]
-dim(Set)
+dim(Set.new)
 
 #here we see the 69 genes that are in the TF data but not the rnaseq
 length(which( ! TF.genes %in% rna.genes))
 
-#sort, close, but not working on last two
-Gcn.sorted <- Gcn.new[match(Gcn.new, kuangtf.new)]
-#Esa.sorted <- Esa.new[match(Esa.new, kuangtf.new)]
-#Set.sorted <- Set.new[match(Set.new, kuangtf.new)]
+#sort so that the genes are in the same order
+Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
+Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
+Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
+
+head(Gcn.sorted)
+head(Esa.sorted)
+head(Set.sorted)
+head(rna.new)
 ```
 
 
