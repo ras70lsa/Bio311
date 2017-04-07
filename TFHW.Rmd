@@ -104,7 +104,14 @@ head(rna.new)
 
 ```{r}
 ##Need to drop gene name
-plz <- sapply(1:nrow(df), function(i) cor(Gcn.sorted[,i], rna.new[,i]))
+Gcn.sorted.cor <- select(Gcn.sorted, -Gene.ID)
+Esa.sorted.cor <- select(Esa.sorted, -Gene.ID)
+Set.sorted.cor <- select(Set.sorted, -Gene.ID)
+rna.new.cor <- select(rna.new, -Gene.name)
+corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
 ```
 
 
