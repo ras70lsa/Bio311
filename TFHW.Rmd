@@ -102,6 +102,11 @@ head(Set.sorted)
 head(rna.new)
 ```
 
+```{r}
+##Need to drop gene name
+plz <- sapply(1:nrow(df), function(i) cor(Gcn.sorted[,i], rna.new[,i]))
+```
+
 
 #Plotting
 ```{R}
