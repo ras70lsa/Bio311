@@ -90,6 +90,11 @@ dim(Set)
 
 #here we see the 69 genes that are in the TF data but not the rnaseq
 length(which( ! TF.genes %in% rna.genes))
+
+#sort, close, but not working on last two
+Gcn.sorted <- Gcn.new[match(Gcn.new, kuangtf.new)]
+#Esa.sorted <- Esa.new[match(Esa.new, kuangtf.new)]
+#Set.sorted <- Set.new[match(Set.new, kuangtf.new)]
 ```
 
 
