@@ -17,6 +17,8 @@ Jeremy Schreck (jes85)
 1. The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. The two papers we were given try to correlate the chromatin states and this metabolic expression. After looking at what gene expression reveals about the function of the cell under these conditions, we explored the TFs that control the given clusters and how the TFs create complex functionality. Our biological question has not changed, and we understand the metabolic cycle within yeast cells with this current homework.
 
 TODO: what have we learned (just an overview)
+TODO: Does this make sense in context of the paper?
+TODO: Why don't the all regulate the same genes, etc?
 
 ```{r setup, include=FALSE}
 library(dplyr);
@@ -154,11 +156,7 @@ Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .8)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
-3. We chose a correlation value of TODO to distinguish which TFs regulated which genes.
-
-TODO: describe how we did this
-TODO: how did we choose a correlation value cutoff
-
+#Basic Clustering Analysis
 ```{r}
 df.cors["gene"] = Set.sorted["Gene.ID"]
 df.cors.single <- df.cors %>% 
@@ -172,6 +170,13 @@ hits.per.tf <- df.cors.single.trimmed %>%
 
 hits.per.tf
 ```
+3. We chose a correlation value of TODO to distinguish which TFs regulated which genes.
+
+TODO: describe how we did this
+TODO: how did we choose a correlation value cutoff
+TODO: talk about basic network stuff (will discuss in more detail later)
+
+4. TODO: number of genes (need to decide on correlation value)
 
 ```{r}
 df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
@@ -208,12 +213,28 @@ plot(tf.shared.cut, vertex.label.cex=0.5, vertex.label.dist=0.5 )
 
 
 ```{r}
+#TODO: fix (make better directed edge graph)
 tfs.only.graph <- graph_from_data_frame(df.cors.single.trimmed, directed = TRUE)
 l <- layout.circle(tfs.only.graph)
 
 plot(tfs.only.graph, edge.arrow.size=.4, vertex.shape="none", vertex.label.cex=0.5, edge.curved=0.1, vertex.label.font=2, vertex.label.color="gray40", edge.color="gray85", layout=l)
 ```
 
+
+5. See the network plots above. We will discuss these networks in 6.
+6.
+TODO: what do edges represent
+TODO: what do nodes represent
+TODO: explain directed and undirected
+TODO: how many TFs/ how many target genes
+7.
+TODO: out degree
+TODO: in degree
+8.
+TODO: synthesize info
+TODO: target genes direct targets of TF? indirect targets? How did we determine this?
+TODO: functions of target genes?
+TODO: any target genes a TF?
 
 ```{r}
 #plot the genes above for each TF to see if their patters are similar
@@ -256,11 +277,11 @@ Gcn.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
 ```
 
 ```{r}
-#do same plots for genes in the rna data
+#TODO: do same plots for genes in the rna data
 #3 plots here
 
 
-#both on same plot
+#TODO: both on same plot
 #3 plots
 genes.of.interest <- c("YER091C")
 Gcn.long %>% filter(gene %in% genes.of.interest) %>%
@@ -279,7 +300,12 @@ Gcn.rna.long %>% filter(gene %in% genes.of.interest) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + geom_line()
 ```
 
-TODO
-TF clusters vs gene expression clusters?
-Does this make sense in context of the paper?
-Why don't the all regulate the same genes, etc?
+9.
+
+TODO: talk about TF binding for TF cluster plot
+TODO: talk about RNA seq for TF cluster plot
+TODO: talk about TF binding and RNA seq plot
+TODO: TF clusters vs gene expression clusters? Do they fall into same sets?
+
+Conclusion
+TODO: talk briefly about biological questions and major findings
