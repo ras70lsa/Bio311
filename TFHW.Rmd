@@ -39,8 +39,8 @@ kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 
 ```{r}
 Gcn <- kuangtf[,c(1:15)]
-Esa <- kuangtf[,c(1:15)]
-Set <- kuangtf[,c(1:15)]
+Esa <- kuangtf[,c(1,16:29)]
+Set <- kuangtf[,c(1,30:43)]
 
 
 Gcn.data <- as.data.frame(t(Gcn[,-1]))
@@ -196,8 +196,6 @@ plot(tfs.only.graph, edge.arrow.size=.4, vertex.shape="none", vertex.label.cex=0
 
 #Plotting
 ```{R}
-#TODO: fix series plots
-
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
 
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL033C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL033C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL033C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL033C")
