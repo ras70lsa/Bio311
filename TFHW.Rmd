@@ -112,6 +112,27 @@ corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.s
 corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
+df.cors
+
+Gcn.indexes <- which(df.cors[,1] > .8)
+Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
+Esa.indexes <- which(df.cors[,2] > .8)
+Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Set.indexes <- which(df.cors[,3] > .8)
+Set.genes.above <- kuangtf.new[Set.indexes, 1]
+```
+
+```{r}
+#plot the genes above for each TF to see if their patters are similar
+#3 plots here
+
+
+#do same plots for genes in the rna data
+#3 plots here
+
+
+#both on same plot
+#3 plots
 ```
 
 
