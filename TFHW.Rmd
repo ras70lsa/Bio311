@@ -24,6 +24,7 @@ library(RColorBrewer);
 library(dendextend);
 library(gplots);
 library(cluster);
+library(reshape2)
 ```
 
 ```{r}
@@ -123,16 +124,69 @@ Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
 
 ```{r}
+
+
 #plot the genes above for each TF to see if their patters are similar
 #3 plots here
+timechar <- c(
+"94.95",
+"95.31666667",
+"95.41666667",
+"95.47222222",
+"95.59722222",
+"95.74166667",
+"95.98333333",
+"96.24166667",
+"96.35555556",
+"96.55833333",
+"97.05833333",
+"97.55833333",
+"98.05833333",
+"98.56666667")
+
+time <- as.numeric(timechar)
+Gcn.genes.above.plot <- as.character(Gcn.genes.above)
+Gcn.above <- filter(Gcn.new, Gene.ID %in% Gcn.genes.above.plot)
+Gcn.t <- t(Gcn.above)
+Gcn.t <- Gcn.t[2:nrow(Gcn.t),]
+length(Gcn.genes.above.plot)
+colnames(Gcn.t) <- as.vector(Gcn.genes.above.plot)
+Gcn.t.time <- cbind(Gcn.t, time = time)
+
+```
+
+```{r}
+Gcn.long <- gather(data.frame(Gcn.t.time), gene, binding, -time)
+Gcn.long$time <- as.numeric(as.character(Gcn.long$time))
+Gcn.long$binding <- as.numeric(as.character(Gcn.long$binding))
+Gcn.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
+  ggplot(aes(x=time, y=binding, color=gene)) + geom_line()
 
 
+```
+
+```{r}
 #do same plots for genes in the rna data
 #3 plots here
 
 
 #both on same plot
 #3 plots
+genes.of.interest <- c("YER091C")
+Gcn.long %>% filter(gene %in% genes.of.interest) %>%
+  ggplot(aes(x=time, y=binding, color=gene)) + geom_line()
+
+Gcn.rna <- filter(rna.new, Gene.name %in% Gcn.genes.above.plot)
+Gcn.rna.t <- t(Gcn.rna)
+newGenes <- Gcn.rna.t[1,]
+Gcn.rna.t2 <- Gcn.rna.t[2:nrow(Gcn.rna.t),]
+colnames(Gcn.rna.t2) <- as.vector(newGenes)
+Gcn.rna.time <- cbind(Gcn.rna.t2, time = time)
+Gcn.rna.long <- gather(data.frame(Gcn.rna.time), gene, expression, -time)
+Gcn.rna.long$time <- as.numeric(as.character(Gcn.rna.long$time))
+Gcn.rna.long$expression <- as.numeric(as.character(Gcn.rna.long$expression))
+Gcn.rna.long %>% filter(gene %in% genes.of.interest) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + geom_line()
 ```
 
 
