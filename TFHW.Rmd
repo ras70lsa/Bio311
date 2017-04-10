@@ -24,6 +24,8 @@ library(RColorBrewer);
 library(dendextend);
 library(gplots);
 library(cluster);
+library(igraph)
+library(ggraph)
 ```
 
 ```{r}
@@ -123,6 +125,62 @@ Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
 
 ```{r}
+df.cors["gene"] = Set.sorted["Gene.ID"]
+df.cors.single <- df.cors %>% 
+  tidyr::gather(TF, corr, -gene) %>% # cast to long format
+  dplyr::select(TF, gene, corr)
+df.cors.single.trimmed <- filter(df.cors.single, corr > 0.8)
+
+hits.per.tf <- df.cors.single.trimmed %>% 
+               group_by(TF) %>% 
+               summarise(ngenes = length(TF))
+
+hits.per.tf
+```
+
+```{r}
+df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
+vcount(df.cors.graph)
+ecount(df.cors.graph)
+tfs <- unique(df.cors.single.trimmed$TF)
+V(df.cors.graph)$type <- V(df.cors.graph)$name %in% tfs
+V(df.cors.graph)$shape  <- c("square", "circle")[V(df.cors.graph)$type+1]
+V(df.cors.graph)$color  <- c("steelblue", "lightcoral")[V(df.cors.graph)$type+1]
+count_components(df.cors.graph)
+df.cors.components <- decompose(df.cors.graph)
+lapply(df.cors.components, vcount)
+lapply(df.cors.components, ecount)
+plot(df.cors.components[[2]], 
+     layout = layout.star,
+     vertex.label.cex=0.4,
+     vertex.label.degree=-90, vertex.label.dist=1.5)
+
+plot(df.cors.components[[1]], 
+     layout = layout.auto,
+     vertex.label.cex=0.4,
+     vertex.label.degree=-90, vertex.label.dist=1)
+
+```
+
+```{r}
+df.cors.projection <- bipartite.projection(df.cors.graph)
+gene.proj <- df.cors.projection[[1]]
+tf.proj <- df.cors.projection[[2]]
+
+tf.shared.cut <- delete.edges(tf.proj, E(tf.proj)[weight < 1])
+plot(tf.shared.cut, vertex.label.cex=0.5, vertex.label.dist=0.5 )
+```
+
+
+```{r}
+tfs.only.graph <- graph_from_data_frame(df.cors.single.trimmed, directed = TRUE)
+l <- layout.circle(tfs.only.graph)
+
+plot(tfs.only.graph, edge.arrow.size=.4, vertex.shape="none", vertex.label.cex=0.5, edge.curved=0.1, vertex.label.font=2, vertex.label.color="gray40", edge.color="gray85", layout=l)
+```
+
+
+```{r}
 #plot the genes above for each TF to see if their patters are similar
 #3 plots here
 
@@ -138,6 +196,8 @@ Set.genes.above <- kuangtf.new[Set.indexes, 1]
 
 #Plotting
 ```{R}
+#TODO: fix series plots
+
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
 
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YBL033C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YBL033C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YBL033C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YBL033C")
