@@ -51,7 +51,7 @@ We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-T
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
 time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
 kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")   ##used later - included in the import section of the code for clarity
-head(kuangtf)
+head(kuangtf[,1:10])
 head(time)
 ```
 
@@ -200,10 +200,10 @@ Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
 Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
 Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
 #preview
-head(Gcn.sorted)
-head(Esa.sorted)
-head(Set.sorted)
-head(rna.new)
+head(Gcn.sorted[,1:5])
+head(Esa.sorted[,1:5])
+head(Set.sorted[,1:5])
+head(rna.new[,1:5])
 ```
 
 #Correlation
@@ -863,9 +863,9 @@ TODO: TF clusters vs gene expression clusters? Do they fall into same sets?
 ```{r}
 tf.ypd <- read.csv(file="./datasets/harbison-2004-TFbinding-YPD.txt", sep="\t",header=T)
 tf.other <- read.csv(file="./datasets/harbison-2004-TFbinding-other.txt", sep="\t",header=T)
-head(tf.ypd)
+head(tf.ypd[,1:5])
 dim(tf.ypd)
-head(tf.other)
+head(tf.other[,1:5])
 dim(tf.other)
 ```
 
