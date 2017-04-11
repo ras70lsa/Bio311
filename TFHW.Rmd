@@ -135,13 +135,13 @@ TODO: Possibly add manual plots
 
 However, we found it would be cumbersome to attempt to match up peaks between expression and binding for all the given genes manually (by looking at plots). Thus, we aimed to come up with an analysis pipeline that intuitively found the relationship in a more automated manner. We believed a **correlation** based analysis would be the best way to do this. Our goal was to mimick the p-value approach. However, instead of filtering on p-value we filted on the correlation between expression and binding, described in greater detail below. 
 
-To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
-
-Next in the pipeline we had to chose a filtering threshold. We chose a correlation value of 0.75 to distinguish which TFs regulated which genes.
+Next in the pipeline we had to chose a filtering threshold. We chose a correlation value of 0.75 to distinguish which TFs regulated which genes. At first the chosing of this correlation value was quite arbitrary. In a sense we were "inventing the wheel" for this type of analysis and thus had no point of reference for a good starting point. 
 
 The final step in the pipeline analysis was a basic network analysis. This entailed creating multiple directional graphs that describe the TF network. This is described in much detail below in the remaining questions.
 
 #Correlation Set Up
+
+To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
 ```{r}
 
@@ -192,6 +192,7 @@ head(rna.new)
 ```
 
 #Correlation
+
 ```{r}
 ##Need to drop gene name
 Gcn.sorted.cor <- select(Gcn.sorted, -Gene.ID)
@@ -231,7 +232,7 @@ hits.per.tf <- df.cors.single.trimmed %>%
 hits.per.tf
 ```
 
-We wanted to go a step further than just investigating how many genes each TF bound. We wanted to see how many genes were bound by several or all of the TFs. 
+We wanted to go a step further than just investigating how many genes each TF bound. We wanted to see how many genes were bound by several or all of the TFs. To do this we created a histogram of this distribution, below. From this histogram we can conclude that at the correlation threshold of 0.75 most of the genes are only bound by one TF. We decided that this conclusion is neither justified nor refuted by our knowledge. 
 
 ```{r}
 tfs.per.gene <- df.cors.single.trimmed %>% 
@@ -244,6 +245,9 @@ ggplot(tfs.per.gene, aes(x = ntfs)) +
        title = "Distribution of number of TFs per gene")
 ```
 
+## Question 5
+
+See the network plots below We will discuss these networks in 6.
 
 ```{r}
 df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
@@ -274,7 +278,6 @@ tf.shared.cut <- delete.edges(tf.proj, E(tf.proj)[weight < 1])
 plot(tf.shared.cut, vertex.label.cex=0.5, vertex.label.dist=0.5 )
 ```
 
-
 ```{r}
 tfs.only.graph <- graph_from_data_frame(df.cors.single.trimmed, directed = TRUE)
 l <- layout.circle(tfs.only.graph)
@@ -282,10 +285,10 @@ l <- layout.circle(tfs.only.graph)
 plot(tfs.only.graph, edge.arrow.size=0.3, vertex.shape="none", vertex.label.cex=0.3, edge.curved=0.1, vertex.label.font=2, vertex.label.color="gray40", edge.color="gray85", layout=l)
 ```
 
+## Question 6
+*For the following please note that we are referencing the plots from Q5*
 
-5. See the network plots above. We will discuss these networks in 6.
-
-6. In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
+In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
 
 In the undirected graph, the edges represent connections between TFs and genes. Tfs and genes that were connected by an edge had TF binding data and RNA seq data that was highly correlated. The nodes represent genes (blue square) and TFs (salmon circle). 
 
@@ -294,7 +297,9 @@ The directed graph (the third graph) is similar, but the edge points from TF to 
 For both graphs, there are 3 TFs and 75 target genes. There are 89 edges, meaning that some genes are regulated by multiple TFs.
 
 The second graph shows that all three TFs are connected because each TF is connected to at least one similar target gene.
-7.
+
+## Question 7
+
 The out degree for TFs Esa, Gcn, and Set are 19, 26, and 44 respectively.
 For the in degree, look at the histogram above. About 58 genes have in-degree 1, about 13 genes have in-degree 2, and about 4 genes have in-degree 3. This shows that about 58 genes, 13 genes, and 4 genes are regulated by only 1, 2, and 3 TFs repectively.
 
@@ -308,7 +313,9 @@ all.profiles <- gprofiler(df.cors.single.trimmed,
 all.profiles
 ```
 
-8. To synthesize information about our network to think about the function of the TF(s) of interest, we decided to run a GO analysis. Specifically, we ran a GO analysis on only the trimmed dataset (the genes that we previously found were correlated with the TFs and therefore are regulated by the TFs) using gProfileR. The GO analyis split the genes up into 7 categories. These categories had various functions, with a common theme being that they were related to metabolism and the yeast metabolic cycle. This suggests that the function of the target genes is to regulate the metabolic cycle. Specific functional categories that are enriched among the target genes include "generation of precursor metabolites and energy", "purine ribonucleotide metabolic process", and "purine ribonucleoside monophosphate metabolic process", and "tricarboxylic acid cycle". 
+## Question 8
+
+To synthesize information about our network to think about the function of the TF(s) of interest, we decided to run a GO analysis. Specifically, we ran a GO analysis on only the trimmed dataset (the genes that we previously found were correlated with the TFs and therefore are regulated by the TFs) using gProfileR. The GO analyis split the genes up into 7 categories. These categories had various functions, with a common theme being that they were related to metabolism and the yeast metabolic cycle. This suggests that the function of the target genes is to regulate the metabolic cycle. Specific functional categories that are enriched among the target genes include "generation of precursor metabolites and energy", "purine ribonucleotide metabolic process", and "purine ribonucleoside monophosphate metabolic process", and "tricarboxylic acid cycle". 
 
 We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between thsoe TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
 
