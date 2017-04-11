@@ -589,8 +589,15 @@ kcluster3.genes[match(Gcn.genes.above.plot, kcluster3.genes)]
 
 ```{r}
 test <- labels(rnaseq.clusters.cluster1$lower[[1]])
-length(test[match(Gcn.genes.above.plot, test)])
+
+test[match(Gcn.genes.above.plot, test)]
+```
+
+```{r}
 test[match(Esa.genes.above.plot, test)]
+```
+
+```{r}
 test[match(Set.genes.above.plot, test)]
 
 
