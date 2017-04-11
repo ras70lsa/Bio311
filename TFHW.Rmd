@@ -337,7 +337,8 @@ Gcn.t.time <- cbind(Gcn.t, time = time)
 Gcn.long <- gather(data.frame(Gcn.t.time), gene, binding, -time)
 Gcn.long$time <- as.numeric(as.character(Gcn.long$time))
 Gcn.long$binding <- as.numeric(as.character(Gcn.long$binding))
-Gcn.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
+
+Gcn.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Gcn5 TFbinding for genes with cor > .75") + geom_line()
 
 Gcn.rna <- filter(rna.new, Gene.name %in% Gcn.genes.above.plot)
@@ -350,7 +351,7 @@ Gcn.rna.long <- gather(data.frame(Gcn.rna.time), gene, expression, -time)
 Gcn.rna.long$time <- as.numeric(as.character(Gcn.rna.long$time))
 Gcn.rna.long$expression <- as.numeric(as.character(Gcn.rna.long$expression))
 
-Gcn.rna.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
+Gcn.rna.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Gcn5 RNAseq for genes with cor > .75") + geom_line()
 
 gene.of.interest <- Gcn.genes.above.plot[1]
@@ -389,7 +390,7 @@ Esa.t.time <- cbind(Esa.t, time = time)
 Esa.long <- gather(data.frame(Esa.t.time), gene, binding, -time)
 Esa.long$time <- as.numeric(as.character(Esa.long$time))
 Esa.long$binding <- as.numeric(as.character(Esa.long$binding))
-Esa.long %>% filter(gene %in% Esa.genes.above.plot) %>%
+Esa.long %>% filter(gene %in% Esa.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Esa1 TFbinding for genes with cor > .75") + geom_line()
 
 Esa.rna <- filter(rna.new, Gene.name %in% Esa.genes.above.plot)
@@ -401,9 +402,8 @@ Esa.rna.time <- cbind(Esa.rna.t2, time = time)
 Esa.rna.long <- gather(data.frame(Esa.rna.time), gene, expression, -time)
 Esa.rna.long$time <- as.numeric(as.character(Esa.rna.long$time))
 Esa.rna.long$expression <- as.numeric(as.character(Esa.rna.long$expression))
-
-Esa.rna.long %>% filter(gene %in% Esa.genes.above.plot) %>%
-  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Esa1 TFbinding for genes with cor > .75") + geom_line()
+Esa.rna.long %>% filter(gene %in% Esa.genes.above.plot[1:10]) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Esa1 RNAseq for genes with cor > .75") + geom_line()
 
 gene.of.interest <- Esa.genes.above.plot[1]
 p1 <- Esa.long %>% filter(gene %in% gene.of.interest) %>%
@@ -441,7 +441,7 @@ Set.t.time <- cbind(Set.t, time = time)
 Set.long <- gather(data.frame(Set.t.time), gene, binding, -time)
 Set.long$time <- as.numeric(as.character(Set.long$time))
 Set.long$binding <- as.numeric(as.character(Set.long$binding))
-Set.long %>% filter(gene %in% Set.genes.above.plot) %>%
+Set.long %>% filter(gene %in% Set.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Set1 TFbinding for genes with cor > .75") + geom_line()
 
 Set.rna <- filter(rna.new, Gene.name %in% Set.genes.above.plot)
@@ -453,9 +453,8 @@ Set.rna.time <- cbind(Set.rna.t2, time = time)
 Set.rna.long <- gather(data.frame(Set.rna.time), gene, expression, -time)
 Set.rna.long$time <- as.numeric(as.character(Set.rna.long$time))
 Set.rna.long$expression <- as.numeric(as.character(Set.rna.long$expression))
-
-Set.rna.long %>% filter(gene %in% Set.genes.above.plot) %>%
-  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Set1 TFbinding for genes with cor > .75") + geom_line()
+Set.rna.long %>% filter(gene %in% Set.genes.above.plot[1:10]) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Set1 RNAseq for genes with cor > .75") + geom_line()
 
 gene.of.interest <- Set.genes.above.plot[1]
 p1 <- Set.long %>% filter(gene %in% gene.of.interest) %>%
