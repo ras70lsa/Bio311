@@ -739,9 +739,12 @@ rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 ```{r}
 kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
 kuang_t <- as.data.frame(t(kuang[,-1]))
+n <- kuang$Gene.name # first remember the names
 colnames(kuang_t) <- n
 kuang_t.cor <- kuang_t %>% cor(use="pairwise.complete.obs")  ##generate correlation measurements
 kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measurements 
+kuang.tree <- hclust(kuang.dist, method="complete")
+kuang.dend <- as.dendrogram(kuang.tree) ## created & priviewed dendrogram object
 k=3
 kuang.kmedoids <- pam(kuang.dist, k) # create k-medoids clustering with k clusters
 kclusters <- kuang.kmedoids$cluster
@@ -839,4 +842,28 @@ length(Set.genes.above.plot.sup)
 Gcn.genes.above.plot.sup
 Esa.genes.above.plot.sup
 
+```
+
+There are a lot fewer genes with a correlation lower than -0.75 than there are with a correlation higher than 0.75.  If we say that a correlation above 0.75 means the TF strongly binds to a gene, then a correlation below -0.75 means the TF strongly supresses the gene.  We can see that there were only 5 genes that were strongly supressed by a TF.  This is interesting because there were 89 genes that were strongly bound by one of the three TFs.  
+
+
+TODO: talk about TF binding for TF cluster plot
+TODO: talk about RNA seq for TF cluster plot
+TODO: talk about TF binding and RNA seq plot
+TODO: TF clusters vs gene expression clusters? Do they fall into same sets?
+
+# Extension
+
+```{r}
+tf.ypd <- read.csv(file="./datasets/harbison-2004-TFbinding-YPD.txt", sep="\t",header=T)
+tf.other <- read.csv(file="./datasets/harbison-2004-TFbinding-other.txt", sep="\t",header=T)
+head(tf.ypd)
+dim(tf.ypd)
+head(tf.other)
+dim(tf.other)
+```
+
+```{r}
+tf.ypd.prepped <- na.omit(tf.ypd)
+dim(tf.ypd.prepped)
 ```
