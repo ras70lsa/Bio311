@@ -804,11 +804,10 @@ length(Set.2.filter)
 length(Set.3.filter)
 ```
 
-We repeated the process with hierarchical clusters.
+We repeated the process for one hierarchical cluster, to see how different the results would be.
 
 ```{r}
 test <- labels(rnaseq.clusters.cluster1$lower[[1]])
-
 test[match(Gcn.genes.above.plot, test)]
 ```
 
@@ -818,11 +817,6 @@ test[match(Esa.genes.above.plot, test)]
 
 ```{r}
 test[match(Set.genes.above.plot, test)]
-
-
-#Gcn.genes.above.plot
-#Esa.genes.above.plot
-#Set.genes.above.plot
 ```
 
 #Quick Look At Supression
