@@ -376,7 +376,31 @@ To synthesize information about our network to think about the function of the T
 
 We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between thsoe TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
 
-We do not know if any of the target genes are themselves also TFs. Additional data and analysis would be needed to determine this. TODO??
+Next we aimed to discover whether or not any of the TFs regulated the other TFs or themselves. To do this, for each TF we searched its regulated genes in an attempt to discover if these genes where the common gene names of the other TFs.
+
+```{r}
+gcn.reg.genes <- as.character(Gcn.genes.above)
+gcn.reg.genes
+"YGR252W" %in% gcn.reg.genes # Gcn5 not in data overall
+"YOR244W" %in% gcn.reg.genes #Esa1
+"YHR119W" %in% gcn.reg.genes # Set1 
+```
+
+```{r}
+esa.reg.genes <- as.character(Esa.genes.above)
+esa.reg.genes
+"YGR252W" %in% esa.reg.genes # Gcn5 not in data overall
+"YOR244W" %in% esa.reg.genes #Esa1 not in data overall
+"YHR119W" %in% esa.reg.genes # Set1 
+```
+
+```{r}
+set.reg.genes <- as.character(Set.genes.above)
+set.reg.genes
+"YGR252W" %in% set.reg.genes # Gcn5 not in data overall
+"YOR244W" %in% set.reg.genes #Esa1 not in data overall
+"YHR119W" %in% set.reg.genes # Set1 
+```
 
 # Question 9
 
