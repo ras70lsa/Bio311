@@ -699,7 +699,9 @@ grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[3]),
 
 ### Looking at clusters
 
-Once we confirmed 
+Once we confirmed that the genes regulated by a certain TF seem to have similar expression patterns, and thus are likely to fall into the same clusters, we checked how many genes for a given TF actually fit into our k-means clusters (found in the previous homework).
+
+For clarity we brought some of the clustering code into this homework (for refernce and "Knitting").
 
 ```{r}
 
@@ -760,7 +762,6 @@ kcluster1.genes <- names(kclusters[kclusters == 1])
 kcluster2.genes <- names(kclusters[kclusters == 2])
 kcluster3.genes <- names(kclusters[kclusters == 3])
 
-length(Gcn.genes.above.plot)
 in.1 <- kcluster1.genes[match(Gcn.genes.above.plot, kcluster1.genes)]
 in.1.filter <-in.1[!is.na(in.1)]
 in.2 <- kcluster2.genes[match(Gcn.genes.above.plot, kcluster2.genes)]
@@ -774,6 +775,8 @@ length(in.1.filter)
 length(in.2.filter)
 length(in.3.filter)
 ```
+
+In the above output the genes that are regulated by Gcn5 are printed, grouped by the gene cluster they fall in. It was found that *19 genes fall in cluster 1, 6 in cluster 2, and 1 in cluster 3.* Thus, it was concluded that the genes that are binded by Gcn5 mostly fall in cluster 1, with a few genes in cluster 2.
 
 ```{r}
 length(Esa.genes.above.plot)
@@ -791,6 +794,8 @@ length(Esa.2.filter)
 length(Esa.3.filter)
 ```
 
+In the above output the genes that are regulated by Esa1 are printed, grouped by the gene cluster they fall in. It was found that *9 genes fall in cluster 1, 8 in cluster 2, and 2 in cluster 3.* Thus, it was concluded that the genes that are binded by Esa1 are almost even split between cluster 1 and 2. 
+
 ```{r}
 length(Set.genes.above.plot)
 Set.1 <- kcluster1.genes[match(Set.genes.above.plot, kcluster1.genes)]
@@ -807,22 +812,29 @@ length(Set.2.filter)
 length(Set.3.filter)
 ```
 
+In the above output the genes that are regulated by Set1 are printed, grouped by the gene cluster they fall in. It was found that *18 genes fall in cluster 1, 9 in cluster 2, and 17 in cluster 3.* Thus, it was concluded that the genes that are binded by Set1 are likely to fall in cluster 1 or 3 (almost with the same occurances), but can still fall in cluster 2.
+
+From the analysis above we concluded that genes regulated by a given TF are likely to fall into one or two clusters. However, we found that there is no means to justify that the relationship is exclusive, meaning genes regulated by a given TF do **not** fall into only one cluster. 
+
 We repeated the process for one hierarchical cluster, to see how different the results would be.
 
 ```{r}
 test <- labels(rnaseq.clusters.cluster1$lower[[1]])
-test[match(Gcn.genes.above.plot, test)]
+in.1.h <- test[match(Gcn.genes.above.plot, test)]
+in.1.h.filter <-in.1.h[!is.na(in.1.h)]
+in.2.h <- test[match(Esa.genes.above.plot, test)]
+in.2.h.filter <- in.2.h[!is.na(in.2.h)]
+in.3.h <- test[match(Set.genes.above.plot, test)]
+in.3.h.filter <- in.3.h[!is.na(in.3.h)]
+length(in.1.h.filter)
+length(in.2.h.filter)
+length(in.3.h.filter)
 ```
 
-```{r}
-test[match(Esa.genes.above.plot, test)]
-```
+The above analysis shows the Gcn5 regulates 16 genes in cluster 1, while Esa1 regulates 7, and Set1 regulates 14. This again suggests that the relationship between TF and cluster is not perfectly exclusive. We have a larger number of hierarchical clusters and thus it would be too much to exhausitvely check and see how the genes are split across the clusters for a given TF. We believed that our k-means clusters are a better indicator (with k=3) since the paper uses a smaller amount of clusters.
 
-```{r}
-test[match(Set.genes.above.plot, test)]
-```
+### Quick Look At Supression
 
-#Quick Look At Supression
 ```{r}
 Gcn.indexes.sup <- which(df.cors[,1] < (-.75))
 Gcn.genes.above.sup <- df.cors[Gcn.indexes.sup, 4]
@@ -845,25 +857,3 @@ Esa.genes.above.plot.sup
 ```
 
 There are a lot fewer genes with a correlation lower than -0.75 than there are with a correlation higher than 0.75.  If we say that a correlation above 0.75 means the TF strongly binds to a gene, then a correlation below -0.75 means the TF strongly supresses the gene.  We can see that there were only 5 genes that were strongly supressed by a TF.  This is interesting because there were 89 genes that were strongly bound by one of the three TFs.  
-
-
-TODO: talk about TF binding for TF cluster plot
-TODO: talk about RNA seq for TF cluster plot
-TODO: talk about TF binding and RNA seq plot
-TODO: TF clusters vs gene expression clusters? Do they fall into same sets?
-
-# Extension
-
-```{r}
-tf.ypd <- read.csv(file="./datasets/harbison-2004-TFbinding-YPD.txt", sep="\t",header=T)
-tf.other <- read.csv(file="./datasets/harbison-2004-TFbinding-other.txt", sep="\t",header=T)
-head(tf.ypd)
-dim(tf.ypd)
-head(tf.other)
-dim(tf.other)
-```
-
-```{r}
-tf.ypd.prepped <- na.omit(tf.ypd)
-dim(tf.ypd.prepped)
-```
