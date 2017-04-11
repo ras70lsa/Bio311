@@ -383,11 +383,11 @@ We do not know if any of the target genes are themselves also TFs. Additional da
 ### TF vs. RNAseq Analysis
 ```{r}
 Gcn.indexes <- which(df.cors[,1] > .75)
-Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
+Gcn.genes.above <- df.cors[Gcn.indexes, 4]
 Esa.indexes <- which(df.cors[,2] > .75)
-Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Esa.genes.above <- df.cors[Esa.indexes, 4]
 Set.indexes <- which(df.cors[,3] > .75)
-Set.genes.above <- kuangtf.new[Set.indexes, 1]
+Set.genes.above <- df.cors[Set.indexes, 4]
 ```
 We decided to use a cutoff of .75 for our correlation value.
 
@@ -686,6 +686,28 @@ test[match(Set.genes.above.plot, test)]
 #Gcn.genes.above.plot
 #Esa.genes.above.plot
 #Set.genes.above.plot
+```
+
+#Quick Look At Supression
+```{r}
+Gcn.indexes.sup <- which(df.cors[,1] < (-.75))
+Gcn.genes.above.sup <- df.cors[Gcn.indexes.sup, 4]
+Gcn.genes.above.plot.sup <- as.character(Gcn.genes.above.sup)
+Esa.indexes.sup <- which(df.cors[,2] < -.75)
+Esa.genes.above.sup <- df.cors[Esa.indexes.sup, 4]
+Esa.genes.above.plot.sup <- as.character(Esa.genes.above.sup)
+Set.indexes.sup <- which(df.cors[,3] < -.75)
+Set.genes.above.sup <- df.cors[Set.indexes.sup, 4]
+Set.genes.above.plot.sup <- as.character(Set.genes.above.sup)
+
+
+length(Gcn.genes.above.plot.sup)
+length(Esa.genes.above.plot.sup)
+length(Set.genes.above.plot.sup)
+
+Gcn.genes.above.plot.sup
+Esa.genes.above.plot.sup
+
 ```
 
 TODO: talk about TF binding for TF cluster plot
