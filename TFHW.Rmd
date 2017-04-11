@@ -28,7 +28,7 @@ library(igraph)
 library(ggraph)
 library(gridExtra)
 library(grid)
-library(gProfileR)
+library(gProfileR) ## might need to be installed
 ```
 
 ## Question 1
@@ -141,7 +141,11 @@ The final step in the pipeline analysis was a basic network analysis. This entai
 
 #Correlation Set Up
 
-To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
+To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. 
+
+First, we created a dataframe with genes down the rows and expression data over time moving right across the columns. Next, we made a dataframe for each TF containing genes down the rows and binding data over time moving right across the columns. Being careful to make sure the gene columns matched up across these datasets we were able to calculate row wise correlation values for the gene expression data and gene binding data for a given TF. 
+
+The following code makes sure the data is in a format in which the rows can be directly mapped (the same) between the two dataframe described above. 
 
 ```{r}
 
@@ -184,7 +188,7 @@ length(which( ! TF.genes %in% rna.genes))
 Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
 Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
 Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
-
+#preview
 head(Gcn.sorted)
 head(Esa.sorted)
 head(Set.sorted)
@@ -192,6 +196,8 @@ head(rna.new)
 ```
 
 #Correlation
+
+At this point we performed the row-wise correlation and appended the results into one dataframe called **df.cors**.  
 
 ```{r}
 ##Need to drop gene name
@@ -203,17 +209,35 @@ corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.s
 corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
-df.cors
+head(df.cors)
+```
 
-Gcn.indexes <- which(df.cors[,1] > .75)
+Filtering based on the threshold decided:
+
+```{r}
+# But first lets append the gene names to the df.cors dataframe for more informative display
+df.cors.w.names <- df.cors
+row.names(df.cors.w.names) <- Gcn.sorted$Gene.ID #doesn't matter what set the names comes from - they are all the same 
+head(df.cors.w.names)
+```
+
+
+```{r}
+Gcn.indexes <- which(df.cors.w.names[,1] > .75)
 Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
 Esa.indexes <- which(df.cors[,2] > .75)
 Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
+#print first 10 genes for each TF that meet threshold
+head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
+head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
+head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
 ```
 
-4. Based on the result of the code below the following is clear: 
+## Question 4
+
+Based on the result of the code below the following is clear: 
 * ESA regulates 19 genes 
 * GCN regulates 26 genes 
 * SET regualtes 44 genes 
