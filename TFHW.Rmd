@@ -43,7 +43,7 @@ The TFs that we have been given, in the primary dataset, for this analysis are *
 
 ## Question 2
 
-We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv"" file. In order to analyze the format of the data we first imported it.
+We were given TF binding data for 3 TFs (Gcn5, Esa1, and Set1) in the "kuang-2014-TFbinding.csv"" file. In order to analyze the format of the data we first imported it.
 
 ```{r}
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
@@ -65,7 +65,7 @@ The rows of the dataset contain 1035 genes. We were curious why 1035 genes were 
   "Among these [genes in the entire genome], ~1,750 genes were bound by at least two modifiers, and 1,035 genes were bound by all three modifiers, thus suggesting that these enzymes were not necessary for expression of every cycling gene."
   [Landscape of occupancy of chromatin-modifying enzymes in the YMC](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information)
 
-The statement above clarifies which TFs we were given: those in the yeast genome for which all 3 TFs (Gcn, Esa, and Set) did bind. 
+The statement above clarifies which TFs we were given: those in the yeast genome for which all 3 TFs (Gcn5, Esa1, and Set1) did bind. 
 
 ### Threshold 
 
@@ -100,9 +100,9 @@ At this point we designed our analysis pipeline. However, the data given to us w
 
 ### Original Exploration - Plotting
 
-Before we procceeded we plotted binding data, over time, for different genes. We overlayed the data from the 3 TFs on the same plot, shown below. We created these plots to get a feeling for the binding data, as an original exploration exercise. We found that the binding data followed oscillatory patterns, all slightly different for each gene. This reminded us of the gene expression data, which also oscillated in a similar way. 
+Before we proceeded we plotted binding data, over time, for different genes. We overlaid the data from the 3 TFs on the same plot, shown below. We created these plots to get a feeling for the binding data, as an original exploration exercise. We found that the binding data followed oscillatory patterns, all slightly different for each gene. This reminded us of the gene expression data, which also oscillated in a similar way. 
 
-Additionally, these plots gave us some insight on how the TFs for a given gene behave with respect to each other. The plots for the 3 TFs for a given gene are somewhat overlayed on top of each other, peaking at similar times. Of course, the plots for the TFs are not perfectly correlated, especially for some of the genes. However, the findings do highlight the importance of the peaking behavior.
+Additionally, these plots gave us some insight on how the TFs for a given gene behave with respect to each other. The plots for the 3 TFs for a given gene are somewhat overlaid on top of each other, peaking at similar times. Of course, the plots for the TFs are not perfectly correlated, especially for some of the genes. However, the findings do highlight the importance of the peaking behavior.
 
 ```{R}
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
@@ -128,22 +128,22 @@ These plots gave us insight that the peaking of the TFs might be driving gene ex
 
 **Intro**
 
-From the time plots above and the paper we thought we could find which genes are regulated by which TF(s) by doing a temporal analysis. We reasoned that a TF must regulate a gene if that gene has a peak in expression and binding at a similar time interval. Our reasoning for such is that for a given gene to be expressed the chromatin must be accessable. The given TFs regulate the "opening" and "closing" of the chromatin (they are chromatin modifiers). Thus, it is likely to hold that a given TF will bind heavily at a similar time interval of high gene expression, such that it opens the chromatin state and allows other TFs to bind to lead to high gene expression. 
+From the time plots above and the paper we thought we could find which genes are regulated by which TF(s) by doing a temporal analysis. We reasoned that a TF must regulate a gene if that gene has a peak in expression and binding at a similar time interval. Our reasoning for such is that for a given gene to be expressed the chromatin must be accessible. The given TFs regulate the "opening" and "closing" of the chromatin (they are chromatin modifiers). Thus, it is likely to hold that a given TF will bind heavily at a similar time interval of high gene expression, such that it opens the chromatin state and allows other TFs to bind to lead to high gene expression. 
 
 At this point we manually plotted binding data and gene expression over time for several genes. We repeated this process until we found some genes for which the peaks corresponded. This validated the legitimacy of our correlation approach. **Note: ** These manually created plots were not included here to avoid redundancy. They are given in *Question 9*, where we believe the graphs are more fitting. Please reference this question. 
 
 **Design**
 
-However, we found it would be cumbersome to attempt to match up peaks between expression and binding for all the given genes manually (by looking at plots). Thus, we aimed to come up with an analysis pipeline that intuitively found the relationship in a more automated manner. We believed a **correlation** based analysis would be the best way to do this. Our goal was to mimick the p-value approach. However, instead of filtering on p-value we filted on the correlation between expression and binding. 
+However, we found it would be cumbersome to attempt to match up peaks between expression and binding for all the given genes manually (by looking at plots). Thus, we aimed to come up with an analysis pipeline that intuitively found the relationship in a more automated manner. We believed a **correlation** based analysis would be the best way to do this. Our goal was to mimic the p-value approach. However, instead of filtering on p-value we filtered on the correlation between expression and binding. 
 
-The first step in our design was choosing *what* exactly we wanted to correlate. As stated above we reasoned that for *a given* gene it is regulated by a TF if the binding data for the TF peaks at the same time as the gene expression. Thus, we wanted to correlate the TF binding data and gene expression for a given gene. This result, we reasoned, would give us a value for how likely the TF regulates the given gene. 
+The first step in our design was choosing *what* exactly we wanted to correlate. As stated above we reasoned that a given gene is regulated by a TF if the binding data for the TF peaks at the same time as the gene expression. Thus, we wanted to correlate the TF binding data and gene expression for a given gene. This result, we reasoned, would give us a value for how likely the TF regulates the given gene. 
 
-Next in the pipeline we had to chose a filtering threshold. We chose a correlation value of 0.75 to distinguish which TFs regulated which genes. At first the chosing of this correlation value was quite arbitrary. In a sense we were "inventing the wheel" for this type of analysis and thus had no point of reference for a good starting point. We tried different correlation thresholds values throughout the writeup and the changes impact are noted in the location of occurence. Overall, as expected increasing the correlation threshold (closer to one) lowers the number of genes that each TF regulates. Additionally, increasing the threshold increases the likelyhood a gene is bound (here we use the term loosely to mean regulated) by two or all TFs. Lowering the threshold has the converse effect. Eventually the value of 0.75 was chosen because we felt it preserved the integrity of the data (eliminated false positives) and get the TF gene groupings relativelty small (~20-50 genes). We thought it was important to keep the TF binding groups small for the sake of meaningful analysis. Much of our network analysis, done below, is visual. Thus, with groups too large the visuals become crowded and difficult to read. We also tried increasing the correlation value. However, this created groups too small. For example, a correlation value of 0.8 created groupings in which one TF was disjoint from the other (did not regulate any of the genes from the other TFs). We reasoned that given the complexity of the network this was not a practical result.
+Next in the pipeline we had to choose a filtering threshold. We chose a correlation value of 0.75 to distinguish which TFs regulated which genes. At first the choosing of this correlation value was quite arbitrary. In a sense we were "inventing the wheel" for this type of analysis and thus had no point of reference for a good starting point. We tried different correlation thresholds values throughout the write-up and the changes are noted in the location of occurrence. Overall, as expected, increasing the correlation threshold (closer to one) lowers the number of genes that each TF regulates. Additionally, increasing the threshold increases the likelihood that a gene is bound (here we use the term loosely to mean regulated) by two or all TFs. Lowering the threshold has the converse effect. Eventually the value of 0.75 was chosen because we felt it preserved the integrity of the data (eliminated false positives) and kept the TF gene groupings relatively small (~20-50 genes). We thought it was important to keep the TF binding groups small for the sake of meaningful analysis. Much of our network analysis, done below, is visual. Thus, with groups too large the visuals become crowded and difficult to read. We also tried increasing the correlation value. However, this created groups too small. For example, a correlation value of 0.8 created groupings in which one TF was disjoint from the other (did not regulate any of the genes from the other TFs). We reasoned that given the complexity of the network this was not a practical result.
 
 The final step in the pipeline analysis was a basic network analysis. This entailed creating multiple directional graphs that describe the TF network. This is described in much detail below in the remaining questions.
 
 Note: We identified two limitations of our approach:
-1. Our pipeline assumes that if a gene's TF binding data and expression data are strongly correlated they have matching peaks. These peaks is what were really interested. The strong correlation actually implies the two functions follow the same pattern, but the peaks can still be slightly off. For our analysis we reasoned that the assumption that correlated functions have the same peaks (in time) was a fair one to make. We investigated some of these well correlated functions later in our analysis and verified this small assumption.
+1. Our pipeline assumes that if a gene's TF binding data and expression data are strongly correlated they have matching peaks. These peaks are what were really interesting. The strong correlation actually implies the two functions follow the same pattern, but the peaks can still be slightly off. For our analysis we reasoned that the assumption that correlated functions have the same peaks (in time) was a fair one to make. We investigated some of these well-correlated functions later in our analysis and verified this small assumption.
 2. The paper states that the chromatin modifiers and genes are not perfectly, simply correlated. In other words, there might be slight delays between peaks. However, we needed some starting point. We investigated some of these delays manually in the succeeding work.
 
 The **success** of our pipeline is discussed in greater detail in *Question 9*, specifically when we investigate the gene expression and TF binding functions for a given gene side by side.
@@ -152,9 +152,9 @@ The **success** of our pipeline is discussed in greater detail in *Question 9*, 
 
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. 
 
-First, we created a dataframe with genes down the rows and expression data over time moving right across the columns. Next, we made a dataframe for each TF containing genes down the rows and binding data over time moving right across the columns. Being careful to make sure the gene columns matched up across these datasets we were able to calculate row wise correlation values for the gene expression data and gene binding data for a given TF. 
+First, we created a data frame with genes down the rows and expression data over time moving right across the columns. Next, we made a data frame for each TF containing genes down the rows and binding data over time moving right across the columns. Being careful to make sure the gene columns matched up across these datasets we were able to calculate row wise correlation values for the gene expression data and gene binding data for a given TF. 
 
-The following code makes sure the data is in a format in which the rows can be directly mapped (the same) between the two dataframe described above. 
+The following code makes sure the data is in a format in which the rows can be directly mapped (the same) between the two data frames described above. 
 
 ```{r}
 
@@ -206,7 +206,7 @@ head(rna.new[,1:5])
 
 #Correlation
 
-At this point we performed the row-wise correlation and appended the results into one dataframe called **df.cors**.  
+At this point we performed the row-wise correlation and appended the results into one data frame called **df.cors**.  
 
 ```{r}
 ##Need to drop gene name
@@ -247,9 +247,9 @@ head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10)
 ## Question 4
 
 Based on the result of the code below the following is clear (given correlation threshold = 0.75): 
-* ESA regulates 19 genes 
-* GCN regulates 26 genes 
-* SET regualtes 44 genes 
+* Esa1 regulates 19 genes 
+* Gcn5 regulates 26 genes 
+* Set1 regulates 44 genes 
 
 ```{r}
 df.cors["gene"] = Set.sorted["Gene.ID"]
@@ -346,9 +346,9 @@ plot(tfs.only.graph, edge.arrow.size=0.3, vertex.shape="none", vertex.label.cex=
 
 *For the following please note that we are referencing the plots from Q5*
 
-In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
+In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are included can be seen by a "Venn-diagram structure" as shown above. 
 
-In the undirected graph, the edges represent connections between TFs and genes. Tfs and genes that were connected by an edge had TF binding data and RNA seq data that was highly correlated. The nodes represent genes (blue square) and TFs (salmon circle). 
+In the undirected graph, the edges represent connections between TFs and genes. TFs and genes that were connected by an edge had TF binding data and RNA seq data that were highly correlated. The nodes represent genes (blue square) and TFs (salmon circle). 
 
 The directed graph (the third graph) is similar, but the edge points from TF to gene because the TF appears to regulate the gene. The nodes in the directed graph represent genes and TFs, which are distinguishable by the name.
 
@@ -358,8 +358,8 @@ The second graph shows that all three TFs are connected because each TF is conne
 
 ## Question 7
 
-The out degree for TFs Esa, Gcn, and Set are 19, 26, and 44 respectively.
-For the in degree, look at the histogram above. About 58 genes have in-degree 1, about 13 genes have in-degree 2, and about 4 genes have in-degree 3. This shows that about 58 genes, 13 genes, and 4 genes are regulated by only 1, 2, and 3 TFs repectively.
+The out degree for TFs Esa1, Gcn5, and Set1 are 19, 26, and 44 respectively.
+For the in degree, look at the histogram above. About 58 genes have in-degree 1, about 13 genes have in-degree 2, and about 4 genes have in-degree 3. This shows that about 58 genes, 13 genes, and 4 genes are regulated by only 1, 2, and 3 TFs respectively.
 
 ```{r}
 #head(df.cors.single.trimmed)
@@ -373,9 +373,9 @@ all.profiles
 
 ## Question 8
 
-To synthesize information about our network to think about the function of the TF(s) of interest, we decided to run a GO analysis. Specifically, we ran a GO analysis on only the trimmed dataset (the genes that we previously found were correlated with the TFs and therefore are regulated by the TFs) using gProfileR. The GO analyis split the genes up into 7 categories. These categories had various functions, with a common theme being that they were related to metabolism and the yeast metabolic cycle. This suggests that the function of the target genes is to regulate the metabolic cycle. Specific functional categories that are enriched among the target genes include "generation of precursor metabolites and energy", "purine ribonucleotide metabolic process", and "purine ribonucleoside monophosphate metabolic process", and "tricarboxylic acid cycle". 
+To synthesize information about our network to think about the function of the TF(s) of interest, we decided to run a GO analysis. Specifically, we ran a GO analysis on only the trimmed dataset (the genes that we previously found were correlated with the TFs and therefore are regulated by the TFs) using gProfileR. The GO analysis split the genes up into 7 categories. These categories had various functions, with a common theme being that they were related to metabolism and the yeast metabolic cycle. This suggests that the function of the target genes is to regulate the metabolic cycle. Specific functional categories that are enriched among the target genes include "generation of precursor metabolites and energy", "purine ribonucleotide metabolic process", and "purine ribonucleoside monophosphate metabolic process", and "tricarboxylic acid cycle". 
 
-We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between thsoe TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
+We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between those TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
 
 Next we aimed to discover whether or not any of the TFs regulated the other TFs or themselves. To do this, for each TF we searched its regulated genes in an attempt to discover if these genes where the gene names of the other TFs. The corresponding mapping of TF to gene name is given below:
 * Gcn5 -> YGR252W
@@ -394,7 +394,7 @@ gcn.reg.genes
 
 From the work above it was found that Gcn5 does not regulate itself or Esa1, but *does* regulate Set1. However, we did some digging into the original dataset and discovered that YGR252W and YOR244W, corresponding to Gcn5 and Esa1 respectively, were not included. Thus, it is not necessarily the case that Gcn5 does **not** regulate itself or Esa1, but rather than no conclusion can be reached based on its lack of inclusion in the expression data.
 
-**Esa regulation of itself and other genes** 
+**Esa1 regulation of itself and other genes** 
 
 ```{r}
 esa.reg.genes <- as.character(Esa.genes.above)
@@ -472,7 +472,7 @@ harb.trimmed[which(harb.trimmed$target==gcn.overlap),]
 "YMR042W" %in% esa.reg.genes 
 ```
 
-Above, we furthered our analysis with the harbison data. This data provided standard pvalue relationships for genes and TFs. We trimmed the dataset based on genes that had a pvalue less than 0.001 and then displayed the distribution of the distribution of number of TFs per gene. Lastly, we wanted to tie this analysis to our previous TF clustering analysis. We looked to see in the harbison trimmed dataset if there were any genes present in our kuang trimmed dataset. There were 7 genes that overlapped. We looked at the yeast database and typed in the common name for the corresponding TF. From this site, we found the corresponding long name. Then, we checked the original kuang dataset to see if that gene existed. Only "YMR042W" (which was from ARG80 TF) existed in the large kuang dataset, but it was not in any of the original kuang clusters. Our hope was that some of the genes from this analysis would be present in the clusters. This would have shown how the genes regulated themselves, but we were not able to draw those kinds of conclusions.
+Above, we furthered our analysis with the harbison data. This data provided standard p-value relationships for genes and TFs. We trimmed the dataset based on genes that had a p-value less than 0.001 and then displayed the distribution of the distribution of number of TFs per gene. Lastly, we wanted to tie this analysis to our previous TF clustering analysis. We looked to see in the harbison trimmed dataset if there were any genes present in our kuang trimmed dataset. There were 7 genes that overlapped. We looked at the yeast database and typed in the common name for the corresponding TF. From this site, we found the corresponding long name. Then, we checked the original kuang dataset to see if that gene existed. Only "YMR042W" (which was from ARG80 TF) existed in the large kuang dataset, but it was not in any of the original kuang clusters. Our hope was that some of the genes from this analysis would be present in the clusters. This would have shown how the genes regulated themselves, but we were not able to draw those kinds of conclusions.
 
 # Question 9
 
@@ -585,11 +585,11 @@ p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
 
-The plots above show side by side graphs of gene expression and TF binding for the first three genes in the Ecn5 group. These plots suggest that our correlation evaluation was succcessful. The binding and expression functions peak at similar times as desired.
+The plots above show side-by-side graphs of gene expression and TF binding for the first three genes in the Ecn5 group. These plots suggest that our correlation evaluation was successful. The binding and expression functions peak at similar times, as desired.
 
 **Esa1 and Set1**
 
-We found similar results for Esa1 and Set1. For all of the genes in these TFs the binding was not well correlated, while the expression was *somewhat* correlated. Again we saw, through analyzing the side by side plots of expression and binding, that our correlation method was relatively successful. 
+We found similar results for Esa1 and Set1. For all of the genes in these TFs the binding was not well correlated, while the expression was *somewhat* correlated. Again we saw, through analyzing the side-by-side plots of expression and binding, that our correlation method was relatively successful. 
 
 **Esa1**
 
@@ -699,7 +699,7 @@ grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[3]),
 
 Once we confirmed that the genes regulated by a certain TF seem to have similar expression patterns, and thus are likely to fall into the same clusters, we checked how many genes for a given TF actually fit into our k-means clusters (found in the previous homework).
 
-For clarity we brought some of the clustering code into this homework (for refernce and "Knitting").
+For clarity we brought some of the clustering code into this homework (for reference and "Knitting").
 
 ```{r}
 
@@ -774,7 +774,7 @@ length(in.2.filter)
 length(in.3.filter)
 ```
 
-In the above output the genes that are regulated by Gcn5 are printed, grouped by the gene cluster they fall in. It was found that *19 genes fall in cluster 1, 6 in cluster 2, and 1 in cluster 3.* Thus, it was concluded that the genes that are binded by Gcn5 mostly fall in cluster 1, with a few genes in cluster 2.
+In the above output the genes that are regulated by Gcn5 are printed, grouped by the gene cluster they fall in. It was found that *19 genes fall in cluster 1, 6 in cluster 2, and 1 in cluster 3*. Thus, it was concluded that the genes that are bound by Gcn5 mostly fall in cluster 1, with a few genes in cluster 2.
 
 ```{r}
 length(Esa.genes.above.plot)
@@ -792,7 +792,7 @@ length(Esa.2.filter)
 length(Esa.3.filter)
 ```
 
-In the above output the genes that are regulated by Esa1 are printed, grouped by the gene cluster they fall in. It was found that *9 genes fall in cluster 1, 8 in cluster 2, and 2 in cluster 3.* Thus, it was concluded that the genes that are binded by Esa1 are almost even split between cluster 1 and 2. 
+In the above output the genes that are regulated by Esa1 are printed, grouped by the gene cluster they fall in. It was found that *9 genes fall in cluster 1, 8 in cluster 2, and 2 in cluster 3.* Thus, it was concluded that the genes that are bound by Esa1 are almost even split between cluster 1 and 2. 
 
 ```{r}
 length(Set.genes.above.plot)
@@ -810,7 +810,7 @@ length(Set.2.filter)
 length(Set.3.filter)
 ```
 
-In the above output the genes that are regulated by Set1 are printed, grouped by the gene cluster they fall in. It was found that *18 genes fall in cluster 1, 9 in cluster 2, and 17 in cluster 3.* Thus, it was concluded that the genes that are binded by Set1 are likely to fall in cluster 1 or 3 (almost with the same occurances), but can still fall in cluster 2.
+In the above output the genes that are regulated by Set1 are printed, grouped by the gene cluster they fall in. It was found that *18 genes fall in cluster 1, 9 in cluster 2, and 17 in cluster 3.* Thus, it was concluded that the genes that are bound by Set1 are likely to fall in cluster 1 or 3 (almost with the same occurrences), but can still fall in cluster 2.
 
 From the analysis above we concluded that genes regulated by a given TF are likely to fall into one or two clusters. However, we found that there is no means to justify that the relationship is exclusive, meaning genes regulated by a given TF do **not** fall into only one cluster. 
 
@@ -829,9 +829,9 @@ length(in.2.h.filter)
 length(in.3.h.filter)
 ```
 
-The above analysis shows the Gcn5 regulates 16 genes in cluster 1, while Esa1 regulates 7, and Set1 regulates 14. This again suggests that the relationship between TF and cluster is not perfectly exclusive. We have a larger number of hierarchical clusters and thus it would be too much to exhausitvely check and see how the genes are split across the clusters for a given TF. We believed that our k-means clusters are a better indicator (with k=3) since the paper uses a smaller amount of clusters.
+The above analysis shows the Gcn5 regulates 16 genes in cluster 1, while Esa1 regulates 7, and Set1 regulates 14. This again suggests that the relationship between TF and cluster is not perfectly exclusive. We have a larger number of hierarchical clusters and thus it would be too much to exhaustively check and see how the genes are split across the clusters for a given TF. We believed that our k-means clusters are a better indicator (with k=3) since the paper uses a smaller amount of clusters.
 
-### Quick Look At Supression
+### Quick Look At Suppression
 
 ```{r}
 Gcn.indexes.sup <- which(df.cors[,1] < (-.75))
@@ -854,4 +854,4 @@ Esa.genes.above.plot.sup
 
 ```
 
-There are a lot fewer genes with a correlation lower than -0.75 than there are with a correlation higher than 0.75.  If we say that a correlation above 0.75 means the TF strongly binds to a gene, then a correlation below -0.75 means the TF strongly supresses the gene.  We can see that there were only 5 genes that were strongly supressed by a TF.  This is interesting because there were 89 genes that were strongly bound by one of the three TFs.  
+There are a lot fewer genes with a correlation lower than -0.75 than there are with a correlation higher than 0.75.  If we say that a correlation above 0.75 means the TF strongly binds to a gene, then a correlation below -0.75 means the TF strongly suppresses the gene.  We can see that there were only 5 genes that were strongly suppressed by a TF.  This is interesting because there were 89 genes that were strongly bound by one of the three TFs.  
