@@ -14,11 +14,13 @@ Dakota Brinkman (dlb46)
 Matt Olson (meo8)
 Jeremy Schreck (jes85)
 
-1. The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. The two papers we were given try to correlate the chromatin states and this metabolic expression. After looking at what gene expression reveals about the function of the cell under these conditions, we explored the TFs that control the given clusters and how the TFs create complex functionality. Our biological question has not changed, and we understand the metabolic cycle within yeast cells with this current homework.
+1. The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. Particuarly we aim to answer which clusters of genes control the process, which TF/chromatin modifies control their state, and how the interaction *between* clusters trough the transcription regulatory network contribute to the robust metabolic process. The two papers we were given try to correlate the chromatin states and this metabolic expression. After looking at what gene expression reveals about the function of the cell under these conditions, we explored the TFs that control the given clusters and how the TFs create complex functionality. Our biological question has not changed significantely, and we attempt understand the metabolic cycle within yeast cells with this current homework. However, we do aim to better tie the effect of the chromatin state, which is obviously tied to the chromatin modifiers, into our analysis and conclusions. We feel that our understanding of how the chromatin modifies contribute the process was lacking in the prior homework, which was a consequence of us conducting a gene clustering analysis and not a TF analysis.
 
-TODO: what have we learned (just an overview)
-TODO: Does this make sense in context of the paper?
-TODO: Why don't the all regulate the same genes, etc?
+Additionally we aim to derive more meaningful conclusions about which timepoints in the data contribute to the phases found in the paper (RC, OX, RB, RC). We wish to provide more specifity on the delay between these phases and potentially the mechanism driving them. We believe a transcription focused analysis will be instrumental in getting close in answering some of these questions
+
+From our clustering analysis we were able to determine that there are ~10 clusters in the given expression data, a couple of which were extremely well correlated (temporally). Additionally, we were able to determine that several clusters display similar oscillatory patterns, with a slight phase (delay) difference. This suggests a "just-in-time supply chain" paradigm, in which components from specific processes" "become available in a highly correlated manner" [Abstract](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information). This is well supported by the findings in the paper, which outlines several phases of the metabolic process: RC, OX, RB, RC. In this homework we seek to further investigate how the TF network contributes to this highly coordinated process. 
+
+The TFs that we have been given, in the primary dataset, for this analysis are **Gcn5p, Esa1p and Set1p**. These are three critical chromatin modifiers, which means they alter the state of the chromatin, allowing other TFs to bind to the DNA, leading to gene expression. The format of this dataset is explained at depth in *question 2*. Additionally, we were given a broader TF dataset, which is investigated at the end of this analysis. 
 
 ```{r setup, include=FALSE}
 library(dplyr);
@@ -48,7 +50,6 @@ kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
 Gcn <- kuangtf[,c(1:15)]
 Esa <- kuangtf[,c(1,16:29)]
 Set <- kuangtf[,c(1,30:43)]
-
 
 Gcn.data <- as.data.frame(t(Gcn[,-1]))
 colnames(Gcn.data) <- Gcn$Gene.ID
@@ -88,6 +89,12 @@ TODO: talk about plots
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
 TODO: what did the authors do
+
+3. We chose a correlation value of TODO to distinguish which TFs regulated which genes.
+
+TODO: describe how we did this
+TODO: how did we choose a correlation value cutoff
+TODO: talk about basic network stuff (will discuss in more detail later)
 
 #Correlation Set Up
 ```{r}
@@ -172,11 +179,6 @@ hits.per.tf <- df.cors.single.trimmed %>%
 
 hits.per.tf
 ```
-3. We chose a correlation value of TODO to distinguish which TFs regulated which genes.
-
-TODO: describe how we did this
-TODO: how did we choose a correlation value cutoff
-TODO: talk about basic network stuff (will discuss in more detail later)
 
 4. TODO: number of genes (need to decide on correlation value)
 
@@ -307,6 +309,9 @@ Gcn.rna.long <- gather(data.frame(Gcn.rna.time), gene, expression, -time)
 Gcn.rna.long$time <- as.numeric(as.character(Gcn.rna.long$time))
 Gcn.rna.long$expression <- as.numeric(as.character(Gcn.rna.long$expression))
 
+Gcn.rna.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Gcn5 RNAseq for genes with cor > .8") + geom_line()
+
 gene.of.interest <- Gcn.genes.above.plot[1]
 p1 <- Gcn.long %>% filter(gene %in% gene.of.interest) %>%
   ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="red")
@@ -355,6 +360,9 @@ Esa.rna.time <- cbind(Esa.rna.t2, time = time)
 Esa.rna.long <- gather(data.frame(Esa.rna.time), gene, expression, -time)
 Esa.rna.long$time <- as.numeric(as.character(Esa.rna.long$time))
 Esa.rna.long$expression <- as.numeric(as.character(Esa.rna.long$expression))
+
+Esa.rna.long %>% filter(gene %in% Esa.genes.above.plot) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Esa1 TFbinding for genes with cor > .8") + geom_line()
 
 gene.of.interest <- Esa.genes.above.plot[1]
 p1 <- Esa.long %>% filter(gene %in% gene.of.interest) %>%
@@ -405,6 +413,9 @@ Set.rna.long <- gather(data.frame(Set.rna.time), gene, expression, -time)
 Set.rna.long$time <- as.numeric(as.character(Set.rna.long$time))
 Set.rna.long$expression <- as.numeric(as.character(Set.rna.long$expression))
 
+Set.rna.long %>% filter(gene %in% Set.genes.above.plot) %>%
+  ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Set1 TFbinding for genes with cor > .8") + geom_line()
+
 gene.of.interest <- Set.genes.above.plot[1]
 p1 <- Set.long %>% filter(gene %in% gene.of.interest) %>%
   ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="green")
@@ -435,6 +446,20 @@ TODO: talk about TF binding for TF cluster plot
 TODO: talk about RNA seq for TF cluster plot
 TODO: talk about TF binding and RNA seq plot
 TODO: TF clusters vs gene expression clusters? Do they fall into same sets?
+
+```{r}
+tf.ypd <- read.csv(file="./datasets/harbison-2004-TFbinding-YPD.txt", sep="\t",header=T)
+tf.other <- read.csv(file="./datasets/harbison-2004-TFbinding-other.txt", sep="\t",header=T)
+head(tf.ypd)
+dim(tf.ypd)
+head(tf.other)
+dim(tf.other)
+```
+
+```{r}
+tf.ypd.prepped <- na.omit(tf.ypd)
+dim(tf.ypd.prepped)
+```
 
 Conclusion
 TODO: talk briefly about biological questions and major findings
