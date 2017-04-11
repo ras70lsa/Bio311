@@ -130,7 +130,7 @@ These plots gave us insight that the peaking of the TFs might be driving gene ex
 
 From the time plots above and the paper we thought we could find which genes are regulated by which TF(s) by doing a temporal analysis. We reasoned that a TF must regulate a gene if that gene has a peak in expression and binding at a similar time interval. Our reasoning for such is that for a given gene to be expressed the chromatin must be accessable. The given TFs regulate the "opening" and "closing" of the chromatin (they are chromatin modifiers). Thus, it is likely to hold that a given TF will bind heavily at a similar time interval of high gene expression, such that it opens the chromatin state and allows other TFs to bind to lead to high gene expression. 
 
-TODO: Possibly add manual plots 
+At this point we manually plotted binding data and gene expression over time for several genes. We repeated this process until we found some genes for which the peaks corresponded. This validated the legitimacy of our correlation approach. **Note: ** These manually created plots were not included here to avoid redundancy. They are given in *Question 9*, where we believe the graphs are more fitting. Please reference this question. 
 
 **Design**
 
@@ -146,8 +146,9 @@ Note: We identified two limitations of our approach:
 1. Our pipeline assumes that if a gene's TF binding data and expression data are strongly correlated they have matching peaks. These peaks is what were really interested. The strong correlation actually implies the two functions follow the same pattern, but the peaks can still be slightly off. For our analysis we reasoned that the assumption that correlated functions have the same peaks (in time) was a fair one to make. We investigated some of these well correlated functions later in our analysis and verified this small assumption.
 2. The paper states that the chromatin modifiers and genes are not perfectly, simply correlated. In other words, there might be slight delays between peaks. However, we needed some starting point. We investigated some of these delays manually in the succeeding work.
 
+The **success** of our pipeline is discussed in greater detail in *Question 9*, specifically when we investigate the gene expression and TF binding functions for a given gene side by side.
 
-#Correlation Set Up
+###Correlation Set Up
 
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. 
 
@@ -376,7 +377,12 @@ To synthesize information about our network to think about the function of the T
 
 We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between thsoe TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
 
-Next we aimed to discover whether or not any of the TFs regulated the other TFs or themselves. To do this, for each TF we searched its regulated genes in an attempt to discover if these genes where the common gene names of the other TFs.
+Next we aimed to discover whether or not any of the TFs regulated the other TFs or themselves. To do this, for each TF we searched its regulated genes in an attempt to discover if these genes where the gene names of the other TFs. The corresponding mapping of TF to gene name is given below:
+* Gcn5 -> YGR252W
+* Esa1 -> YOR244W
+* Set1 -> YHR119W
+
+**Gcn5 regulation of itself and other genes** 
 
 ```{r}
 gcn.reg.genes <- as.character(Gcn.genes.above)
@@ -386,6 +392,10 @@ gcn.reg.genes
 "YHR119W" %in% gcn.reg.genes # Set1 
 ```
 
+From the work above it was found that Gcn5 does not regulate itself or Esa1, but *does* regulate Set1. However, we did some digging into the original dataset and discovered that YGR252W and YOR244W, corresponding to Gcn5 and Esa1 respectively, were not included. Thus, it is not necessarily the case that Gcn5 does **not** regulate itself or Esa1, but rather than no conclusion can be reached based on its lack of inclusion in the expression data.
+
+**Esa regulation of itself and other genes** 
+
 ```{r}
 esa.reg.genes <- as.character(Esa.genes.above)
 esa.reg.genes
@@ -393,6 +403,8 @@ esa.reg.genes
 "YOR244W" %in% esa.reg.genes #Esa1 not in data overall
 "YHR119W" %in% esa.reg.genes # Set1 
 ```
+
+**Set1 regulation of itself and other genes** 
 
 ```{r}
 set.reg.genes <- as.character(Set.genes.above)
@@ -402,18 +414,31 @@ set.reg.genes
 "YHR119W" %in% set.reg.genes # Set1 
 ```
 
+For the reason above no conclusions were reached about Esa1 and Set1 regulation of Gcn5 and Esa1. From the work above it was concluded that Esa1 does **not** regulate Set1 and Set1 does **not** regulate itself. In other words Set1 is not autoregulated. 
+
 # Question 9
 
+In this section we attempted to answer the question: "Do genes regulated by the TF fall into the same cluster, based on our previous clustering analysis?"
+
 ### TF vs. RNAseq Analysis
+
+In order to answer this question we investigated three different relationships for each TF: 
+1. TF binding for genes in the TF cluster 
+2. RNAseq expression binding for genes in the TF cluster
+3. Gene expression and binding data vs time for a given gene in the TF cluster
+
+Before this we needed to do a little bit of set-up, shown below.
+
 ```{r}
 Gcn.indexes <- which(df.cors[,1] > .75)
 Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
 Esa.indexes <- which(df.cors[,2] > .75)
-Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Esa.genes.above <-  kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
-We decided to use a cutoff of .75 for our correlation value.
+
+We manually added the time data (not too many points)
 
 ```{r}
 timechar <- c(
@@ -431,11 +456,13 @@ timechar <- c(
 "97.55833333",
 "98.05833333",
 "98.56666667")
-
 time <- as.numeric(timechar)
 ```
 
-We analyzed the Gcn5 TF first
+**Gcn5 Analysis**
+
+*TF Binding* 
+
 ```{r}
 Gcn.genes.above.plot <- as.character(Gcn.genes.above)
 Gcn.above <- filter(Gcn.new, Gene.ID %in% Gcn.genes.above.plot)
@@ -451,7 +478,13 @@ Gcn.long$binding <- as.numeric(as.character(Gcn.long$binding))
 
 Gcn.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Gcn5 TFbinding for genes with cor > .75") + geom_line()
+```
 
+Above we plotted the Gcn5 binding for the first 10 genes regulated by Gcn5. Some of the genes show similar peak behavior, but this is not a strong relationship. We concluded that the above plot is somewhat expected. Even though the genes are regulated by the same TF does not necessarily mean they demonstrate the same TF binding pattern. 
+
+*Gene expression* 
+
+```{r}
 Gcn.rna <- filter(rna.new, Gene.name %in% Gcn.genes.above.plot)
 Gcn.rna.t <- t(Gcn.rna)
 newGenes <- Gcn.rna.t[1,]
@@ -464,7 +497,13 @@ Gcn.rna.long$expression <- as.numeric(as.character(Gcn.rna.long$expression))
 
 Gcn.rna.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Gcn5 RNAseq for genes with cor > .75") + geom_line()
+```
 
+The above plot shows gene expression over time for all the genes regulated by Gcn5. Again, there is not necessarily any expected behavior that this plot should have followed given our approach. However, the plot is insightful in answering the question stated at the start of this section. If these genes expressed similar expression over time it would support the claim that they are all in the same gene cluster. 
+
+*Gene Binding vs Expression* 
+
+```{r}
 gene.of.interest <- Gcn.genes.above.plot[1]
 p1 <- Gcn.long %>% filter(gene %in% gene.of.interest) %>%
   ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="red")
@@ -487,6 +526,7 @@ p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
   ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="red")
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
+
 
 Next was Esa1
 ```{r}
