@@ -129,13 +129,13 @@ TODO: Possibly add manual plots
 
 **Design**
 
+However, we found it would be cumbersome to attempt to match up peaks between expression and binding for all the given genes manually (by looking at plots). Thus, we aimed to come up with an analysis pipeline that intuitively found the relationship in a more automated manner. We believed a **correlation** based analysis would be the best way to do this. Our goal was to mimick the p-value approach. However, instead of filtering on p-value we filted on the correlation between expression and binding, described in greater detail below. 
+
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
-We chose a correlation value of TODO to distinguish which TFs regulated which genes.
+Next in the pipeline we had to chose a filtering threshold. We chose a correlation value of 0.75 to distinguish which TFs regulated which genes.
 
-TODO: describe how we did this
-TODO: how did we choose a correlation value cutoff
-TODO: talk about basic network stuff (will discuss in more detail later)
+The final step in the pipeline analysis was a basic network analysis. This entailed creating multiple directional graphs that describe the TF network. This is described in much detail below in the remaining questions.
 
 #Correlation Set Up
 
@@ -207,13 +207,18 @@ Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .65)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
-#Basic Clustering Analysis
+
+4. Based on the result of the code below the following is clear: 
+* ESA regulates 19 genes 
+* GCN regulates 26 genes 
+* SET regualtes 44 genes 
+
 ```{r}
 df.cors["gene"] = Set.sorted["Gene.ID"]
 df.cors.single <- df.cors %>% 
   tidyr::gather(TF, corr, -gene) %>% # cast to long format
   dplyr::select(TF, gene, corr)
-df.cors.single.trimmed <- filter(df.cors.single, corr > 0.65)
+df.cors.single.trimmed <- filter(df.cors.single, corr > 0.75)
 
 hits.per.tf <- df.cors.single.trimmed %>% 
                group_by(TF) %>% 
@@ -222,7 +227,7 @@ hits.per.tf <- df.cors.single.trimmed %>%
 hits.per.tf
 ```
 
-4. TODO: number of genes (need to decide on correlation value)
+We wanted to go a step further than just investigating how many genes each TF bound. We wanted to see how many genes were bound by several or all of the TFs. 
 
 ```{r}
 tfs.per.gene <- df.cors.single.trimmed %>% 
