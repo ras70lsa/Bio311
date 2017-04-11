@@ -32,6 +32,8 @@ library(gplots);
 library(cluster);
 library(igraph)
 library(ggraph)
+library(gridExtra)
+library(grid)
 ```
 
 ```{r}
@@ -149,12 +151,6 @@ corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.s
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
 df.cors
 
-Gcn.indexes <- which(df.cors[,1] > .8)
-Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
-Esa.indexes <- which(df.cors[,2] > .8)
-Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
-Set.indexes <- which(df.cors[,3] > .8)
-Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
 #Basic Clustering Analysis
 ```{r}
@@ -236,9 +232,19 @@ TODO: target genes direct targets of TF? indirect targets? How did we determine 
 TODO: functions of target genes?
 TODO: any target genes a TF?
 
+
+#TF vs. RNAseq Analysis
 ```{r}
-#plot the genes above for each TF to see if their patters are similar
-#3 plots here
+Gcn.indexes <- which(df.cors[,1] > .8)
+Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
+Esa.indexes <- which(df.cors[,2] > .8)
+Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Set.indexes <- which(df.cors[,3] > .8)
+Set.genes.above <- kuangtf.new[Set.indexes, 1]
+```
+We decided to use a cutoff of .8 for our correlation value.
+
+```{r}
 timechar <- c(
 "94.95",
 "95.31666667",
@@ -256,6 +262,10 @@ timechar <- c(
 "98.56666667")
 
 time <- as.numeric(timechar)
+```
+
+Let's analyze for the Gcn5 TF first
+```{r}
 Gcn.genes.above.plot <- as.character(Gcn.genes.above)
 Gcn.above <- filter(Gcn.new, Gene.ID %in% Gcn.genes.above.plot)
 Gcn.t <- t(Gcn.above)
@@ -264,28 +274,11 @@ length(Gcn.genes.above.plot)
 colnames(Gcn.t) <- as.vector(Gcn.genes.above.plot)
 Gcn.t.time <- cbind(Gcn.t, time = time)
 
-```
-
-```{r}
 Gcn.long <- gather(data.frame(Gcn.t.time), gene, binding, -time)
 Gcn.long$time <- as.numeric(as.character(Gcn.long$time))
 Gcn.long$binding <- as.numeric(as.character(Gcn.long$binding))
 Gcn.long %>% filter(gene %in% Gcn.genes.above.plot) %>%
-  ggplot(aes(x=time, y=binding, color=gene)) + geom_line()
-
-
-```
-
-```{r}
-#TODO: do same plots for genes in the rna data
-#3 plots here
-
-
-#TODO: both on same plot
-#3 plots
-genes.of.interest <- c("YER091C")
-Gcn.long %>% filter(gene %in% genes.of.interest) %>%
-  ggplot(aes(x=time, y=binding, color=gene)) + geom_line()
+  ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Gcn5 TFbinding for genes with cor > .8") + geom_line()
 
 Gcn.rna <- filter(rna.new, Gene.name %in% Gcn.genes.above.plot)
 Gcn.rna.t <- t(Gcn.rna)
@@ -296,9 +289,128 @@ Gcn.rna.time <- cbind(Gcn.rna.t2, time = time)
 Gcn.rna.long <- gather(data.frame(Gcn.rna.time), gene, expression, -time)
 Gcn.rna.long$time <- as.numeric(as.character(Gcn.rna.long$time))
 Gcn.rna.long$expression <- as.numeric(as.character(Gcn.rna.long$expression))
-Gcn.rna.long %>% filter(gene %in% genes.of.interest) %>%
-  ggplot(aes(x=time, y=expression, color=gene)) + geom_line()
+
+gene.of.interest <- Gcn.genes.above.plot[1]
+p1 <- Gcn.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="red")
+p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="red")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[1]), gp=gpar(fontface="bold")))
+
+gene.of.interest <- Gcn.genes.above.plot[2]
+p1 <- Gcn.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="red")
+p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="red")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[2]), gp=gpar(fontface="bold")))
+
+
+gene.of.interest <- Gcn.genes.above.plot[3]
+p1 <- Gcn.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="red")
+p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="red")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
+
+Now for Esa1
+```{r}
+Esa.genes.above.plot <- as.character(Esa.genes.above)
+Esa.above <- filter(Esa.new, Gene.ID %in% Esa.genes.above.plot)
+Esa.t <- t(Esa.above)
+Esa.t <- Esa.t[2:nrow(Esa.t),]
+length(Esa.genes.above.plot)
+colnames(Esa.t) <- as.vector(Esa.genes.above.plot)
+Esa.t.time <- cbind(Esa.t, time = time)
+ 
+Esa.long <- gather(data.frame(Esa.t.time), gene, binding, -time)
+Esa.long$time <- as.numeric(as.character(Esa.long$time))
+Esa.long$binding <- as.numeric(as.character(Esa.long$binding))
+Esa.long %>% filter(gene %in% Esa.genes.above.plot) %>%
+  ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Esa1 TFbinding for genes with cor > .8") + geom_line()
+
+Esa.rna <- filter(rna.new, Gene.name %in% Esa.genes.above.plot)
+Esa.rna.t <- t(Esa.rna)
+newGenes <- Esa.rna.t[1,]
+Esa.rna.t2 <- Esa.rna.t[2:nrow(Esa.rna.t),]
+colnames(Esa.rna.t2) <- as.vector(newGenes)
+Esa.rna.time <- cbind(Esa.rna.t2, time = time)
+Esa.rna.long <- gather(data.frame(Esa.rna.time), gene, expression, -time)
+Esa.rna.long$time <- as.numeric(as.character(Esa.rna.long$time))
+Esa.rna.long$expression <- as.numeric(as.character(Esa.rna.long$expression))
+
+gene.of.interest <- Esa.genes.above.plot[1]
+p1 <- Esa.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="blue")
+p2 <- Esa.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="blue")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Esa.genes.above.plot[1]), gp=gpar(fontface="bold")))
+
+gene.of.interest <- Esa.genes.above.plot[2]
+p1 <- Esa.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="blue")
+p2 <- Esa.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="blue")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Esa.genes.above.plot[2]), gp=gpar(fontface="bold")))
+
+
+gene.of.interest <- Esa.genes.above.plot[3]
+p1 <- Esa.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="blue")
+p2 <- Esa.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="blue")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Esa.genes.above.plot[3]), gp=gpar(fontface="bold")))
+```
+
+And finally for Set1
+```{r}
+Set.genes.above.plot <- as.character(Set.genes.above)
+Set.above <- filter(Set.new, Gene.ID %in% Set.genes.above.plot)
+Set.t <- t(Set.above)
+Set.t <- Set.t[2:nrow(Set.t),]
+length(Set.genes.above.plot)
+colnames(Set.t) <- as.vector(Set.genes.above.plot)
+Set.t.time <- cbind(Set.t, time = time)
+ 
+Set.long <- gather(data.frame(Set.t.time), gene, binding, -time)
+Set.long$time <- as.numeric(as.character(Set.long$time))
+Set.long$binding <- as.numeric(as.character(Set.long$binding))
+Set.long %>% filter(gene %in% Set.genes.above.plot) %>%
+  ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Set1 TFbinding for genes with cor > .8") + geom_line()
+
+Set.rna <- filter(rna.new, Gene.name %in% Set.genes.above.plot)
+Set.rna.t <- t(Set.rna)
+newGenes <- Set.rna.t[1,]
+Set.rna.t2 <- Set.rna.t[2:nrow(Set.rna.t),]
+colnames(Set.rna.t2) <- as.vector(newGenes)
+Set.rna.time <- cbind(Set.rna.t2, time = time)
+Set.rna.long <- gather(data.frame(Set.rna.time), gene, expression, -time)
+Set.rna.long$time <- as.numeric(as.character(Set.rna.long$time))
+Set.rna.long$expression <- as.numeric(as.character(Set.rna.long$expression))
+
+gene.of.interest <- Set.genes.above.plot[1]
+p1 <- Set.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="green")
+p2 <- Set.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="green")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[1]), gp=gpar(fontface="bold")))
+
+gene.of.interest <- Set.genes.above.plot[4]
+p1 <- Set.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="green")
+p2 <- Set.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="green")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[4]), gp=gpar(fontface="bold")))
+
+
+gene.of.interest <- Set.genes.above.plot[3]
+p1 <- Set.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=binding)) + ggtitle("TFbinding") + geom_line(colour="green")
+p2 <- Set.rna.long %>% filter(gene %in% gene.of.interest) %>%
+  ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="green")
+grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[3]), gp=gpar(fontface="bold")))
+```
+
 
 9.
 
