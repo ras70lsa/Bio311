@@ -271,7 +271,7 @@ ggplot(tfs.per.gene, aes(x = ntfs)) +
 
 ## Question 5
 
-See the network plots below We will discuss these networks in 6.
+See the network plots below. We will discuss these networks in 6.
 
 ```{r}
 df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
@@ -376,7 +376,7 @@ timechar <- c(
 time <- as.numeric(timechar)
 ```
 
-Let's analyze for the Gcn5 TF first
+We analyzed the Gcn5 TF first
 ```{r}
 Gcn.genes.above.plot <- as.character(Gcn.genes.above)
 Gcn.above <- filter(Gcn.new, Gene.ID %in% Gcn.genes.above.plot)
@@ -429,7 +429,7 @@ p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
 
-Now for Esa1
+Next was Esa1
 ```{r}
 Esa.genes.above.plot <- as.character(Esa.genes.above)
 Esa.above <- filter(Esa.new, Gene.ID %in% Esa.genes.above.plot)
@@ -480,7 +480,7 @@ p2 <- Esa.rna.long %>% filter(gene %in% gene.of.interest) %>%
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Esa.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
 
-And finally for Set1
+And finally Set1
 ```{r}
 Set.genes.above.plot <- as.character(Set.genes.above)
 Set.above <- filter(Set.new, Gene.ID %in% Set.genes.above.plot)
