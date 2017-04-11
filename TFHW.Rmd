@@ -604,6 +604,12 @@ rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 ```
 
 ```{r}
+kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
+kuang_t <- as.data.frame(t(kuang[,-1]))
+colnames(kuang_t) <- n
+kuang_t.cor <- kuang_t %>% cor(use="pairwise.complete.obs")  ##generate correlation measurements
+kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measurements 
+k=3
 kuang.kmedoids <- pam(kuang.dist, k) # create k-medoids clustering with k clusters
 kclusters <- kuang.kmedoids$cluster
 kclusters <- kclusters[order.dendrogram(kuang.dend)]
@@ -616,7 +622,7 @@ kcluster1.genes <- names(kclusters[kclusters == 1])
 kcluster2.genes <- names(kclusters[kclusters == 2])
 kcluster3.genes <- names(kclusters[kclusters == 3])
 
-# Gcn.genes.above.plot
+length(Gcn.genes.above.plot)
 in.1 <- kcluster1.genes[match(Gcn.genes.above.plot, kcluster1.genes)]
 in.1.filter <-in.1[!is.na(in.1)]
 in.2 <- kcluster2.genes[match(Gcn.genes.above.plot, kcluster2.genes)]
@@ -629,6 +635,38 @@ in.3.filter
 length(in.1.filter)
 length(in.2.filter)
 length(in.3.filter)
+```
+
+```{r}
+length(Esa.genes.above.plot)
+Esa.1 <- kcluster1.genes[match(Esa.genes.above.plot, kcluster1.genes)]
+Esa.1.filter <-Esa.1[!is.na(Esa.1)]
+Esa.2 <- kcluster2.genes[match(Esa.genes.above.plot, kcluster2.genes)]
+Esa.2.filter <- Esa.2[!is.na(Esa.2)]
+Esa.3 <- kcluster3.genes[match(Esa.genes.above.plot, kcluster3.genes)]
+Esa.3.filter <- Esa.3[!is.na(Esa.3)]
+Esa.1.filter
+Esa.2.filter
+Esa.3.filter
+length(Esa.1.filter)
+length(Esa.2.filter)
+length(Esa.3.filter)
+```
+
+```{r}
+length(Set.genes.above.plot)
+Set.1 <- kcluster1.genes[match(Set.genes.above.plot, kcluster1.genes)]
+Set.1.filter <-Set.1[!is.na(Set.1)]
+Set.2 <- kcluster2.genes[match(Set.genes.above.plot, kcluster2.genes)]
+Set.2.filter <- Set.2[!is.na(Set.2)]
+Set.3 <- kcluster3.genes[match(Set.genes.above.plot, kcluster3.genes)]
+Set.3.filter <- Set.3[!is.na(Set.3)]
+Set.1.filter
+Set.2.filter
+Set.3.filter
+length(Set.1.filter)
+length(Set.2.filter)
+length(Set.3.filter)
 ```
 
 ```{r}
