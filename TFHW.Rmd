@@ -28,6 +28,7 @@ library(igraph)
 library(ggraph)
 library(gridExtra)
 library(grid)
+library(gProfileR)
 ```
 
 ## Question 1
@@ -118,6 +119,9 @@ ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color="Gcn")) + g
 
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YGL236C")
 ```
+2. We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv" file. The rows of the dataset contained all 1035 genes. Each TF had 14 columns corresponding to TF binding data from different times (the times were provided in the "kuang-2014-TFbinding-timepts.csv" file). 
+
+TODO: talk about plots
 
 ### Analysis Pipeline 
 
@@ -200,11 +204,11 @@ corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.s
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
 df.cors
 
-Gcn.indexes <- which(df.cors[,1] > .65)
+Gcn.indexes <- which(df.cors[,1] > .75)
 Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
-Esa.indexes <- which(df.cors[,2] > .65)
+Esa.indexes <- which(df.cors[,2] > .75)
 Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
-Set.indexes <- which(df.cors[,3] > .65)
+Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
 #Basic Clustering Analysis
@@ -213,7 +217,7 @@ df.cors["gene"] = Set.sorted["Gene.ID"]
 df.cors.single <- df.cors %>% 
   tidyr::gather(TF, corr, -gene) %>% # cast to long format
   dplyr::select(TF, gene, corr)
-df.cors.single.trimmed <- filter(df.cors.single, corr > 0.65)
+df.cors.single.trimmed <- filter(df.cors.single, corr > 0.75)
 
 hits.per.tf <- df.cors.single.trimmed %>% 
                group_by(TF) %>% 
@@ -275,24 +279,35 @@ plot(tfs.only.graph, edge.arrow.size=0.3, vertex.shape="none", vertex.label.cex=
 
 
 5. See the network plots above. We will discuss these networks in 6.
-6. In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.65. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
+
+6. In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
 
 In the undirected graph, the edges represent connections between TFs and genes. Tfs and genes that were connected by an edge had TF binding data and RNA seq data that was highly correlated. The nodes represent genes (blue square) and TFs (salmon circle). 
 
 The directed graph (the third graph) is similar, but the edge points from TF to gene because the TF appears to regulate the gene. The nodes in the directed graph represent genes and TFs, which are distinguishable by the name.
 
-For both graphs, there are 3 TFs and 193 target genes. There are 261 edges, meaning that some genes are regulated by multiple TFs.
+For both graphs, there are 3 TFs and 75 target genes. There are 89 edges, meaning that some genes are regulated by multiple TFs.
 
 The second graph shows that all three TFs are connected because each TF is connected to at least one similar target gene.
 7.
-The out degree for TFs Esa, Gcn, and Set are 64, 96, and 101 respectively.
-For the in degree, look at the histogram above. About 140 genes have in-degree 1, about 40 genes have in-degree 2, and about 10 genes have in-degree 3. This shows that about 140 genes, 40 genes, and 10 genes are regulated by only 1, 2, and 3 TFs repectively.
-8.
-TODO: synthesize info
-TODO: target genes direct targets of TF? indirect targets? How did we determine this?
-TODO: functions of target genes?
-TODO: any target genes a TF?
+The out degree for TFs Esa, Gcn, and Set are 19, 26, and 44 respectively.
+For the in degree, look at the histogram above. About 58 genes have in-degree 1, about 13 genes have in-degree 2, and about 4 genes have in-degree 3. This shows that about 58 genes, 13 genes, and 4 genes are regulated by only 1, 2, and 3 TFs repectively.
 
+```{r}
+#head(df.cors.single.trimmed)
+all.profiles <- gprofiler(df.cors.single.trimmed, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:BP", # only consider GO biological process
+                          hier_filtering = "moderate")
+all.profiles
+```
+
+8. To synthesize information about our network to think about the function of the TF(s) of interest, we decided to run a GO analysis. Specifically, we ran a GO analysis on only the trimmed dataset (the genes that we previously found were correlated with the TFs and therefore are regulated by the TFs) using gProfileR. The GO analyis split the genes up into 7 categories. These categories had various functions, with a common theme being that they were related to metabolism and the yeast metabolic cycle. This suggests that the function of the target genes is to regulate the metabolic cycle. Specific functional categories that are enriched among the target genes include "generation of precursor metabolites and energy", "purine ribonucleotide metabolic process", and "purine ribonucleoside monophosphate metabolic process", and "tricarboxylic acid cycle". 
+
+We only used 3 TFs in our network analysis. Therefore, all the edges generated were directly between thsoe TFs and the genes of interest, so every gene in our dataset was either a direct target of the TF (i.e. if the gene was included in the trimmed data), or not a target at all. We would need additional TF data to determine if some of the genes are indirect targets of the 3 TFs of interest. 
+
+We do not know if any of the target genes are themselves also TFs. Additional data and analysis would be needed to determine this. TODO??
 
 #TF vs. RNAseq Analysis
 ```{r}
@@ -303,7 +318,7 @@ Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
-We decided to use a cutoff of .8 for our correlation value.
+We decided to use a cutoff of .75 for our correlation value.
 
 ```{r}
 timechar <- c(
@@ -338,6 +353,7 @@ Gcn.t.time <- cbind(Gcn.t, time = time)
 Gcn.long <- gather(data.frame(Gcn.t.time), gene, binding, -time)
 Gcn.long$time <- as.numeric(as.character(Gcn.long$time))
 Gcn.long$binding <- as.numeric(as.character(Gcn.long$binding))
+
 Gcn.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=binding, color=gene)) + ggtitle("Gcn5 TFbinding for genes with cor > .75") + geom_line()
 
@@ -402,7 +418,6 @@ Esa.rna.time <- cbind(Esa.rna.t2, time = time)
 Esa.rna.long <- gather(data.frame(Esa.rna.time), gene, expression, -time)
 Esa.rna.long$time <- as.numeric(as.character(Esa.rna.long$time))
 Esa.rna.long$expression <- as.numeric(as.character(Esa.rna.long$expression))
-
 Esa.rna.long %>% filter(gene %in% Esa.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Esa1 RNAseq for genes with cor > .75") + geom_line()
 
@@ -454,7 +469,6 @@ Set.rna.time <- cbind(Set.rna.t2, time = time)
 Set.rna.long <- gather(data.frame(Set.rna.time), gene, expression, -time)
 Set.rna.long$time <- as.numeric(as.character(Set.rna.long$time))
 Set.rna.long$expression <- as.numeric(as.character(Set.rna.long$expression))
-
 Set.rna.long %>% filter(gene %in% Set.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Set1 RNAseq for genes with cor > .75") + geom_line()
 
@@ -480,6 +494,7 @@ p2 <- Set.rna.long %>% filter(gene %in% gene.of.interest) %>%
   ggplot(aes(x=time, y=expression)) + ggtitle("RNAseq Expression") + geom_line(colour="green")
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
+
 
 #Looking at clusters
 ```{r}
