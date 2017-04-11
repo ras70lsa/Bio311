@@ -306,7 +306,7 @@ ggplot(tfs.per.gene.5, aes(x = ntfs)) +
 
 See the network plots below. We will discuss these networks in 6.
 
-```{r}
+```{r, fig.width=5, fig.height=5}
 df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
 vcount(df.cors.graph)
 ecount(df.cors.graph)
@@ -433,11 +433,7 @@ Before this we needed to do a little bit of set-up, shown below.
 Gcn.indexes <- which(df.cors[,1] > .75)
 Gcn.genes.above <- df.cors[Gcn.indexes, 4]
 Esa.indexes <- which(df.cors[,2] > .75)
-<<<<<<< HEAD
-Esa.genes.above <-  kuangtf.new[Esa.indexes, 1]
-=======
 Esa.genes.above <- df.cors[Esa.indexes, 4]
->>>>>>> a84526d7ce3e7f998cb9a5b302ec32e170cccf69
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- df.cors[Set.indexes, 4]
 ```
@@ -503,7 +499,7 @@ Gcn.rna.long %>% filter(gene %in% Gcn.genes.above.plot[1:10]) %>%
   ggplot(aes(x=time, y=expression, color=gene)) + ggtitle("Gcn5 RNAseq for genes with cor > .75") + geom_line()
 ```
 
-The above plot shows gene expression over time for all the genes regulated by Gcn5. Again, there is not necessarily any expected behavior that this plot should have followed given our approach. However, the plot is insightful in answering the question stated at the start of this section. If these genes expressed similar expression over time it would support the claim that they are all in the same gene cluster. 
+The above plot shows gene expression over time for all the genes regulated by Gcn5. Again, there is not necessarily any expected behavior that this plot should have followed given our approach. However, the plot is insightful in answering the question stated at the start of this section. If these genes expressed similar expression over time it would support the claim that they are all in the same gene cluster. This seems to be the case for most of the genes shown, as they show a strong decline together around time 95.5. This suggested to us that Gcn5 might regulate genes that fall into the same cluster. We manually locate which genes fall in which cluster below (following the plots). 
 
 *Gene Binding vs Expression* 
 
@@ -531,8 +527,14 @@ p2 <- Gcn.rna.long %>% filter(gene %in% gene.of.interest) %>%
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Gcn.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
 
+The plots above show side by side graphs of gene expression and TF binding for the first three genes in the Ecn5 group. These plots suggest that our correlation evaluation was succcessful. The binding and expression functions peak at similar times as desired.
 
-Next was Esa1
+**Esa1 and Set1**
+
+We found similar results for Esa1 and Set1. For all of the genes in these TFs the binding was not well correlated, while the expression was *somewhat* correlated. Again we saw, through analyzing the side by side plots of expression and binding, that our correlation method was relatively successful. 
+
+**Esa1**
+
 ```{r}
 Esa.genes.above.plot <- as.character(Esa.genes.above)
 Esa.above <- filter(Esa.new, Gene.ID %in% Esa.genes.above.plot)
@@ -583,7 +585,8 @@ p2 <- Esa.rna.long %>% filter(gene %in% gene.of.interest) %>%
 grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Esa.genes.above.plot[3]), gp=gpar(fontface="bold")))
 ```
 
-And finally Set1
+**Set1**
+
 ```{r}
 Set.genes.above.plot <- as.character(Set.genes.above)
 Set.above <- filter(Set.new, Gene.ID %in% Set.genes.above.plot)
@@ -636,6 +639,8 @@ grid.arrange(p1, p2, ncol=2, top=textGrob(as.character(Set.genes.above.plot[3]),
 
 ### Looking at clusters
 
+Once we confirmed 
+
 ```{r}
 
 rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
@@ -683,6 +688,8 @@ kclusters <- kuang.kmedoids$cluster
 kclusters <- kclusters[order.dendrogram(kuang.dend)]
 
 ```
+
+Once we successfully recreated the clusters we analyzed how the TF group of genes fell into these clusters. 
 
 ```{r}
 
@@ -736,6 +743,8 @@ length(Set.1.filter)
 length(Set.2.filter)
 length(Set.3.filter)
 ```
+
+We repeated the process with hierarchical clusters.
 
 ```{r}
 test <- labels(rnaseq.clusters.cluster1$lower[[1]])
