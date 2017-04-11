@@ -310,6 +310,7 @@ plot(tfs.only.graph, edge.arrow.size=0.3, vertex.shape="none", vertex.label.cex=
 ```
 
 ## Question 6
+
 *For the following please note that we are referencing the plots from Q5*
 
 In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.75. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
