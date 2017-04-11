@@ -14,14 +14,6 @@ Dakota Brinkman (dlb46)
 Matt Olson (meo8)
 Jeremy Schreck (jes85)
 
-1. The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. Particuarly we aim to answer which clusters of genes control the process, which TF/chromatin modifies control their state, and how the interaction *between* clusters trough the transcription regulatory network contribute to the robust metabolic process. The two papers we were given try to correlate the chromatin states and this metabolic expression. After looking at what gene expression reveals about the function of the cell under these conditions, we explored the TFs that control the given clusters and how the TFs create complex functionality. Our biological question has not changed significantely, and we attempt understand the metabolic cycle within yeast cells with this current homework. However, we do aim to better tie the effect of the chromatin state, which is obviously tied to the chromatin modifiers, into our analysis and conclusions. We feel that our understanding of how the chromatin modifies contribute the process was lacking in the prior homework, which was a consequence of us conducting a gene clustering analysis and not a TF analysis.
-
-Additionally we aim to derive more meaningful conclusions about which timepoints in the data contribute to the phases found in the paper (RC, OX, RB, RC). We wish to provide more specifity on the delay between these phases and potentially the mechanism driving them. We believe a transcription focused analysis will be instrumental in getting close in answering some of these questions
-
-From our clustering analysis we were able to determine that there are ~10 clusters in the given expression data, a couple of which were extremely well correlated (temporally). Additionally, we were able to determine that several clusters display similar oscillatory patterns, with a slight phase (delay) difference. This suggests a "just-in-time supply chain" paradigm, in which components from specific processes" "become available in a highly correlated manner" [Abstract](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information). This is well supported by the findings in the paper, which outlines several phases of the metabolic process: RC, OX, RB, RC. In this homework we seek to further investigate how the TF network contributes to this highly coordinated process. 
-
-The TFs that we have been given, in the primary dataset, for this analysis are **Gcn5p, Esa1p and Set1p**. These are three critical chromatin modifiers, which means they alter the state of the chromatin, allowing other TFs to bind to the DNA, leading to gene expression. The format of this dataset is explained at depth in *question 2*. Additionally, we were given a broader TF dataset, which is investigated at the end of this analysis. 
-
 ```{r setup, include=FALSE}
 library(dplyr);
 library("stringr");
@@ -38,14 +30,50 @@ library(gridExtra)
 library(grid)
 ```
 
+## Question 1
+
+The biological question we are trying to answer is how robust metabolic cycles within yeast cells respond under continuous, glucose limited conditions. Particuarly we aim to answer which clusters of genes control the process, which TF/chromatin modifies control their state, and how the interaction *between* clusters trough the transcription regulatory network contribute to the robust metabolic process. The two papers we were given try to correlate the chromatin states and this metabolic expression. After looking at what gene expression reveals about the function of the cell under these conditions, we explored the TFs that control the given clusters and how the TFs create complex functionality. Our biological question has not changed significantely, and we attempt understand the metabolic cycle within yeast cells with this current homework. However, we do aim to better tie the effect of the chromatin state, which is obviously tied to the chromatin modifiers, into our analysis and conclusions. We feel that our understanding of how the chromatin modifies contribute the process was lacking in the prior homework, which was a consequence of us conducting a gene clustering analysis and not a TF analysis.
+
+Additionally we aim to derive more meaningful conclusions about which timepoints in the data contribute to the phases found in the paper (RC, OX, RB, RC). We wish to provide more specifity on the delay between these phases and potentially the mechanism driving them. We believe a transcription focused analysis will be instrumental in getting close in answering some of these questions
+
+From our clustering analysis we were able to determine that there are ~10 clusters in the given expression data, a couple of which were extremely well correlated (temporally). Additionally, we were able to determine that several clusters display similar oscillatory patterns, with a slight phase (delay) difference. This suggests a "just-in-time supply chain" paradigm, in which components from specific processes" "become available in a highly correlated manner" [Abstract](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information). This is well supported by the findings in the paper, which outlines several phases of the metabolic process: RC, OX, RB, RC. In this homework we seek to further investigate how the TF network contributes to this highly coordinated process. 
+
+The TFs that we have been given, in the primary dataset, for this analysis are **Gcn5p, Esa1p and Set1p**. These are three critical chromatin modifiers, which means they alter the state of the chromatin, allowing other TFs to bind to the DNA, leading to gene expression. The format of this dataset is explained at depth in *question 2*. Additionally, we were given a broader TF dataset, which is investigated at the end of this analysis. 
+
+## Question 2
+
+We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv"" file. In order to analyze the format of the data we first imported it.
+
 ```{r}
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
 time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
-kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")
-
+kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")   ##used later - included in the import section of the code for clarity
+head(kuangtf)
+head(time)
 ```
 
-#Splitting up data
+```{r}
+dim(kuangtf)
+dim(time)
+```
+
+From the output above it is clear that our data is **time series without knockout**. For each TF there are 14 columns, each of which correspond to a time in the time cvs data file. The rows of the dataset correspond to genes specifically. Each cell of the data gives the binding of the given TF and its time-period (according to the column) for a given gene (given by the column).
+
+The rows of the dataset contain 1035 genes. We were curious why 1035 genes were given. After further investigation in the paper we found the following statement:
+
+  "Among these, ~1,750 genes were bound by at least two modifiers, and 1,035 genes were bound by all three modifiers, thus suggesting that these enzymes were not necessary for expression of every cycling gene."
+  [Landscape of occupancy of chromatin-modifying enzymes in the YMC](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information)
+
+The statement above clarifies which TFs we were given, those for which all 3 TFs did bind. 
+
+### Threshold 
+
+Given the fact we were given time series data, as opposed to p-value data, makes answering the question "What threshold did the paper use?" much more difficult. The three TFs given are already "known" to bind to the 1035 genes given (discussed above). This was determined through a spatiotemporal analysis. However, the paper is more concerned with trying to gain insight from analyzing the temporal attributes of the binding data. In more plain terms, the authors attempt to associate peak TF binding with a given genes expression. This type of analysis was done by directly comparing temproal data, and associating peaks, rather than chosing a threshold value. 
+
+### Splitting up data and Reformatting
+
+At this point we split the data, per TF and reformatted the data.
+
 ```{r}
 Gcn <- kuangtf[,c(1:15)]
 Esa <- kuangtf[,c(1,16:29)]
@@ -64,7 +92,10 @@ colnames(Set.data) <- Set$Gene.ID
 Set.time <- cbind(Set.data, time = time$hour)
 ```
 
-#Plotting
+### Plotting
+
+TODO: talk about plots
+
 ```{R}
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
 
@@ -83,15 +114,11 @@ ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color="Gcn")) + g
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YGL236C")
 ```
 
-2. We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv"" file. The rows of the dataset contained all 1035 genes. Each TF had 14 columns corresponding to TF binding data from different times (the times were provided in the "kuang-2014-TFbinding-timepts.csv" file). 
-
-TODO: talk about plots
+## Question 3
 
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
-TODO: what did the authors do
-
-3. We chose a correlation value of TODO to distinguish which TFs regulated which genes.
+We chose a correlation value of TODO to distinguish which TFs regulated which genes.
 
 TODO: describe how we did this
 TODO: how did we choose a correlation value cutoff
