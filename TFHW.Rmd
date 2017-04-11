@@ -119,6 +119,16 @@ ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color="Gcn")) + g
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YGL236C")
 ```
 
+### Analysis Pipeline 
+
+**Intro**
+
+From the time plots above and the paper we thought we could find which genes are regulated by which TF(s) by doing a temporal analysis. We reasoned that a TF must regulate a gene if that gene has a peak in expression and binding at a similar time interval. Our reasoning for such is that for a given gene to be expressed the chromatin must be accessable. The given TFs regulate the "opening" and "closing" of the chromatin (they are chromatin modifiers). Thus, it is likely to hold that a given TF will bind heavily at a similar time interval of high gene expression, such that it opens the chromatin state and allows other TFs to bind to lead to high gene expression. 
+
+TODO: Possibly add manual plots 
+
+**Design**
+
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
 We chose a correlation value of TODO to distinguish which TFs regulated which genes.
@@ -128,6 +138,7 @@ TODO: how did we choose a correlation value cutoff
 TODO: talk about basic network stuff (will discuss in more detail later)
 
 #Correlation Set Up
+
 ```{r}
 
 #get the genes in the tf and rna data
