@@ -7,8 +7,6 @@ output:
   html_notebook: default
 ---
 
-# Group 10
-
 Ryan St.Pierre (ras70)
 Dakota Brinkman (dlb46)
 Matt Olson (meo8)
