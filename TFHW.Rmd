@@ -81,7 +81,7 @@ ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YJL045W, color="Gcn")) + g
 
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YGL236C, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YGL236C, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YGL236C")
 ```
-2. We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv"" file. The rows of the dataset contained all 1035 genes. Each TF had 14 columns corresponding to TF binding data from different times (the times were provided in the "kuang-2014-TFbinding-timepts.csv" file). 
+2. We were given TF binding data for 3 TFs (Gcn, Esa, and Set) in the "kuang-2014-TFbinding.csv" file. The rows of the dataset contained all 1035 genes. Each TF had 14 columns corresponding to TF binding data from different times (the times were provided in the "kuang-2014-TFbinding-timepts.csv" file). 
 
 TODO: talk about plots
 
@@ -151,6 +151,12 @@ corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.s
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
 df.cors
 
+Gcn.indexes <- which(df.cors[,1] > .65)
+Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
+Esa.indexes <- which(df.cors[,2] > .65)
+Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Set.indexes <- which(df.cors[,3] > .65)
+Set.genes.above <- kuangtf.new[Set.indexes, 1]
 ```
 #Basic Clustering Analysis
 ```{r}
@@ -158,7 +164,7 @@ df.cors["gene"] = Set.sorted["Gene.ID"]
 df.cors.single <- df.cors %>% 
   tidyr::gather(TF, corr, -gene) %>% # cast to long format
   dplyr::select(TF, gene, corr)
-df.cors.single.trimmed <- filter(df.cors.single, corr > 0.8)
+df.cors.single.trimmed <- filter(df.cors.single, corr > 0.65)
 
 hits.per.tf <- df.cors.single.trimmed %>% 
                group_by(TF) %>% 
@@ -175,6 +181,18 @@ TODO: talk about basic network stuff (will discuss in more detail later)
 4. TODO: number of genes (need to decide on correlation value)
 
 ```{r}
+tfs.per.gene <- df.cors.single.trimmed %>% 
+                group_by(gene) %>% 
+                summarise(ntfs = length(TF))
+
+ggplot(tfs.per.gene, aes(x = ntfs)) + 
+  geom_histogram(binwidth = 1) +
+  labs(x = "Number of TFs", y = "Number of Genes", 
+       title = "Distribution of number of TFs per gene")
+```
+
+
+```{r}
 df.cors.graph <- graph_from_data_frame(df.cors.single.trimmed)
 vcount(df.cors.graph)
 ecount(df.cors.graph)
@@ -186,10 +204,6 @@ count_components(df.cors.graph)
 df.cors.components <- decompose(df.cors.graph)
 lapply(df.cors.components, vcount)
 lapply(df.cors.components, ecount)
-plot(df.cors.components[[2]], 
-     layout = layout.star,
-     vertex.label.cex=0.4,
-     vertex.label.degree=-90, vertex.label.dist=1.5)
 
 plot(df.cors.components[[1]], 
      layout = layout.auto,
@@ -209,23 +223,26 @@ plot(tf.shared.cut, vertex.label.cex=0.5, vertex.label.dist=0.5 )
 
 
 ```{r}
-#TODO: fix (make better directed edge graph)
 tfs.only.graph <- graph_from_data_frame(df.cors.single.trimmed, directed = TRUE)
 l <- layout.circle(tfs.only.graph)
 
-plot(tfs.only.graph, edge.arrow.size=.4, vertex.shape="none", vertex.label.cex=0.5, edge.curved=0.1, vertex.label.font=2, vertex.label.color="gray40", edge.color="gray85", layout=l)
+plot(tfs.only.graph, edge.arrow.size=0.3, vertex.shape="none", vertex.label.cex=0.3, edge.curved=0.1, vertex.label.font=2, vertex.label.color="gray40", edge.color="gray85", layout=l)
 ```
 
 
 5. See the network plots above. We will discuss these networks in 6.
-6.
-TODO: what do edges represent
-TODO: what do nodes represent
-TODO: explain directed and undirected
-TODO: how many TFs/ how many target genes
+6. In the undirected graph (the first graph), genes are connected to 1, 2, or 3 TFs. Not all the genes in the TF binding data are represented in this network because we filtered out the genes with correlation values less than 0.65. The genes that are inclued can be seen by a "venn-diagram structure" as shown above. 
+
+In the undirected graph, the edges represent connections between TFs and genes. Tfs and genes that were connected by an edge had TF binding data and RNA seq data that was highly correlated. The nodes represent genes (blue square) and TFs (salmon circle). 
+
+The directed graph (the third graph) is similar, but the edge points from TF to gene because the TF appears to regulate the gene. The nodes in the directed graph represent genes and TFs, which are distinguishable by the name.
+
+For both graphs, there are 3 TFs and 193 target genes. There are 261 edges, meaning that some genes are regulated by multiple TFs.
+
+The second graph shows that all three TFs are connected because each TF is connected to at least one similar target gene.
 7.
-TODO: out degree
-TODO: in degree
+The out degree for TFs Esa, Gcn, and Set are 64, 96, and 101 respectively.
+For the in degree, look at the histogram above. About 140 genes have in-degree 1, about 40 genes have in-degree 2, and about 10 genes have in-degree 3. This shows that about 140 genes, 40 genes, and 10 genes are regulated by only 1, 2, and 3 TFs repectively.
 8.
 TODO: synthesize info
 TODO: target genes direct targets of TF? indirect targets? How did we determine this?
