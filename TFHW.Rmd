@@ -60,22 +60,22 @@ dim(kuangtf)
 dim(time)
 ```
 
-From the output above it is clear that our data is **time series without knockout**. For each TF there are 14 columns, each of which correspond to a time in the *kuang-2014-TFbinding-timepts* common seperated data file. The rows of the dataset correspond to genes specifically. Thus, each cell of the data gives the binding of the given TF and its time-period (according to the column) for a given gene (given by the column). For simplicity this *binding* measure can be thought of how much TF there *is* for a given gene at that timepoint.
+From the output above it is clear that our data is **time series without knockout**. For each TF there are 14 columns, each of which correspond to a time in the *kuang-2014-TFbinding-timepts* comma-separated data file. The rows of the dataset correspond to specific genes. Thus, each cell of the data gives the binding of the given TF and its time-period (according to the column) for a given gene (given by the row). For simplicity, this *binding* measure can be thought of how much TF there *is* for a given gene, or how much TF is *bound* to the given gene, at that timepoint. This can be thought of as a measure of enrichment over background, with the numbers representing how much TF is bound to a given gene relative to some control. 
 
 The rows of the dataset contain 1035 genes. We were curious why 1035 genes were given. After further investigation in the paper we found the following statement:
 
   "Among these [genes in the entire genome], ~1,750 genes were bound by at least two modifiers, and 1,035 genes were bound by all three modifiers, thus suggesting that these enzymes were not necessary for expression of every cycling gene."
   [Landscape of occupancy of chromatin-modifying enzymes in the YMC](http://www.nature.com/nsmb/journal/v21/n10/full/nsmb.2881.html#supplementary-information)
 
-The statement above clarifies which TFs we were given, those in the yeast genome for which all 3 TFs (Gcn, Esa, and Set) did bind. 
+The statement above clarifies which TFs we were given: those in the yeast genome for which all 3 TFs (Gcn, Esa, and Set) did bind. 
 
 ### Threshold 
 
-Since we were given time series data, as opposed to p-value data, answering the question "What threshold did the paper use?" was difficult. The three TFs given are already "known" to bind to the 1035 genes given (discussed above). This was determined through a spatiotemporal analysis. However, the paper is more concerned with trying to gain insight from analyzing the temporal attributes of the binding data. In more plain terms, the authors attempt to associate peak TF binding with a given genes expression. This type of analysis was done by directly comparing temporal data, and associating peaks, rather than chosing a threshold value. For this reason we cannot supply a concrete threshold value that was chosen by the paper. In our analysis we use correlation values quite extensively. Thus, it is required for us to have a threshold/cut-off correlation value. This is described in great depth in *Question 3* below, where our analysis pipeline is described.
+Since we were given time series data, as opposed to p-value data, answering the question "What threshold did the paper use?" was difficult. The three TFs given are already "known" to bind to the 1035 genes given (discussed above). This was determined through a spatiotemporal analysis. However, the paper is more concerned with trying to gain insight from analyzing the temporal attributes of the binding data. In more plain terms, the authors attempt to associate peak TF binding with a given gene's expression. This type of analysis was done by directly comparing temporal data, and associating peaks, rather than choosing a threshold value. For this reason we cannot supply a concrete threshold value that was chosen by the paper. In our analysis we use correlation values quite extensively. Thus, it is required for us to have a threshold/cut-off correlation value. This is described in great depth in *Question 3* below, where our analysis pipeline is described.
 
 ### Splitting up data and Reformatting
 
-At this point we split the data (associating one dataframe per TF) and reformatted the data. We took the transpose of the original data (such that genes become the columns and Tfs became the rows, with time incrementing down in a row-wise fashion). This allowed us to append the time series data to the dataframe created. Reformatting of the data in this way was necessary for plotting and further analysis below.   
+At this point we split the data (associating one data frame per TF) and reformatted the data. We took the transpose of the original data (such that genes become the columns and Tfs became the rows, with time incrementing down in a row-wise fashion). This allowed us to append the time series data to the data frame created. Reformatting of the data in this way was necessary for plotting and further analysis below.   
 
 ```{r}
 Gcn <- kuangtf[,c(1:15)]
