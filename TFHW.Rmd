@@ -73,7 +73,7 @@ Given the fact we were given time series data, as opposed to p-value data, makes
 
 ### Splitting up data and Reformatting
 
-At this point we split the data, per TF and reformatted the data.
+At this point we split the data, per TF and reformatted the data. We took the transpose of the original data (such that genes become the columns and Tfs became the rows, with time incrementing down in a row-wise fashion). This allowed us to append the time series data to the dataframe created. Reformatting of the data in this way was necessary for plotting and further analysis below.   
 
 ```{r}
 Gcn <- kuangtf[,c(1:15)]
@@ -91,11 +91,16 @@ Esa.time <- cbind(Esa.data, time = time$hour)
 Set.data <- as.data.frame(t(Set[,-1]))
 colnames(Set.data) <- Set$Gene.ID
 Set.time <- cbind(Set.data, time = time$hour)
+head(Set.time[,1030:1036])
 ```
+
+## Question 3
 
 ### Plotting
 
-TODO: talk about plots
+Before we procceeded we plotted binding data, over time, from different genes. We overlayed the data from the 3 TFs on the same plot, shown below. We created these plots to get a feeling for the binding data, as an original exploration exercise. We found that the binding data followed oscillatory patterns, all slightly different for each gene. This reminded us of the gene expression data, which also oscillated in a similar way. 
+
+Additionally, these plots gave us some insight on how the TFs for a given gene behave with respect to each other. The plots for the 3 TFs for a given gene are somewhat overlayed on top of each other, peaking at similar times. Of course, the plots for the TFs are not perfectly correlated, especially for some of the genes. However, the findings do highlight the importance of the peaking behavior.
 
 ```{R}
 ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YAL012W, color="Gcn")) + geom_line(data=Set.time, aes(x = time, y = YAL012W, color="Set")) + geom_line(data=Esa.time, aes(x = time, y = YAL012W, color="Esa")) + labs(x = "Time (hours)", y = "Binding of Gene", title = "YAL001C")
@@ -118,6 +123,16 @@ ggplot() + geom_line(data=Gcn.time, aes(x = time, y = YGL236C, color="Gcn")) + g
 
 TODO: talk about plots
 
+### Analysis Pipeline 
+
+**Intro**
+
+From the time plots above and the paper we thought we could find which genes are regulated by which TF(s) by doing a temporal analysis. We reasoned that a TF must regulate a gene if that gene has a peak in expression and binding at a similar time interval. Our reasoning for such is that for a given gene to be expressed the chromatin must be accessable. The given TFs regulate the "opening" and "closing" of the chromatin (they are chromatin modifiers). Thus, it is likely to hold that a given TF will bind heavily at a similar time interval of high gene expression, such that it opens the chromatin state and allows other TFs to bind to lead to high gene expression. 
+
+TODO: Possibly add manual plots 
+
+**Design**
+
 To analyze the genes that were regulated by a specific TF, we needed the RNA seq data. This data contained gene expression over 16 time points for all the genes. The first 14 time points matched the 14 time points from the TF data. Then we filtered the genes so all genes from the TF binding data had a matching gene from the RNA seq data. With this data, we created a correlation algorithm that determined how similar the expression and binding data was for a specific gene. We had to come up with this analysis completely on our own, and we are very happy with the results. We will talk later about how we determined the clusters of genes that each TF regulated.
 
 We chose a correlation value of TODO to distinguish which TFs regulated which genes.
@@ -127,6 +142,7 @@ TODO: how did we choose a correlation value cutoff
 TODO: talk about basic network stuff (will discuss in more detail later)
 
 #Correlation Set Up
+
 ```{r}
 
 #get the genes in the tf and rna data
