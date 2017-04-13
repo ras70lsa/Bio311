@@ -64,16 +64,16 @@ cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),]
 cluster1.profile.sorted
 ##cat(as.character(kcluster1.first100), quote=F,sep="\n")
 ```
+**catabolic process:**
+GENETICS March 1, 2012 vol. 190 no. 3 885-929; https://doi.org/10.1534/genetics.111.133306
+
+
 #GO for K-means cluster 2
 ```{r}
-
-#just get first 100
-kcluster2.first100 <- kcluster2.genes[1:100]
-
 cluster2.profile <- gprofiler(kcluster2.genes, 
                        organism = "scerevisiae",
                        max_p_value = 0.05,  # set p-value cutoff
-                       src_filter = "GO:BP", # only consider GO biological process
+                       src_filter = "GO", # only consider GO biological process
                        hier_filtering = "moderate"
                        )
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
