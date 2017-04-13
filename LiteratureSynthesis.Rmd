@@ -203,4 +203,84 @@ head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10)
 head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
 ```
 
+```{r}
+df.cors["gene"] = Set.sorted["Gene.ID"]
+df.cors.single <- df.cors %>% 
+  tidyr::gather(TF, corr, -gene) %>% # cast to long format
+  dplyr::select(TF, gene, corr)
+df.cors.single.trimmed <- filter(df.cors.single, corr > 0.75)
 
+gcn <- filter(df.cors.single.trimmed, TF=="corValues.Gcn")
+esa <- filter(df.cors.single.trimmed, TF=="corValues.Esa")
+set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
+```
+```{r}
+# Biological Process
+gcn.bp <- gprofiler(gcn, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:BP", # only consider GO biological process
+                          hier_filtering = "moderate")
+gcn.bp
+
+esa.bp <- gprofiler(esa, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:BP", # only consider GO biological process
+                          hier_filtering = "moderate")
+esa.bp
+
+set.bp <- gprofiler(set, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:BP", # only consider GO biological process
+                          hier_filtering = "moderate")
+set.bp
+```
+
+```{r}
+# Molecular Function
+gcn.mf <- gprofiler(gcn, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:MF", # only consider GO molecular function
+                          hier_filtering = "moderate")
+gcn.mf
+
+esa.mf <- gprofiler(esa, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:MF", # only consider GO molecular function
+                          hier_filtering = "moderate")
+esa.mf
+
+set.mf <- gprofiler(set, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:MF", # only consider GO molecular function
+                          hier_filtering = "moderate")
+set.mf
+```
+```{r}
+# Cellular Component
+gcn.cc <- gprofiler(gcn, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:CC", # only consider GO cellular component
+                          hier_filtering = "moderate")
+gcn.cc
+
+esa.cc <- gprofiler(esa, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:CC", # only consider GO cellular component
+                          hier_filtering = "moderate")
+esa.cc
+
+set.cc <- gprofiler(set, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO:CC", # only consider GO cellular component
+                          hier_filtering = "moderate")
+set.cc
+```
