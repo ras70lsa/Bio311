@@ -1,6 +1,6 @@
 ---
 title: "Literature Synthesis"
-author: "Dakota Brinkman"
+author: "Group 10 members"
 date: "4/12/2017"
 output: html_document
 ---
