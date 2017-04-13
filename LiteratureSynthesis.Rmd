@@ -51,6 +51,141 @@ kcluster2.genes <- names(kclusters[kclusters == 2])
 kcluster3.genes <- names(kclusters[kclusters == 3])
 ```
 
+#RnaSeq
+```{r}
+
+rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
+rnatime <- read.csv("./datasets/kuang-2014-rnaseq-expression-timepts.csv")
+# first remember the names
+nrna <- rnaseq$Gene.name
+
+# transpose all but the first column (Gene.name)
+rnaseq_t_zeros <- as.data.frame(t(rnaseq[,-1]))
+colnames(rnaseq_t_zeros) <- nrna
+
+rnaseq_t_zeros.time <- cbind(rnaseq_t_zeros, time = rnatime$hour)
+
+rnaseq_t <- rnaseq_t_zeros[, colSums(rnaseq_t_zeros != 0) > 0]
+rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
+
+rnaseq.cor <- cor(rnaseq_t, use = "pairwise.complete.obs") 
+rnaseq.dist <- as.dist(1-rnaseq.cor)
+
+rnaseq.tree <- hclust(rnaseq.dist, method = "complete") 
+rnaseq.dend <- as.dendrogram(rnaseq.tree)
+
+rnaseq.clusters <- cut(rnaseq.dend, h = 1.9)
+
+rnaseq.clusters.cluster1 <- cut(rnaseq.clusters$lower[[1]], h = 1.5)
+rnaseq.clusters.cluster1.clusterAgain <- cut(rnaseq.clusters.cluster1$lower[[1]], h = 1.2)
+
+rnaseq.clusters.cluster2 <- cut(rnaseq.clusters$lower[[2]], h = 1.6)
+
+rnaseq.clusters.cluster3 <- cut(rnaseq.clusters$lower[[3]], h = 1.3)
+rnaseq.clusters.cluster3.cutAgain <- cut(rnaseq.clusters.cluster3$lower[[1]], h = .85)
+
+rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
+```
+
+```{r}
+rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
+rnaseq.clusters.cluster1.clusterAgain$lower[[2]]
+rnaseq.clusters.cluster2$lower[[1]]
+rnaseq.clusters.cluster2$lower[[2]]
+rnaseq.clusters.cluster2$lower[[3]]
+rnaseq.clusters.cluster2$lower[[4]]
+rnaseq.clusters.cluster3.cutAgain$lower[[1]]
+rnaseq.clusters.cluster3.cutAgain$lower[[2]]
+rnaseq.clusters.cluster3.cutAgain$lower[[3]]
+rnaseq.clusters.cluster3.cutAgain$lower[[4]]
+rnaseq.clusters.cluster3.cutAgain$lower[[5]]
+rnaseq.clusters.cluster3$lower[[2]]
+rnaseq.clusters.cluster3$lower[[3]]
+rnaseq.clusters.cluster4$lower[[1]]
+rnaseq.clusters.cluster4$lower[[2]]
+rnaseq.clusters.cluster4$lower[[3]]
+rnaseq.clusters.cluster4$lower[[4]]
+rnaseq.clusters.cluster4$lower[[5]]
+```
+
+*Largest*
+```{r}
+rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
+rnaseq.clusters.cluster3.cutAgain$lower[[2]]
+rnaseq.clusters.cluster4$lower[[4]]
+```
+
+*Ensure their expression varies* 
+```{r}
+rnaseq_t_zeros.time.long <- gather(rnaseq_t_zeros.time, gene, expression, -time);
+cols <- c("time", "gene", "expression");
+rnaseq_t_zeros.time.long.filtered <- rnaseq_t_zeros.time.long[,cols];
+```
+
+```{r}
+cluster1.genes.names <- as.character(labels(rnaseq.clusters.cluster1.clusterAgain$lower[[1]]))
+cluster1.genes.first5 <- cluster1.genes.names[1:5]
+rnaseq_t_zeros.time.long.filtered %>%
+  filter(gene %in% cluster1.genes.first5) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
+
+```{r}
+cluster2.genes.names <- as.character(labels(rnaseq.clusters.cluster3.cutAgain$lower[[2]]))
+cluster2.genes.first5 <- cluster2.genes.names[1:5]
+rnaseq_t_zeros.time.long.filtered %>%
+  filter(gene %in% cluster2.genes.first5) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
+
+```{r}
+cluster3.genes.names <- as.character(labels(rnaseq.clusters.cluster4$lower[[4]]))
+cluster3.genes.first5 <- cluster3.genes.names[1:5]
+rnaseq_t_zeros.time.long.filtered %>%
+  filter(gene %in% cluster3.genes.first5) %>%
+  ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
+```
+
+*All pretty varient in time* ... we will continue with these three clusters
+
+# Go for Hierarchical Clustering
+
+```{r}
+gene.clu <- lapply(rnaseq.clusters.cluster1.clusterAgain$lower, labels)
+cluster1.profile <- gprofiler(gene.clu[[1]], 
+                       organism = "scerevisiae",
+                       max_p_value = 0.001,  # set p-value cutoff
+                       src_filter = "GO", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] 
+cluster1.profile.sorted
+```
+
+TODO: Term name criteria 1. p-value 2. specificivity 3. Relevance to paper
+
+```{r}
+gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
+cluster2.profile <- gprofiler(gene.clu2[[2]], 
+                       organism = "scerevisiae",
+                       max_p_value = 0.001,  # set p-value cutoff
+                       src_filter = "GO", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
+cluster2.profile.sorted
+```
+
+```{r}
+gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
+cluster2.profile <- gprofiler(gene.clu3[[4]], 
+                       organism = "scerevisiae",
+                       max_p_value = 0.001,  # set p-value cutoff
+                       src_filter = "GO", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
+```
 #GO for K-means cluster 1
 ```{r}
 
@@ -100,7 +235,6 @@ cluster3.profile <- gprofiler(kcluster3.genes,
 cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
 cluster3.profile.sorted
 ```
-
 
 #TF Binding Clusters
 ```{r}
@@ -284,40 +418,3 @@ set.cc <- gprofiler(set,
                           hier_filtering = "moderate")
 set.cc
 ```
-
-#RnaSeq
-```{r}
-
-rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
-rnatime <- read.csv("./datasets/kuang-2014-rnaseq-expression-timepts.csv")
-# first remember the names
-nrna <- rnaseq$Gene.name
-
-# transpose all but the first column (Gene.name)
-rnaseq_t_zeros <- as.data.frame(t(rnaseq[,-1]))
-colnames(rnaseq_t_zeros) <- nrna
-
-rnaseq_t_zeros.time <- cbind(rnaseq_t_zeros, time = rnatime$hour)
-
-rnaseq_t <- rnaseq_t_zeros[, colSums(rnaseq_t_zeros != 0) > 0]
-rnaseq_t.time <- cbind(rnaseq_t, time = rnatime$hour)
-
-rnaseq.cor <- cor(rnaseq_t, use = "pairwise.complete.obs") 
-rnaseq.dist <- as.dist(1-rnaseq.cor)
-
-rnaseq.tree <- hclust(rnaseq.dist, method = "complete") 
-rnaseq.dend <- as.dendrogram(rnaseq.tree)
-
-rnaseq.clusters <- cut(rnaseq.dend, h = 1.9)
-
-rnaseq.clusters.cluster1 <- cut(rnaseq.clusters$lower[[1]], h = 1.5)
-rnaseq.clusters.cluster1.clusterAgain <- cut(rnaseq.clusters.cluster1$lower[[1]], h = 1.2)
-
-rnaseq.clusters.cluster2 <- cut(rnaseq.clusters$lower[[2]], h = 1.6)
-
-rnaseq.clusters.cluster3 <- cut(rnaseq.clusters$lower[[3]], h = 1.3)
-rnaseq.clusters.cluster3.cutAgain <- cut(rnaseq.clusters.cluster3$lower[[1]], h = .85)
-
-rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
-```
-
