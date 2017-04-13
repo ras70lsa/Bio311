@@ -98,6 +98,8 @@ cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),]
 cluster3.profile.sorted
 ```
 
+
+#TF Binding Clusters
 ```{r}
 
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
