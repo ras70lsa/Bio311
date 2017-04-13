@@ -48,7 +48,7 @@ kcluster3.genes <- names(kclusters[kclusters == 3])
 
 #just get first 100
 kcluster1.first100 <- kcluster1.genes[1:100]
-cat(as.character(kcluster1.first100), quote=F,sep="\n")
+#cat(as.character(kcluster1.first100), quote=F,sep="\n")
 
 ```
 #GO for K-means cluster 2
@@ -56,7 +56,7 @@ cat(as.character(kcluster1.first100), quote=F,sep="\n")
 
 #just get first 100
 kcluster2.first100 <- kcluster2.genes[1:100]
-cat(as.character(kcluster2.first100), quote=F,sep="\n")
+#cat(as.character(kcluster2.first100), quote=F,sep="\n")
 
 ```
 
@@ -65,7 +65,7 @@ cat(as.character(kcluster2.first100), quote=F,sep="\n")
 
 #just get first 100
 kcluster3.first100 <- kcluster3.genes[1:100]
-cat(as.character(kcluster3.first100), quote=F,sep="\n")
+#cat(as.character(kcluster3.first100), quote=F,sep="\n")
 
 ```
 
