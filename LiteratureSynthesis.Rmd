@@ -5,3 +5,67 @@ date: "4/12/2017"
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+library(dplyr);
+library("stringr");
+library(ggplot2);
+library(dplyr);
+library(tidyr);
+library(RColorBrewer);
+library(dendextend);
+library(gplots);
+library(cluster);
+library(igraph)
+library(ggraph)
+library(gridExtra)
+library(grid)
+library(gProfileR) ## might need to be installed
+```
+
+```{r}
+kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
+kuang_t <- as.data.frame(t(kuang[,-1]))
+n <- kuang$Gene.name # first remember the names
+colnames(kuang_t) <- n
+kuang_t.cor <- kuang_t %>% cor(use="pairwise.complete.obs")  ##generate correlation measurements
+kuang.dist <- as.dist(1 - kuang_t.cor)  ##use correlation to find distance measurements 
+kuang.tree <- hclust(kuang.dist, method="complete")
+kuang.dend <- as.dendrogram(kuang.tree) ## created & priviewed dendrogram object
+k=3
+kuang.kmedoids <- pam(kuang.dist, k) # create k-medoids clustering with k clusters
+kclusters <- kuang.kmedoids$cluster
+kclusters <- kclusters[order.dendrogram(kuang.dend)]
+```
+
+```{r}
+kcluster1.genes <- names(kclusters[kclusters == 1])
+kcluster2.genes <- names(kclusters[kclusters == 2])
+kcluster3.genes <- names(kclusters[kclusters == 3])
+```
+
+#GO for K-means cluster 1
+```{r}
+
+#just get first 100
+kcluster1.first100 <- kcluster1.genes[1:100]
+cat(as.character(kcluster1.first100), quote=F,sep="\n")
+
+```
+#GO for K-means cluster 2
+```{r}
+
+#just get first 100
+kcluster2.first100 <- kcluster2.genes[1:100]
+cat(as.character(kcluster2.first100), quote=F,sep="\n")
+
+```
+
+#GO for K-means cluster 3
+```{r}
+
+#just get first 100
+kcluster3.first100 <- kcluster3.genes[1:100]
+cat(as.character(kcluster3.first100), quote=F,sep="\n")
+
+```
+
