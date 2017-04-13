@@ -20,7 +20,15 @@ library(ggraph)
 library(gridExtra)
 library(grid)
 library(gProfileR) ## might need to be installed
+library(org.Sc.sgd.db)
+
 ```
+
+```{r}
+columns(org.Sc.sgd.db)
+select(org.Sc.sgd.db, "YAL022C", "ALIAS")
+```
+
 
 ```{r}
 kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
@@ -46,27 +54,51 @@ kcluster3.genes <- names(kclusters[kclusters == 3])
 #GO for K-means cluster 1
 ```{r}
 
-#just get first 100
-kcluster1.first100 <- kcluster1.genes[1:100]
-#cat(as.character(kcluster1.first100), quote=F,sep="\n")
-
+cluster1.profile <- gprofiler(kcluster1.genes, 
+                       organism = "scerevisiae",
+                       max_p_value = 0.05,  # set p-value cutoff
+                       src_filter = "GO", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] 
+cluster1.profile.sorted
+##cat(as.character(kcluster1.first100), quote=F,sep="\n")
 ```
 #GO for K-means cluster 2
 ```{r}
 
 #just get first 100
 kcluster2.first100 <- kcluster2.genes[1:100]
-#cat(as.character(kcluster2.first100), quote=F,sep="\n")
+
+cluster2.profile <- gprofiler(kcluster2.genes, 
+                       organism = "scerevisiae",
+                       max_p_value = 0.05,  # set p-value cutoff
+                       src_filter = "GO:BP", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
+cluster2.profile.sorted
+##cat(as.character(kcluster2.first100), quote=F,sep="\n")
 
 ```
+
+*Note: chromatin assembly or disassembly** 
 
 #GO for K-means cluster 3
 ```{r}
 
 #just get first 100
 kcluster3.first100 <- kcluster3.genes[1:100]
-#cat(as.character(kcluster3.first100), quote=F,sep="\n")
 
+##cat(as.character(kcluster3.first100), quote=F,sep="\n")
+cluster3.profile <- gprofiler(kcluster3.genes, 
+                       organism = "scerevisiae",
+                       max_p_value = 0.05,  # set p-value cutoff
+                       src_filter = "GO", # only consider GO biological process
+                       hier_filtering = "moderate"
+                       )
+cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
+cluster3.profile.sorted
 ```
 
 
@@ -170,4 +202,5 @@ head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10)
 head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
 head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
 ```
+
 
