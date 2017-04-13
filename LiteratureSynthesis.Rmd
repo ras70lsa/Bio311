@@ -69,3 +69,103 @@ cat(as.character(kcluster3.first100), quote=F,sep="\n")
 
 ```
 
+```{r}
+
+kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
+time <- read.csv("./datasets/kuang-2014-TFbinding-timepts.csv")
+kuangrna <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv")   ##used later - included in the import section of the code for clarity
+
+Gcn <- kuangtf[,c(1:15)]
+Esa <- kuangtf[,c(1,16:29)]
+Set <- kuangtf[,c(1,30:43)]
+
+Gcn.data <- as.data.frame(t(Gcn[,-1]))
+colnames(Gcn.data) <- Gcn$Gene.ID
+Gcn.time <- cbind(Gcn.data, time = time$hour)
+
+Esa.data <- as.data.frame(t(Esa[,-1]))
+colnames(Esa.data) <- Esa$Gene.ID
+Esa.time <- cbind(Esa.data, time = time$hour)
+
+Set.data <- as.data.frame(t(Set[,-1]))
+colnames(Set.data) <- Set$Gene.ID
+Set.time <- cbind(Set.data, time = time$hour)
+
+#get the genes in the tf and rna data
+TF.genes <- unique(kuangtf[,1])
+rna.genes <- unique(kuangrna[,1])
+
+#get rid of duplicated rows in the rna data
+rna.unique <- unique(kuangrna)
+
+#filter the rna data for the tf genes
+rna.Genes <- filter(rna.unique, rna.unique[,1] %in% TF.genes)
+
+#get the unique genes from this rna data
+#may not need to do this again but did it just to be safe
+rna.genes.u <- unique(rna.Genes[,1])
+
+#It appears that all of the genes present in the TF data are not present in the rna data
+#So need to filter again to get rid of these genes
+kuangtf.new <- filter(kuangtf, TF.genes %in% rna.genes.u)
+
+#now remove last two columns so the times add up
+rna.new <- rna.Genes[,1:15]
+
+dim(rna.new)
+dim(kuangtf.new)
+
+#now extract the different TFs
+Gcn.new <- kuangtf.new[,c(1:15)]
+dim(Gcn.new)
+Esa.new <- kuangtf.new[,c(1,16:29)]
+dim(Esa.new)
+Set.new <- kuangtf.new[,c(1,30:43)]
+dim(Set.new)
+
+#here we see the 69 genes that are in the TF data but not the rnaseq
+length(which( ! TF.genes %in% rna.genes))
+
+#sort so that the genes are in the same order
+Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
+Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
+Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
+#preview
+head(Gcn.sorted[,1:5])
+head(Esa.sorted[,1:5])
+head(Set.sorted[,1:5])
+head(rna.new[,1:5])
+
+```
+
+```{r}
+##Need to drop gene name
+Gcn.sorted.cor <- dplyr::select(Gcn.sorted, -Gene.ID)
+Esa.sorted.cor <- dplyr::select(Esa.sorted, -Gene.ID)
+Set.sorted.cor <- dplyr::select(Set.sorted, -Gene.ID)
+rna.new.cor <- dplyr::select(rna.new, -Gene.name)
+corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
+df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
+head(df.cors)
+```
+```{r}
+# But first lets append the gene names to the df.cors dataframe for more informative display
+df.cors.w.names <- df.cors
+row.names(df.cors.w.names) <- Gcn.sorted$Gene.ID #doesn't matter what set the names comes from - they are all the same 
+head(df.cors.w.names)
+```
+```{r}
+Gcn.indexes <- which(df.cors.w.names[,1] > .75)
+Gcn.genes.above <- kuangtf.new[Gcn.indexes, 1]
+Esa.indexes <- which(df.cors[,2] > .75)
+Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
+Set.indexes <- which(df.cors[,3] > .75)
+Set.genes.above <- kuangtf.new[Set.indexes, 1]
+#print first 10 genes for each TF that meet threshold
+head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
+head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
+head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
+```
+
