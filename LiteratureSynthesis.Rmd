@@ -164,6 +164,22 @@ cluster1.profile.sorted
 
 TODO: Term name criteria 1. p-value 2. specificivity 3. Relevance to paper
 
+For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
+
+Citation:
+Kuang Z, Cai L, Zhang X, Ji H, Tu BP, Boeke JD. High-temporal-resolution view of transcription and chromatin states across distinct metabolic states in budding yeast. Nat Struct Mol Biol. 2014 Oct;21(10):854-63. doi: 10.1038/nsmb.2881. PubMed PMID: 25173176; PubMed Central PMCID: PMC4190017.
+
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  This is noteworthy because our assigned paper is analyzing the metabolic process in glucose-limited conditions, so to see a cluster mapped to a resource reduction makes sense.
+
+Citation:
+Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
+
+Piggybacking off of the first gene ontology term for this cluster, the final term of interest is **nicotinamide nucleotide metabolic process**.  This term is interesting for its low p-value, as well as its relation to the metabolic process, which is the process of focus of our paper.
+
+Citation:
+Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
+
+
 ```{r}
 gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
 cluster2.profile <- gprofiler(gene.clu2[[2]], 
@@ -175,6 +191,11 @@ cluster2.profile <- gprofiler(gene.clu2[[2]],
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
 cluster2.profile.sorted
 ```
+With a miniscule p-value of 6.76e-72, the first gene ontology term of note out of cluster 2 is **structural constituent of ribosome**.  The paper by Kuang et al., that is the basis for our project, deals with changes in chromatin status across robust metabolic cycles.  It is possibe that the structural consituent of ribosome plays a large role in these chromatic state changes.
+
+Citation:
+Chen K, Deng S, Lu H, Zheng Y, Yang G, Kim D, et al. (2013) RNA-Seq Characterization of Spinal Cord Injury Transcriptome in Acute/Subacute Phases: A Resource for Understanding the Pathology at the Systems Level. PLoS ONE 8(8): e72567. https://doi.org/10.1371/journal.pone.0072567
+
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
