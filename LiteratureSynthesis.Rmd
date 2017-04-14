@@ -191,10 +191,23 @@ cluster2.profile <- gprofiler(gene.clu2[[2]],
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
 cluster2.profile.sorted
 ```
-With a miniscule p-value of 6.76e-72, the first gene ontology term of note out of cluster 2 is **structural constituent of ribosome**.  The paper by Kuang et al., that is the basis for our project, deals with changes in chromatin status across robust metabolic cycles.  It is possibe that the structural consituent of ribosome plays a large role in these chromatic state changes.
+Both **cytosolic ribosome** and **cytoplasmic translation** had miniscule p-values of 2.90e-103 and 4.81e-101, respectively.  While they seem like pretty general terms, their p-values are so small there they can't be ignored.  Both terms deal with cytoplasm, the material within a living cell, other than the nucleus.
+
+Citation:
+Tripathi A, Mandon EC, Gilmore R, Rapoport TA. Two alternative binding mechanisms connect the protein translocation Sec71/Sec72 complex with heat shock proteins. The Journal of Biological Chemistry. PMID 28286332 DOI: 10.1074/jbc.M116.761122 
+
+With a p-value of 6.76e-72, another gene ontology term of note out of cluster 2 is **structural constituent of ribosome**.  The paper by Kuang et al., that is the basis for our project, deals with changes in chromatin status across robust metabolic cycles.  It is possibe that the structural consituent of ribosome plays a large role in these chromatic state changes.
 
 Citation:
 Chen K, Deng S, Lu H, Zheng Y, Yang G, Kim D, et al. (2013) RNA-Seq Characterization of Spinal Cord Injury Transcriptome in Acute/Subacute Phases: A Resource for Understanding the Pathology at the Systems Level. PLoS ONE 8(8): e72567. https://doi.org/10.1371/journal.pone.0072567
+
+Similar to structural constituent of ribosome, the term **ribonucleoprotein complex biogenesis** also appeared for this second cluster with a p-value of 6.61e-34.  This is a process that results in the assembly and arrangement of consituent parts of a complex containing RNA and proteins.  Chromosomes consist of DNA, so there could be a connection there.
+
+Citation:
+Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
+Nature 417, 967–970 (2002).
+
+
 
 
 ```{r}
@@ -206,7 +219,21 @@ cluster2.profile <- gprofiler(gene.clu3[[4]],
                        hier_filtering = "moderate"
                        )
 cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
+cluster3.profile.sorted
 ```
+The first term that sticks out is **ncRNA metabolic process**, due to its relation to the metabolic cycle.  For this third cluster it has a p-value of 2.33e-72, an extremely small value.  ncRNA is an RNA molecule that is not translated into a protein.
+
+Citation:
+Kornfeld J-W, Brüning JC. Regulation of metabolism by long, non-coding RNAs. Frontiers in Genetics. 2014;5:57. doi:10.3389/fgene.2014.00057.
+
+Both **ribonucleoprotein complex biogenesis** and **ribonucleoprotein complex assembly** appear in this third cluster.  We have seen these terms appear before, and doing some research reveals that the ribonucleoprotein complex plays an integral part in regulating the metabolism of RNA.
+
+Citation:
+Bindereif A, Green MR. Ribonucleoprotein complex formation during pre-mRNA splicing in vitro. Mol Cell Biol. 1986 Jul;6(7):2582–2592.
+
+There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
+
+
 #GO for K-means cluster 1
 ```{r}
 
