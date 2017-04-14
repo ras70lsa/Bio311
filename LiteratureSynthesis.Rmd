@@ -191,7 +191,7 @@ cluster2.profile <- gprofiler(gene.clu2[[2]],
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
 cluster2.profile.sorted
 ```
-Both **cytosolic ribosome** and **cytoplasmic translation** had miniscule p-values of 2.90e-103 and 4.81e-101, respectively.  While they seem like pretty general terms, their p-values are so small there they can't be ignored.  Both terms deal with cytoplasm, the material within a living cell, other than the nucleus.
+There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
 
 Citation:
 Tripathi A, Mandon EC, Gilmore R, Rapoport TA. Two alternative binding mechanisms connect the protein translocation Sec71/Sec72 complex with heat shock proteins. The Journal of Biological Chemistry. PMID 28286332 DOI: 10.1074/jbc.M116.761122 
@@ -212,7 +212,7 @@ Nature 417, 967–970 (2002).
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
-cluster2.profile <- gprofiler(gene.clu3[[4]], 
+cluster3.profile <- gprofiler(gene.clu3[[4]], 
                        organism = "scerevisiae",
                        max_p_value = 0.001,  # set p-value cutoff
                        src_filter = "GO", # only consider GO biological process
@@ -221,17 +221,22 @@ cluster2.profile <- gprofiler(gene.clu3[[4]],
 cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
 cluster3.profile.sorted
 ```
-The first term that sticks out is **ncRNA metabolic process**, due to its relation to the metabolic cycle.  For this third cluster it has a p-value of 2.33e-72, an extremely small value.  ncRNA is an RNA molecule that is not translated into a protein.
+
+The first notable term, with the lowest p-value in this cluster, is **ubiquitin-dependent protein catabolic process**.  Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions.
 
 Citation:
-Kornfeld J-W, Brüning JC. Regulation of metabolism by long, non-coding RNAs. Frontiers in Genetics. 2014;5:57. doi:10.3389/fgene.2014.00057.
+Dong, Y., Hu, J., Fan, L., & Chen, Q. (2017). RNA-Seq-based transcriptomic and metabolomic analysis reveal stress responses and programmed cell death induced by acetic acid in Saccharomyces cerevisiae. Scientific Reports, 7, 42659. doi:10.1038/srep42659
 
-Both **ribonucleoprotein complex biogenesis** and **ribonucleoprotein complex assembly** appear in this third cluster.  We have seen these terms appear before, and doing some research reveals that the ribonucleoprotein complex plays an integral part in regulating the metabolism of RNA.
+The next lowest p-value in the third cluster is **vesicle-mediated transport**.  This term relates to the transportation of substances in membrane-bound vesicles.
 
 Citation:
-Bindereif A, Green MR. Ribonucleoprotein complex formation during pre-mRNA splicing in vitro. Mol Cell Biol. 1986 Jul;6(7):2582–2592.
+Vesicle-mediated protein transport: regulatory interactions between the Vps15 protein kinase and the Vps34 PtdIns 3-kinase essential for protein sorting to the vacuole in yeast. The Journal of Cell Biology. 1995;129(2):321-334.
 
-There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
+With a p-value of 7.00e-09, **endomembrane system** is very interesting.  The endomembrane system regulates protein traffic and, more notably, performs metabolic functions in the cell.  Again, we are brougt back to the metabolic process - the focus of our paper.
+
+Citation:
+Hariri, H., Ugrankar, R., Liu, Y., & Henne, W. M. (2016). Inter-organelle ER-endolysosomal contact sites in metabolism and disease across evolution. Communicative & Integrative Biology, 9(3). doi:10.1080/19420889.2016.1156278
+
 
 
 #GO for K-means cluster 1
