@@ -162,8 +162,6 @@ cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),]
 cluster1.profile.sorted
 ```
 
-TODO: Term name criteria 1. p-value 2. specificivity 3. Relevance to paper
-
 For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
 
 Citation:
@@ -236,6 +234,12 @@ With a p-value of 7.00e-09, **endomembrane system** is very interesting.  The en
 
 Citation:
 Hariri, H., Ugrankar, R., Liu, Y., & Henne, W. M. (2016). Inter-organelle ER-endolysosomal contact sites in metabolism and disease across evolution. Communicative & Integrative Biology, 9(3). doi:10.1080/19420889.2016.1156278
+
+
+
+Metabolism, either directly or indirectly, appears in every cluster.  In the first cluster it is the GO term with the lowest p-value.  In the second cluster we see many terms dealing with the cytoplasm.  After doing more research we found that metabolic processes occur in the cytoplasm.  In the third cluster the GO term with the smallest p-value deals with catabolic processes, which is the phase of the metabolic process that distintegrates complex organic compounds to release energy.  It is encouraging to see metabolism being repeated in all three clusters because the paper our data comes from is researching chromatin states across metabolic cycles.  Therefore it makes sense that genes related to the metabolic process are expressed highly and in all the clusters.
+
+There are no other terms that appear in multiple clusters.
 
 
 
