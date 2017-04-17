@@ -21,14 +21,20 @@ library(gridExtra)
 library(grid)
 library(gProfileR) ## might need to be installed
 library(org.Sc.sgd.db)
-
 ```
+
+# Question 1 - GO Analysis 
+
+At first we wanted to familiarize ourselves with the database, shown below. 
 
 ```{r}
 columns(org.Sc.sgd.db)
 select(org.Sc.sgd.db, "YAL022C", "ALIAS")
 ```
 
+### Gene Clustering GO Analysis 
+
+Below we pulled in the microarray data and our k-means clustering analysis.
 
 ```{r}
 kuang <- read.csv("./datasets/kuang-2014-microarray-expression.csv") ##local- needs to be changed 
@@ -49,9 +55,17 @@ kclusters <- kclusters[order.dendrogram(kuang.dend)]
 kcluster1.genes <- names(kclusters[kclusters == 1])
 kcluster2.genes <- names(kclusters[kclusters == 2])
 kcluster3.genes <- names(kclusters[kclusters == 3])
+length(kcluster1.genes)
+length(kcluster2.genes)
+length(kcluster3.genes)
 ```
 
+In our k-means clustering we only created 3 clusters. We did this to be consistent with the paper. This is described in more detail in our clustering homework. However, in this homework, we just wanted to convey the sizes of our k-means clusters. These clusters are quite large and we decided this was not ideal for GO analysis. We feared that large cluster sizes could lead to clusters with a wide range of functions, which we wanted to avoid for this particular analysis. For this reason, as an alternative, we carry out GO analysis with our hierarchical clusters from the RNASeq data.
+
 #RnaSeq
+
+Below we pulled in the RNASeq data and perform the hierarchical clustering as done in the clustering homework.
+
 ```{r}
 
 rnaseq <- read.csv("./datasets/kuang-2014-rnaseq-expression.csv") #local needs to be changed
@@ -87,6 +101,8 @@ rnaseq.clusters.cluster3.cutAgain <- cut(rnaseq.clusters.cluster3$lower[[1]], h 
 rnaseq.clusters.cluster4 <- cut(rnaseq.clusters$lower[[4]], h = 1.48)
 ```
 
+In our hierarchical clustering of the RNASeq data we arrived at 18 final clusters. Their names and sizes are listed below.
+
 ```{r}
 rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
 rnaseq.clusters.cluster1.clusterAgain$lower[[2]]
@@ -109,6 +125,9 @@ rnaseq.clusters.cluster4$lower[[5]]
 ```
 
 *Largest*
+
+From the original 18 clusters we chose the 3 largest to perform GO analysis, shown below.  
+
 ```{r}
 rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
 rnaseq.clusters.cluster3.cutAgain$lower[[2]]
@@ -116,6 +135,11 @@ rnaseq.clusters.cluster4$lower[[4]]
 ```
 
 *Ensure their expression varies* 
+
+However, after we chose these clusters we wanted to varify that they contained genes that changed expression over time. In other words we did not want to run GO analysis on clusters with genes whose expression did not vary with time. A cluster with non-variant gene expression would imply that the cluster did not respond to the stress and thus its genes functions are not particularly relevant to the cell's response to the starvation stress during the metabolic process.
+
+To varify variant expression we plotted the first 5 genes' expression, in each cluster, over time and observed the results.
+
 ```{r}
 rnaseq_t_zeros.time.long <- gather(rnaseq_t_zeros.time, gene, expression, -time);
 cols <- c("time", "gene", "expression");
@@ -146,21 +170,39 @@ rnaseq_t_zeros.time.long.filtered %>%
   ggplot(aes(x = time, y = expression, color = gene)) + geom_line()
 ```
 
-*All pretty varient in time* ... we will continue with these three clusters
+From the plots above it was clear that all three clusters contained genes with variant expression over time. Thus, we decided to continue with these three clusters.
 
-# Go for Hierarchical Clustering
+# GO for Hierarchical Clustering
+
+In the following section we carry out the GO analysis for these three clusters.
+
+**P-value cutoff**
+
+At this point we did need to make a decision about what p-value cutoff to use. We used a cutoff of 0.001. It is important to note this cutoff is just a threshold for the *gprofiler* to return results, not a threshold for us to determine significance. Thus, we decided to chose a relatively lose cutoff value for the *gprofiler* and determine the significance of each returned turn retroactively. In this manner we would avoid missing significant terms. 
+
+### Cluster 1
 
 ```{r}
 gene.clu <- lapply(rnaseq.clusters.cluster1.clusterAgain$lower, labels)
 cluster1.profile <- gprofiler(gene.clu[[1]], 
                        organism = "scerevisiae",
                        max_p_value = 0.001,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
+                       src_filter = "GO", # consider all processes
                        hier_filtering = "moderate"
                        )
-cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] 
-cluster1.profile.sorted
+cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] ## sort based on p.value
+columns.of.interest <- c(3,4,8,9,12)
+head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
 ```
+
+# GO Term Criteria
+
+We had 3 main criteria for chosing which GO terms to investigate further
+1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
+2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
+3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
+
+### Cluster 1 - GO Terms and papers 
 
 For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
 
@@ -177,17 +219,18 @@ Piggybacking off of the first gene ontology term for this cluster, the final ter
 Citation:
 Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
 
+### Cluster 2
 
 ```{r}
 gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
 cluster2.profile <- gprofiler(gene.clu2[[2]], 
                        organism = "scerevisiae",
                        max_p_value = 0.001,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
+                       src_filter = "GO", # consider all processes
                        hier_filtering = "moderate"
                        )
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
-cluster2.profile.sorted
+head(cluster2.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
 
@@ -205,19 +248,18 @@ Citation:
 Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
 Nature 417, 967–970 (2002).
 
-
-
+### Cluster 3
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
 cluster3.profile <- gprofiler(gene.clu3[[4]], 
                        organism = "scerevisiae",
                        max_p_value = 0.001,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
+                       src_filter = "GO", # consider all processes
                        hier_filtering = "moderate"
                        )
 cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
-cluster3.profile.sorted
+head(cluster3.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 
 The first notable term, with the lowest p-value in this cluster, is **ubiquitin-dependent protein catabolic process**.  Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions.
@@ -235,65 +277,14 @@ With a p-value of 7.00e-09, **endomembrane system** is very interesting.  The en
 Citation:
 Hariri, H., Ugrankar, R., Liu, Y., & Henne, W. M. (2016). Inter-organelle ER-endolysosomal contact sites in metabolism and disease across evolution. Communicative & Integrative Biology, 9(3). doi:10.1080/19420889.2016.1156278
 
-
+### Re-occuring Terms and Patterns
 
 Metabolism, either directly or indirectly, appears in every cluster.  In the first cluster it is the GO term with the lowest p-value.  In the second cluster we see many terms dealing with the cytoplasm.  After doing more research we found that metabolic processes occur in the cytoplasm.  In the third cluster the GO term with the smallest p-value deals with catabolic processes, which is the phase of the metabolic process that distintegrates complex organic compounds to release energy.  It is encouraging to see metabolism being repeated in all three clusters because the paper our data comes from is researching chromatin states across metabolic cycles.  Therefore it makes sense that genes related to the metabolic process are expressed highly and in all the clusters.
 
 There are no other terms that appear in multiple clusters.
 
-
-
-#GO for K-means cluster 1
-```{r}
-
-cluster1.profile <- gprofiler(kcluster1.genes, 
-                       organism = "scerevisiae",
-                       max_p_value = 0.05,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
-                       hier_filtering = "moderate"
-                       )
-cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] 
-cluster1.profile.sorted
-##cat(as.character(kcluster1.first100), quote=F,sep="\n")
-```
-**catabolic process:**
-GENETICS March 1, 2012 vol. 190 no. 3 885-929; https://doi.org/10.1534/genetics.111.133306
-
-
-#GO for K-means cluster 2
-```{r}
-cluster2.profile <- gprofiler(kcluster2.genes, 
-                       organism = "scerevisiae",
-                       max_p_value = 0.05,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
-                       hier_filtering = "moderate"
-                       )
-cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
-cluster2.profile.sorted
-##cat(as.character(kcluster2.first100), quote=F,sep="\n")
-
-```
-
-*Note: chromatin assembly or disassembly** 
-
-#GO for K-means cluster 3
-```{r}
-
-#just get first 100
-kcluster3.first100 <- kcluster3.genes[1:100]
-
-##cat(as.character(kcluster3.first100), quote=F,sep="\n")
-cluster3.profile <- gprofiler(kcluster3.genes, 
-                       organism = "scerevisiae",
-                       max_p_value = 0.05,  # set p-value cutoff
-                       src_filter = "GO", # only consider GO biological process
-                       hier_filtering = "moderate"
-                       )
-cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
-cluster3.profile.sorted
-```
-
 #TF Binding Clusters
+
 ```{r}
 
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
@@ -475,3 +466,14 @@ set.cc <- gprofiler(set,
                           hier_filtering = "moderate")
 set.cc
 ```
+
+# Questions 3
+
+Do you analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
+
+TODO: answer
+
+# Conclusions, Biological Results, & Insights
+
+TODO: bullet points
+TODO: compare to the findings of the paper
