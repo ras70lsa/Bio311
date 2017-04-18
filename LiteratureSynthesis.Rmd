@@ -403,12 +403,12 @@ set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 Now that we have the TF clusters from the previous homework, we can run a GO analysis on each cluster.
 ```{r}
 # All GO Terms
-gcn.bp <- gprofiler(gcn, 
+gcn.go <- gprofiler(gcn, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-gcn.bp
+gcn.go
 ```
 Cluster 1: Gcn5
 Enriched Gene Ontology terms include:
@@ -418,24 +418,26 @@ CC: replication fork protection complex, nuclear nucleosome
 
 
 ```{r}
-esa.bp <- gprofiler(esa, 
+esa.go <- gprofiler(esa, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO",
                           hier_filtering = "moderate")
-esa.bp
+esa.go
 ```
 Cluster 2: Esa1
-Enriched terms include
-
+Enriched Gene Ontology terms include:
+BP: 
+MF:	
+CC: 
 
 ```{r}
-set.bp <- gprofiler(set, 
+set.go <- gprofiler(set, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-set.bp
+set.go
 ```
 Cluster 3: Set1
 Enriched terms include
