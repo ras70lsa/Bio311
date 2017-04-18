@@ -209,7 +209,7 @@ For the first cluster, the gene ontology term with the smallest p-value is **mon
 Citation:
 Mota, S., Vieira, N., Barbosa, S., Delaveau, T., Torchet, C., Saux, A. L., . . . Paiva, S. (2014). Role of the DHH1 Gene in the Regulation of Monocarboxylic Acids Transporters Expression in Saccharomyces cerevisiae. PLoS ONE, 9(11). doi:10.1371/journal.pone.0111589
 
-The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.  This is related to the three phases of the yeast metabolic cycle: OX (oxidative), RB (reductive building), RC (reductive charging).
 
 Citation:
 Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
