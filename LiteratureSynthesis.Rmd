@@ -192,7 +192,7 @@ cluster1.profile <- gprofiler(gene.clu[[1]],
                        )
 cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] ## sort based on p.value
 columns.of.interest <- c(3,4,8,9,12)
-head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
+cluster1.profile.sorted[,columns.of.interest] ##make more readable
 ```
 
 # GO Term Criteria
@@ -208,11 +208,6 @@ For the first cluster, the gene ontology term with the smallest p-value is **mon
 
 Citation:
 Kuang Z, Cai L, Zhang X, Ji H, Tu BP, Boeke JD. High-temporal-resolution view of transcription and chromatin states across distinct metabolic states in budding yeast. Nat Struct Mol Biol. 2014 Oct;21(10):854-63. doi: 10.1038/nsmb.2881. PubMed PMID: 25173176; PubMed Central PMCID: PMC4190017.
-
-The next term of note that appeared in this cluster is **oxidation-reduction process**.  This is noteworthy because our assigned paper is analyzing the metabolic process in glucose-limited conditions, so to see a cluster mapped to a resource reduction makes sense. TODO check this. don't think it makes sense
-
-Citation:
-Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
 
 Piggybacking off of the first gene ontology term for this cluster, the final term of interest is **nicotinamide nucleotide metabolic process**.  This term is interesting for its low p-value, as well as its relation to the metabolic process, which is the process of focus of our paper.
 
@@ -230,7 +225,7 @@ cluster2.profile <- gprofiler(gene.clu2[[2]],
                        hier_filtering = "moderate"
                        )
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
-head(cluster2.profile.sorted[,columns.of.interest]) ##make more readable
+cluster2.profile.sorted[,columns.of.interest] ##make more readable
 ```
 There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
 
@@ -420,7 +415,7 @@ set.bp <- gprofiler(set,
                           hier_filtering = "moderate")
 set.bp
 ```
-```
+
 ```{r}
 # Biological Process
 gcn.bp <- gprofiler(gcn, 
@@ -501,17 +496,31 @@ Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism an
 
 # Questions 3
 
-Do you analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
+Note: in the GO analysis section, we provided detailed analysis on each paper that we cited. This section provides a summary of our results.
 
-Hierarchical Clustering Analysis
+Do your analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
 
-The biological processes of interest, identified by GO analysis above, such as the **monocarboxylic acid metabolic process** and **nicotinamide nucleotide metabolic process**, may contribute to the oscillations of gene expression under glucose limited conditions. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. Since these terms came up in GO analysis and share similar genes of interest as the kuang data, it is possible that these processes are affected by glucose-limited conditions. 
+### Hierarchical Clustering Analysis
 
-Another biological process term that came up in the GO analysis was **oxidation-reduction process**. It would be interesting to explore if the reduction of oxididation also produced oscillatory effects on the metabolic cycle. 
+The biological processes of interest, identified by GO analysis above may contribute to the oscillations of gene expression under glucose limited conditions. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. Since these terms came up in GO analysis and share similar genes of interest as the kuang data, it is possible that these processes are affected by glucose-limited conditions. A detailed analysis of each of the GO terms is provided below.
 
-TODO: isn't oxidation-reduction an actual process? not necessarily the "reduction" of oxidation. don't think the analsis above makes sense. 
+**Cluster 1**
 
-TF Data Analysis
+The GO terms from cluster 1 relate to monocarboxylic acid metabolic process, nicotinamide nucleotide metabolic process, ATP generation from ADP, protein catabolic process in the vacuole, glycolytic process, and oxidative stress. These GO terms are subsets of the metabolic process. Monocarboxylic acid is an organic compund typically found in acids used for metabolism. Nicotinamide nucleotide alters the metabolic process and has been shown to make older mice appear to have the same metabolism as younger mice. These two compounds reveal that even though our paper directly discusses glucose starvation, this starvation affects metabolic processes other than glucose starvation. Metabolism is a complicated process and there are many other factors at play.
+
+ATP to ADP and glycolytic process are general GO terms. However, we chose to include them because we think it provides insight in the cell’s response to glucose starvation. The conversion from ATP to ADP causes a release of energy in the cell. It is understandable that under glucose stress, where energy resources are low, the cell would begin to convert energy as necessary. It is then predictable that genes necessary for this conversion are involved in the GO analysis, as they are expressed under the stress introduced in the paper.
+
+Some of the terms point to information about chromatin states. The chromatin state modifiers correlate to gene expression in the stress response. This suggests that these modifiers manipulate the chromatin state to allow other TFs to activate genes linked to the metabolic process.
+
+**Cluster 2**
+
+The GO terms from cluster 2 relate to cytoplasmic creation, cytoplasmic transport, and RNA. Cluster 2 oscillates. With this information in mind, it makes sense that the material (proteins, cytoplasm) inside the cell is being produced, moved, and used in oscillatory patterns. Cytoplasm, material inside the cell, is necessary for yeast to survive. The yeast cell likely uses resources in the cell when those resources are availabile. However, when there are no other resources remaining, the yeast cell must produce more resources. Ribonucleoprotein complex biogenesis refers to the biosynthesis, assembly, and arrangement of macromolecules containing RNA and proteins. Thus, the yeast cell creates resources when the resources run out and then uses the resources in an oscillatory pattern.
+
+**Cluster 3**
+
+The main terms from this cluster are ubiquitin-dependent protein catabolic process and endomembrane system. Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions. This clearly relates to the metabolic process. The endomembrane system is a general GO term, but it relates to membranes and cytoplasm which are key features in the Kuang paper.
+
+### TF Data Analysis
 
 Our focal paper is about the effect of glucose-limited conditions on the metabolic cycle, and the gluconeogenesis paper is about a metabolic pathway that results in the generation of glucose. It makes sense that these papers would be interested in similar sets of genes. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. It would be interesting to explore if gluconeogenesis is one of the metabolic cycles affected by glucose-limited conditions, and if it results in oscillations in the generation of glucose. If this is the case, then it could be a feedback loop where low glucose levels contribute to higher oscillations but higher glucose levels decrease the amount of oscillations. 
 
@@ -519,9 +528,14 @@ The other terms in the GO analysis for TF clusters do not seem to be as related 
 
 # Conclusions, Biological Results, & Insights
 
-TODO: bullet points
-TODO: compare to the findings of the paper
+* Several clusters were identified to have oscillatory expression in response to glucose starvation in the yeast cell. 
+* These cluster exhibit similar expression patterns that are slightly delayed from each other in time. This suggests that the metabolic process is a complex and highly coordinated process in which there is a "just in time" supply chain.
+* GO term analysis revealed terms that related to the metabolic cycle, suggesting that our hierarchical clustering analysis identified at least three clusters particularly responsible for metabolization in the cell.
+* Three chromatin state modifiers (Gcn5p, Esa1p and Set1p) were found to have peak binding expression at similar times to gene expression in the stress response. This suggests that these modifiers manipulate the chromatin state to allow other TFs to activate genes linked to metabolization, supporting the conclusion that chromatin state contributes to metabolic processes. 
 
-- GO terms are related to the metabolic cycle and glucose
-- The robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions (the findings from our focal paper) may be related to and affect biological/metabolic processes from the GO analysis such as  gluconeogenesis, monocarboxylic acid metabolic process, and nicotinamide nucleotide metabolic process
-- Some GO terms also dealth with the effect of resource-deprivation on the metabolic cycle (oxidation-reduction process). TODO don't think this makes sense
+### Comparisson to our Focal Paper
+
+
+We found similar results to our focal papers, even though our methods varied. Our focal paper found that the metabolic process is a just in time supply chain comparised of several clusters that oscillate in patterns one after the other. The paper breaks down the metabolic process into three phases or clusters: OX, RB, RC. We found a similar result. We found clustesr that expressed oscillatory behavior over time, delayed from one another. However, we used several clustering methods. To be consistent with the paper we did a k-means clustering into three clusters. However, we also did hierarchical clustering on the data into 18 clusters. We believe this gave us greater granularity to study the oscillatory patterns. We hope to identify which clusters relate specifically to what phase, and then tie the functionality of these clusters to their phase based on GO terms in our final paper.
+
+Our focal paper seemed to be primarily focused on the gene expression. However, using the TF data we were able to come up with a pipeline that uses a correlation value from gene expression and TF binding to create transcription networks. We found that the chromatin modifiers regulate genes expressed in the stress condition. However, we did not find any complex regulatory patterns or motifs between these three TFs. This is a similar conclusion to the paper.
