@@ -20,7 +20,7 @@ library(ggraph)
 library(gridExtra)
 library(grid)
 library(gProfileR) ## might need to be installed
-library(org.Sc.sgd.db)
+#library(org.Sc.sgd.db)
 ```
 
 # Question 1 - GO Analysis 
@@ -28,8 +28,8 @@ library(org.Sc.sgd.db)
 At first we wanted to familiarize ourselves with the database, shown below. 
 
 ```{r}
-columns(org.Sc.sgd.db)
-select(org.Sc.sgd.db, "YAL022C", "ALIAS")
+#columns(org.Sc.sgd.db)
+#select(org.Sc.sgd.db, "YAL022C", "ALIAS")
 ```
 
 ### Gene Clustering GO Analysis 
@@ -209,7 +209,7 @@ For the first cluster, the gene ontology term with the smallest p-value is **mon
 Citation:
 Kuang Z, Cai L, Zhang X, Ji H, Tu BP, Boeke JD. High-temporal-resolution view of transcription and chromatin states across distinct metabolic states in budding yeast. Nat Struct Mol Biol. 2014 Oct;21(10):854-63. doi: 10.1038/nsmb.2881. PubMed PMID: 25173176; PubMed Central PMCID: PMC4190017.
 
-The next term of note that appeared in this cluster is **oxidation-reduction process**.  This is noteworthy because our assigned paper is analyzing the metabolic process in glucose-limited conditions, so to see a cluster mapped to a resource reduction makes sense.
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  This is noteworthy because our assigned paper is analyzing the metabolic process in glucose-limited conditions, so to see a cluster mapped to a resource reduction makes sense. TODO check this. don't think it makes sense
 
 Citation:
 Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
@@ -396,6 +396,31 @@ gcn <- filter(df.cors.single.trimmed, TF=="corValues.Gcn")
 esa <- filter(df.cors.single.trimmed, TF=="corValues.Esa")
 set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 ```
+
+```{r}
+# All GO Terms
+gcn.bp <- gprofiler(gcn, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO", 
+                          hier_filtering = "moderate")
+gcn.bp
+
+esa.bp <- gprofiler(esa, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO",
+                          hier_filtering = "moderate")
+esa.bp
+
+set.bp <- gprofiler(set, 
+                          organism = "scerevisiae",
+                          max_p_value = 0.05,  # set p-value cutoff
+                          src_filter = "GO", 
+                          hier_filtering = "moderate")
+set.bp
+```
+```
 ```{r}
 # Biological Process
 gcn.bp <- gprofiler(gcn, 
@@ -467,13 +492,36 @@ set.cc <- gprofiler(set,
 set.cc
 ```
 
+
+We chose to look up a paper for the term with lowest p-value: **gluconeogenesis**. Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
+
+Citation:
+Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism and gluconeogenesis by BAD. Cell Metab, 19(2):272-84. doi: 10.1016/j.cmet.2013.12.001.
+
+
 # Questions 3
 
 Do you analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
 
-TODO: answer
+Hierarchical Clustering Analysis
+
+The biological processes of interest, identified by GO analysis above, such as the **monocarboxylic acid metabolic process** and **nicotinamide nucleotide metabolic process**, may contribute to the oscillations of gene expression under glucose limited conditions. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. Since these terms came up in GO analysis and share similar genes of interest as the kuang data, it is possible that these processes are affected by glucose-limited conditions. 
+
+Another biological process term that came up in the GO analysis was **oxidation-reduction process**. It would be interesting to explore if the reduction of oxididation also produced oscillatory effects on the metabolic cycle. 
+
+TODO: isn't oxidation-reduction an actual process? not necessarily the "reduction" of oxidation. don't think the analsis above makes sense. 
+
+TF Data Analysis
+
+Our focal paper is about the effect of glucose-limited conditions on the metabolic cycle, and the gluconeogenesis paper is about a metabolic pathway that results in the generation of glucose. It makes sense that these papers would be interested in similar sets of genes. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. It would be interesting to explore if gluconeogenesis is one of the metabolic cycles affected by glucose-limited conditions, and if it results in oscillations in the generation of glucose. If this is the case, then it could be a feedback loop where low glucose levels contribute to higher oscillations but higher glucose levels decrease the amount of oscillations. 
+
+The other terms in the GO analysis for TF clusters do not seem to be as related to our main paper as terms produced by GO analysis of the hierarchical clusters. The terms in the GO analysis for TF clusters also have higher p-values. For this reason, we decided to focus on the GO terms from the hierarchical cluster analysis. 
 
 # Conclusions, Biological Results, & Insights
 
 TODO: bullet points
 TODO: compare to the findings of the paper
+
+- GO terms are related to the metabolic cycle and glucose
+- The robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions (the findings from our focal paper) may be related to and affect biological/metabolic processes from the GO analysis such as  gluconeogenesis, monocarboxylic acid metabolic process, and nicotinamide nucleotide metabolic process
+- Some GO terms also dealth with the effect of resource-deprivation on the metabolic cycle (oxidation-reduction process). TODO don't think this makes sense
