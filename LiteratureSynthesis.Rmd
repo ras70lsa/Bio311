@@ -283,7 +283,7 @@ Metabolism, either directly or indirectly, appears in every cluster.  In the fir
 
 There are no other terms that appear in multiple clusters.
 
-#TF Binding Clusters
+# GO for TF Binding Clusters
 
 Now carry out GO analysis on clusters we identified in our TF network analyses. Here are steps we did to get our 3 TF clusters (same as in the TF homework):
 
@@ -410,10 +410,13 @@ gcn.go <- gprofiler(gcn,
                           hier_filtering = "moderate")
 gcn.go
 ```
-Cluster 1: Gcn5
+### TF Cluster 1: Gcn5
 Enriched Gene Ontology terms include:
-BP: glycolytic process, ATP generation from ADP, hexose biosynthetic process
+
+BP: gluconeogenesis, glycolytic process, ATP generation from ADP, hexose biosynthetic process
+
 MF:	protein heterodimerization activity, NADP binding, glyceraldehyde-3-phosphate dehydrogenase (NAD(P)+) (phosphorylating) activity
+
 CC: replication fork protection complex, nuclear nucleosome
 
 
@@ -425,10 +428,13 @@ esa.go <- gprofiler(esa,
                           hier_filtering = "moderate")
 esa.go
 ```
-Cluster 2: Esa1
+### TF Cluster 2: Esa1
 Enriched Gene Ontology terms include:
-BP: 
+
+BP: transmembrane transport, cellular respiration
+
 MF:	
+
 CC: 
 
 ```{r}
@@ -439,12 +445,19 @@ set.go <- gprofiler(set,
                           hier_filtering = "moderate")
 set.go
 ```
-Cluster 3: Set1
-Enriched terms include
+### TF Cluster 3: Set1
+Enriched Gene Ontology terms include:
 
+BP: pyrimidine nucleoside transport, hexose biosynthetic process, purine ribonucleoside monophosphate metabolic process, ATP generation from ADP, nucleobase transport, carbohydrate biosynthetic process, glycolytic process
 
+MF:	pyrimidine nucleoside transmembrane transporter activity, nucleobase transmembrane transporter activity, glycerol-1-phosphatase activity
 
-We chose to look up a paper for the term with lowest p-value: **gluconeogenesis**. Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
+CC: replication fork protection complex, nuclear nucleosome
+
+### Papers in the literature
+
+We found papers for each of the biological process terms in our gene expression clusters, cited earlier. For our TF clusters, we decided to pick the BP term with the lowest p-value out of all the BP terms for all 3 clusters: **gluconeogenesis**
+Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
 
 Citation:
 Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism and gluconeogenesis by BAD. Cell Metab, 19(2):272-84. doi: 10.1016/j.cmet.2013.12.001.
@@ -452,7 +465,7 @@ Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism an
 
 # Questions 3
 
-Do you analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
+Do your analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
 
 Hierarchical Clustering Analysis
 
