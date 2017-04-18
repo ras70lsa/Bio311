@@ -180,7 +180,13 @@ In the following section we carry out the GO analysis for these three clusters.
 
 At this point we did need to make a decision about what p-value cutoff to use. We used a cutoff of 0.001. It is important to note this cutoff is just a threshold for the *gprofiler* to return results, not a threshold for us to determine significance. Thus, we decided to chose a relatively lose cutoff value for the *gprofiler* and determine the significance of each returned turn retroactively. In this manner we would avoid missing significant terms. 
 
-### Cluster 1
+
+# GO Term Criteria
+
+We had 3 main criteria for chosing which GO terms to investigate further
+1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
+2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
+3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
 
 ```{r}
 gene.clu <- lapply(rnaseq.clusters.cluster1.clusterAgain$lower, labels)
@@ -195,12 +201,6 @@ columns.of.interest <- c(3,4,9,12)
 head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 
-# GO Term Criteria
-
-We had 3 main criteria for chosing which GO terms to investigate further
-1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
-2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
-3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
 
 ### Cluster 1 - GO Terms and papers 
 
@@ -219,7 +219,7 @@ Piggybacking off of the first gene ontology term for this cluster, the final ter
 Citation:
 Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
 
-### Cluster 2
+### Cluster 2 - GO Terms and papers
 
 ```{r}
 gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
@@ -248,7 +248,7 @@ Citation:
 Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
 Nature 417, 967–970 (2002).
 
-### Cluster 3
+### Cluster 3 - GO Terms and papers
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
