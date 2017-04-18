@@ -5,6 +5,8 @@ date: "4/12/2017"
 output: html_document
 ---
 
+Ryan St.Pierre (ras70) Dakota Brinkman (dlb46) Matt Olson (meo8) Jeremy Schreck (jes85)
+
 ```{r setup, include=FALSE}
 library(dplyr);
 library("stringr");
@@ -178,7 +180,7 @@ In the following section we carry out the GO analysis for these three clusters.
 
 **P-value cutoff**
 
-At this point we did need to make a decision about what p-value cutoff to use. We used a cutoff of 0.001. It is important to note this cutoff is just a threshold for the *gprofiler* to return results, not a threshold for us to determine significance. Thus, we decided to chose a relatively lose cutoff value for the *gprofiler* and determine the significance of each returned turn retroactively. In this manner we would avoid missing significant terms. 
+At this point we did need to make a decision about what p-value cutoff to use. We used a cutoff of 0.001. It is important to note this cutoff is just a threshold for the *gprofiler* to return results, not a threshold for us to determine significance. Thus, we decided to choose a relatively loose cutoff value for the *gprofiler* and determine the significance of each returned turn retroactively. In this manner we would avoid missing significant terms. 
 
 
 # GO Term Criteria
@@ -187,6 +189,8 @@ We had 3 main criteria for chosing which GO terms to investigate further
 1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
 2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
 3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
+
+### Cluster 1 - GO Terms
 
 ```{r}
 gene.clu <- lapply(rnaseq.clusters.cluster1.clusterAgain$lower, labels)
@@ -201,25 +205,7 @@ columns.of.interest <- c(3,4,9,12)
 head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 
-
-### Cluster 1 - GO Terms and papers 
-
-For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
-
-Citation:
-Mota, S., Vieira, N., Barbosa, S., Delaveau, T., Torchet, C., Saux, A. L., . . . Paiva, S. (2014). Role of the DHH1 Gene in the Regulation of Monocarboxylic Acids Transporters Expression in Saccharomyces cerevisiae. PLoS ONE, 9(11). doi:10.1371/journal.pone.0111589
-
-The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.  This is related to the three phases of the yeast metabolic cycle: OX (oxidative), RB (reductive building), RC (reductive charging).
-
-Citation:
-Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
-
-Piggybacking off of the first gene ontology term for this cluster, the final term of interest is **nicotinamide nucleotide metabolic process**.  This term is interesting for its low p-value, as well as its relation to the metabolic process, which is the process of focus of our paper.
-
-Citation:
-Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
-
-### Cluster 2 - GO Terms and papers
+### Cluster 2 - GO Terms
 
 ```{r}
 gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
@@ -232,23 +218,8 @@ cluster2.profile <- gprofiler(gene.clu2[[2]],
 cluster2.profile.sorted <- cluster2.profile[order(cluster2.profile$p.value),] 
 cluster2.profile.sorted[,columns.of.interest] ##make more readable
 ```
-There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
 
-Citation:
-Tripathi A, Mandon EC, Gilmore R, Rapoport TA. Two alternative binding mechanisms connect the protein translocation Sec71/Sec72 complex with heat shock proteins. The Journal of Biological Chemistry. PMID 28286332 DOI: 10.1074/jbc.M116.761122 
-
-With a p-value of 6.76e-72, another gene ontology term of note out of cluster 2 is **structural constituent of ribosome**.  The paper by Kuang et al., that is the basis for our project, deals with changes in chromatin status across robust metabolic cycles.  It is possibe that the structural consituent of ribosome plays a large role in these chromatic state changes.
-
-Citation:
-Chen K, Deng S, Lu H, Zheng Y, Yang G, Kim D, et al. (2013) RNA-Seq Characterization of Spinal Cord Injury Transcriptome in Acute/Subacute Phases: A Resource for Understanding the Pathology at the Systems Level. PLoS ONE 8(8): e72567. https://doi.org/10.1371/journal.pone.0072567
-
-Similar to structural constituent of ribosome, the term **ribonucleoprotein complex biogenesis** also appeared for this second cluster with a p-value of 6.61e-34.  This is a process that results in the assembly and arrangement of consituent parts of a complex containing RNA and proteins.  Chromosomes consist of DNA, so there could be a connection there.
-
-Citation:
-Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
-Nature 417, 967–970 (2002).
-
-### Cluster 3 - GO Terms and papers
+### Cluster 3 - GO Terms
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
@@ -261,27 +232,6 @@ cluster3.profile <- gprofiler(gene.clu3[[4]],
 cluster3.profile.sorted <- cluster3.profile[order(cluster3.profile$p.value),] 
 head(cluster3.profile.sorted[,columns.of.interest]) ##make more readable
 ```
-
-The first notable term, with the lowest p-value in this cluster, is **ubiquitin-dependent protein catabolic process**.  Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions.
-
-Citation:
-Dong, Y., Hu, J., Fan, L., & Chen, Q. (2017). RNA-Seq-based transcriptomic and metabolomic analysis reveal stress responses and programmed cell death induced by acetic acid in Saccharomyces cerevisiae. Scientific Reports, 7, 42659. doi:10.1038/srep42659
-
-The next lowest p-value in the third cluster is **vesicle-mediated transport**.  This term relates to the transportation of substances in membrane-bound vesicles.
-
-Citation:
-Vesicle-mediated protein transport: regulatory interactions between the Vps15 protein kinase and the Vps34 PtdIns 3-kinase essential for protein sorting to the vacuole in yeast. The Journal of Cell Biology. 1995;129(2):321-334.
-
-With a p-value of 7.00e-09, **endomembrane system** is very interesting.  The endomembrane system regulates protein traffic and, more notably, performs metabolic functions in the cell.  Again, we are brougt back to the metabolic process - the focus of our paper.
-
-Citation:
-Hariri, H., Ugrankar, R., Liu, Y., & Henne, W. M. (2016). Inter-organelle ER-endolysosomal contact sites in metabolism and disease across evolution. Communicative & Integrative Biology, 9(3). doi:10.1080/19420889.2016.1156278
-
-### Re-occuring Terms and Patterns
-
-Metabolism, either directly or indirectly, appears in every cluster.  In the first cluster it is the GO term with the lowest p-value.  In the second cluster we see many terms dealing with the cytoplasm.  After doing more research we found that metabolic processes occur in the cytoplasm.  In the third cluster the GO term with the smallest p-value deals with catabolic processes, which is the phase of the metabolic process that distintegrates complex organic compounds to release energy.  It is encouraging to see metabolism being repeated in all three clusters because the paper our data comes from is researching chromatin states across metabolic cycles.  Therefore it makes sense that genes related to the metabolic process are expressed highly and in all the clusters.
-
-There are no other terms that appear in multiple clusters.
 
 # GO for TF Binding Clusters
 
@@ -466,7 +416,69 @@ MF:	pyrimidine nucleoside transmembrane transporter activity, nucleobase transme
 
 CC: replication fork protection complex, nuclear nucleosome
 
-### Papers in the literature
+
+# Question 2 - Papers in the literature
+
+## Gene Expression Papers
+### Cluster 1 papers 
+
+For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
+
+Citation:
+Mota, S., Vieira, N., Barbosa, S., Delaveau, T., Torchet, C., Saux, A. L., . . . Paiva, S. (2014). Role of the DHH1 Gene in the Regulation of Monocarboxylic Acids Transporters Expression in Saccharomyces cerevisiae. PLoS ONE, 9(11). doi:10.1371/journal.pone.0111589
+
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.  This is related to the three phases of the yeast metabolic cycle: OX (oxidative), RB (reductive building), RC (reductive charging).
+
+Citation:
+Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
+
+Piggybacking off of the first gene ontology term for this cluster, the final term of interest is **nicotinamide nucleotide metabolic process**.  This term is interesting for its low p-value, as well as its relation to the metabolic process, which is the process of focus of our paper.
+
+Citation:
+Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
+
+### Cluster 2 papers
+
+There are multiple terms related to the cytoplasm: **cytoplasmic translation**, **cytosolic ribosome**, and **nucleocytoplasmic transport**.  Metabolic processes occur in the cytoplasm, so this lines up well to the other metabolic GO terms we have seen, as well as our paper.
+
+Citation:
+Tripathi A, Mandon EC, Gilmore R, Rapoport TA. Two alternative binding mechanisms connect the protein translocation Sec71/Sec72 complex with heat shock proteins. The Journal of Biological Chemistry. PMID 28286332 DOI: 10.1074/jbc.M116.761122 
+
+With a p-value of 6.76e-72, another gene ontology term of note out of cluster 2 is **structural constituent of ribosome**.  The paper by Kuang et al., that is the basis for our project, deals with changes in chromatin status across robust metabolic cycles.  It is possibe that the structural consituent of ribosome plays a large role in these chromatic state changes.
+
+Citation:
+Chen K, Deng S, Lu H, Zheng Y, Yang G, Kim D, et al. (2013) RNA-Seq Characterization of Spinal Cord Injury Transcriptome in Acute/Subacute Phases: A Resource for Understanding the Pathology at the Systems Level. PLoS ONE 8(8): e72567. https://doi.org/10.1371/journal.pone.0072567
+
+Similar to structural constituent of ribosome, the term **ribonucleoprotein complex biogenesis** also appeared for this second cluster with a p-value of 6.61e-34.  This is a process that results in the assembly and arrangement of consituent parts of a complex containing RNA and proteins.  Chromosomes consist of DNA, so there could be a connection there.
+
+Citation:
+Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
+Nature 417, 967–970 (2002).
+
+### Cluster 3 papers
+
+The first notable term, with the lowest p-value in this cluster, is **ubiquitin-dependent protein catabolic process**.  Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions.
+
+Citation:
+Dong, Y., Hu, J., Fan, L., & Chen, Q. (2017). RNA-Seq-based transcriptomic and metabolomic analysis reveal stress responses and programmed cell death induced by acetic acid in Saccharomyces cerevisiae. Scientific Reports, 7, 42659. doi:10.1038/srep42659
+
+The next lowest p-value in the third cluster is **vesicle-mediated transport**.  This term relates to the transportation of substances in membrane-bound vesicles.
+
+Citation:
+Vesicle-mediated protein transport: regulatory interactions between the Vps15 protein kinase and the Vps34 PtdIns 3-kinase essential for protein sorting to the vacuole in yeast. The Journal of Cell Biology. 1995;129(2):321-334.
+
+With a p-value of 7.00e-09, **endomembrane system** is very interesting.  The endomembrane system regulates protein traffic and, more notably, performs metabolic functions in the cell.  Again, we are brougt back to the metabolic process - the focus of our paper.
+
+Citation:
+Hariri, H., Ugrankar, R., Liu, Y., & Henne, W. M. (2016). Inter-organelle ER-endolysosomal contact sites in metabolism and disease across evolution. Communicative & Integrative Biology, 9(3). doi:10.1080/19420889.2016.1156278
+
+### Re-occuring Terms and Patterns
+
+Metabolism, either directly or indirectly, appears in every cluster.  In the first cluster it is the GO term with the lowest p-value.  In the second cluster we see many terms dealing with the cytoplasm.  After doing more research we found that metabolic processes occur in the cytoplasm.  In the third cluster the GO term with the smallest p-value deals with catabolic processes, which is the phase of the metabolic process that distintegrates complex organic compounds to release energy.  It is encouraging to see metabolism being repeated in all three clusters because the paper our data comes from is researching chromatin states across metabolic cycles.  Therefore it makes sense that genes related to the metabolic process are expressed highly and in all the clusters.
+
+There are no other terms that appear in multiple clusters.
+
+## TF Binding Paper
 
 We found papers for each of the biological process terms in our gene expression clusters, cited earlier. For our TF clusters, we decided to pick the BP term with the lowest p-value out of all the BP terms for all 3 clusters: **gluconeogenesis**.
 Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
@@ -477,7 +489,7 @@ Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism an
 
 # Questions 3
 
-Note: in the GO analysis section, we provided detailed analysis on each paper that we cited. This section provides a summary of our results.
+Note: in question 2, we provided analysis on each paper that we cited. This section provides a summary of our results.
 
 Do your analyses shed light on how the specific biological processes of interest (identified in the GO analysis above) might be regulated or changed by the stress conditions that your data sets represent? 
 
@@ -487,7 +499,7 @@ The biological processes of interest, identified by GO analysis above may contri
 
 **Cluster 1**
 
-The GO terms from cluster 1 relate to monocarboxylic acid metabolic process, nicotinamide nucleotide metabolic process, ATP generation from ADP, protein catabolic process in the vacuole, glycolytic process, and oxidative stress. These GO terms are subsets of the metabolic process. Monocarboxylic acid is an organic compund typically found in acids used for metabolism. Nicotinamide nucleotide alters the metabolic process and has been shown to make older mice appear to have the same metabolism as younger mice. These two compounds reveal that even though our paper directly discusses glucose starvation, this starvation affects metabolic processes other than glucose starvation. Metabolism is a complicated process and there are many other factors at play.
+The GO terms from cluster 1 relate to monocarboxylic acid metabolic process, nicotinamide nucleotide metabolic process, ATP generation from ADP, protein catabolic process in the vacuole, glycolytic process, and oxidative stress. These GO terms are subsets of the metabolic process. Monocarboxylic acid is an organic compund typically found in acids used for metabolism. Nicotinamide nucleotide alters the metabolic process and has been shown to make older mice appear to have the same metabolism as younger mice. These two compounds reveal that even though our paper directly discusses glucose starvation, this starvation affects other metabolic processes. Metabolism is a complicated process and there are many other factors at play.
 
 ATP to ADP and glycolytic process are general GO terms. However, we chose to include them because we think it provides insight in the cell’s response to glucose starvation. The conversion from ATP to ADP causes a release of energy in the cell. It is understandable that under glucose stress, where energy resources are low, the cell would begin to convert energy as necessary. It is then predictable that genes necessary for this conversion are involved in the GO analysis, as they are expressed under the stress introduced in the paper.
 
@@ -499,7 +511,7 @@ The GO terms from cluster 2 relate to cytoplasmic creation, cytoplasmic transpor
 
 **Cluster 3**
 
-The main terms from this cluster are ubiquitin-dependent protein catabolic process and endomembrane system. Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions. This clearly relates to the metabolic process. The endomembrane system is a general GO term, but it relates to membranes and cytoplasm which are key features in the Kuang paper.
+The main terms from this cluster are ubiquitin-dependent protein catabolic process and endomembrane system. Catabolism is the set of metabolic pathways that breaks down molecules for energy purposes or for other anabolic reactions. This clearly relates to the metabolic process. The endomembrane system is a general GO term, but it relates to membranes and cytoplasm which are features of the metabolic process.
 
 ### TF Data Analysis
 
@@ -516,7 +528,6 @@ The other terms in the GO analysis for TF clusters do not seem to be as related 
 
 ### Comparisson to our Focal Paper
 
-
-We found similar results to our focal papers, even though our methods varied. Our focal paper found that the metabolic process is a just in time supply chain comparised of several clusters that oscillate in patterns one after the other. The paper breaks down the metabolic process into three phases or clusters: OX, RB, RC. We found a similar result. We found clustesr that expressed oscillatory behavior over time, delayed from one another. However, we used several clustering methods. To be consistent with the paper we did a k-means clustering into three clusters. However, we also did hierarchical clustering on the data into 18 clusters. We believe this gave us greater granularity to study the oscillatory patterns. We hope to identify which clusters relate specifically to what phase, and then tie the functionality of these clusters to their phase based on GO terms in our final paper.
+We found similar results to our focal papers, even though our methods varied. Our focal paper found that the metabolic process is a just in time supply chain comparised of several clusters that oscillate in patterns one after the other. The paper breaks down the metabolic process into three phases or clusters: OX, RB, RC. We found a similar result. We found clusters that expressed oscillatory behavior over time, delayed from one another. However, we used several clustering methods. To be consistent with the paper we did a k-means clustering into three clusters. However, we also did hierarchical clustering on the data into 18 clusters. We believe this gave us greater granularity to study the oscillatory patterns. We hope to identify which clusters relate specifically to what phase, and then tie the functionality of these clusters to their phase based on GO terms in our final paper.
 
 Our focal paper seemed to be primarily focused on the gene expression. However, using the TF data we were able to come up with a pipeline that uses a correlation value from gene expression and TF binding to create transcription networks. We found that the chromatin modifiers regulate genes expressed in the stress condition. However, we did not find any complex regulatory patterns or motifs between these three TFs. This is a similar conclusion to the paper.
