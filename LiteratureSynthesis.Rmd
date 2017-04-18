@@ -285,7 +285,7 @@ There are no other terms that appear in multiple clusters.
 
 # GO for TF Binding Clusters
 
-Now carry out GO analysis on clusters we identified in our TF network analyses. Here are steps we did to get our 3 TF clusters (same as in the TF homework):
+Now we carry out GO analysis on clusters we identified in our TF network analyses. Here are steps we did to get our 3 TF clusters (same as in the TF homework):
 
 ```{r}
 
@@ -399,6 +399,9 @@ set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 
 
 Now that we have the TF clusters from the previous homework, we can run a GO analysis on each cluster.
+
+### TF Cluster 1: Gcn5
+
 ```{r}
 # All GO Terms
 gcn.go <- gprofiler(gcn, 
@@ -408,10 +411,9 @@ gcn.go <- gprofiler(gcn,
                           hier_filtering = "moderate")
 
 gcn.go <- gcn.go[order(gcn.go$p.value),] 
-head(gcn.go[,columns.of.interest]) ##make more readable
+gcn.go[,columns.of.interest] ##make more readable
 
 ```
-### TF Cluster 1: Gcn5
 Enriched Gene Ontology terms include:
 
 BP: gluconeogenesis, glycolytic process, ATP generation from ADP, hexose biosynthetic process
@@ -420,6 +422,7 @@ MF:	protein heterodimerization activity, NADP binding, glyceraldehyde-3-phosphat
 
 CC: replication fork protection complex, nuclear nucleosome
 
+### TF Cluster 2: Esa1
 
 ```{r}
 esa.go <- gprofiler(esa, 
@@ -432,14 +435,15 @@ esa.go <- esa.go[order(esa.go$p.value),]
 head(esa.go[,columns.of.interest]) ##make more readable
 
 ```
-### TF Cluster 2: Esa1
 Enriched Gene Ontology terms include:
 
 BP: transmembrane transport, cellular respiration
 
-MF:	
+MF:	none
 
-CC: 
+CC: none
+
+### TF Cluster 3: Set1
 
 ```{r}
 set.go <- gprofiler(set, 
@@ -449,10 +453,9 @@ set.go <- gprofiler(set,
                           hier_filtering = "moderate")
 
 set.go <- set.go[order(set.go$p.value),] 
-head(set.go[,columns.of.interest]) ##make more readable
+set.go[,columns.of.interest] ##make more readable
 
 ```
-### TF Cluster 3: Set1
 Enriched Gene Ontology terms include:
 
 BP: pyrimidine nucleoside transport, hexose biosynthetic process, purine ribonucleoside monophosphate metabolic process, ATP generation from ADP, nucleobase transport, carbohydrate biosynthetic process, glycolytic process
@@ -463,7 +466,7 @@ CC: replication fork protection complex, nuclear nucleosome
 
 ### Papers in the literature
 
-We found papers for each of the biological process terms in our gene expression clusters, cited earlier. For our TF clusters, we decided to pick the BP term with the lowest p-value out of all the BP terms for all 3 clusters: **gluconeogenesis**
+We found papers for each of the biological process terms in our gene expression clusters, cited earlier. For our TF clusters, we decided to pick the BP term with the lowest p-value out of all the BP terms for all 3 clusters: **gluconeogenesis**.
 Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
 
 Citation:
