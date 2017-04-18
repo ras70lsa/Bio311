@@ -285,6 +285,8 @@ There are no other terms that appear in multiple clusters.
 
 #TF Binding Clusters
 
+Now carry out GO analysis on clusters we identified in our TF network analyses. Here are steps we did to get our 3 TF clusters (same as in the TF homework):
+
 ```{r}
 
 kuangtf <- read.csv("./datasets/kuang-2014-TFbinding.csv")
@@ -397,6 +399,8 @@ esa <- filter(df.cors.single.trimmed, TF=="corValues.Esa")
 set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 ```
 
+
+Now that we have the TF clusters from the previous homework, we can run a GO analysis on each cluster.
 ```{r}
 # All GO Terms
 gcn.bp <- gprofiler(gcn, 
@@ -405,14 +409,27 @@ gcn.bp <- gprofiler(gcn,
                           src_filter = "GO", 
                           hier_filtering = "moderate")
 gcn.bp
+```
+Cluster 1: Gcn5
+Enriched Gene Ontology terms include:
+BP: glycolytic process, ATP generation from ADP, hexose biosynthetic process
+MF:	protein heterodimerization activity, NADP binding, glyceraldehyde-3-phosphate dehydrogenase (NAD(P)+) (phosphorylating) activity
+CC: replication fork protection complex, nuclear nucleosome
 
+
+```{r}
 esa.bp <- gprofiler(esa, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO",
                           hier_filtering = "moderate")
 esa.bp
+```
+Cluster 2: Esa1
+Enriched terms include
 
+
+```{r}
 set.bp <- gprofiler(set, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
@@ -420,77 +437,9 @@ set.bp <- gprofiler(set,
                           hier_filtering = "moderate")
 set.bp
 ```
-```
-```{r}
-# Biological Process
-gcn.bp <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-gcn.bp
+Cluster 3: Set1
+Enriched terms include
 
-esa.bp <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-esa.bp
-
-set.bp <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-set.bp
-```
-
-```{r}
-# Molecular Function
-gcn.mf <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-gcn.mf
-
-esa.mf <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-esa.mf
-
-set.mf <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-set.mf
-```
-```{r}
-# Cellular Component
-gcn.cc <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-gcn.cc
-
-esa.cc <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-esa.cc
-
-set.cc <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-set.cc
-```
 
 
 We chose to look up a paper for the term with lowest p-value: **gluconeogenesis**. Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
@@ -507,10 +456,6 @@ Hierarchical Clustering Analysis
 
 The biological processes of interest, identified by GO analysis above, such as the **monocarboxylic acid metabolic process** and **nicotinamide nucleotide metabolic process**, may contribute to the oscillations of gene expression under glucose limited conditions. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. Since these terms came up in GO analysis and share similar genes of interest as the kuang data, it is possible that these processes are affected by glucose-limited conditions. 
 
-Another biological process term that came up in the GO analysis was **oxidation-reduction process**. It would be interesting to explore if the reduction of oxididation also produced oscillatory effects on the metabolic cycle. 
-
-TODO: isn't oxidation-reduction an actual process? not necessarily the "reduction" of oxidation. don't think the analsis above makes sense. 
-
 TF Data Analysis
 
 Our focal paper is about the effect of glucose-limited conditions on the metabolic cycle, and the gluconeogenesis paper is about a metabolic pathway that results in the generation of glucose. It makes sense that these papers would be interested in similar sets of genes. The focal paper discusses the robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions in yeast. It would be interesting to explore if gluconeogenesis is one of the metabolic cycles affected by glucose-limited conditions, and if it results in oscillations in the generation of glucose. If this is the case, then it could be a feedback loop where low glucose levels contribute to higher oscillations but higher glucose levels decrease the amount of oscillations. 
@@ -524,4 +469,4 @@ TODO: compare to the findings of the paper
 
 - GO terms are related to the metabolic cycle and glucose
 - The robust metabolic cycles associated with oscillations of gene expression that result from glucose-limited conditions (the findings from our focal paper) may be related to and affect biological/metabolic processes from the GO analysis such as  gluconeogenesis, monocarboxylic acid metabolic process, and nicotinamide nucleotide metabolic process
-- Some GO terms also dealth with the effect of resource-deprivation on the metabolic cycle (oxidation-reduction process). TODO don't think this makes sense
+
