@@ -20,7 +20,7 @@ library(ggraph)
 library(gridExtra)
 library(grid)
 library(gProfileR) ## might need to be installed
-#library(org.Sc.sgd.db)
+library(org.Sc.sgd.db)
 ```
 
 # Question 1 - GO Analysis 
@@ -28,8 +28,8 @@ library(gProfileR) ## might need to be installed
 At first we wanted to familiarize ourselves with the database, shown below. 
 
 ```{r}
-#columns(org.Sc.sgd.db)
-#select(org.Sc.sgd.db, "YAL022C", "ALIAS")
+columns(org.Sc.sgd.db)
+select(org.Sc.sgd.db, "YAL022C", "ALIAS")
 ```
 
 ### Gene Clustering GO Analysis 
@@ -180,7 +180,13 @@ In the following section we carry out the GO analysis for these three clusters.
 
 At this point we did need to make a decision about what p-value cutoff to use. We used a cutoff of 0.001. It is important to note this cutoff is just a threshold for the *gprofiler* to return results, not a threshold for us to determine significance. Thus, we decided to chose a relatively lose cutoff value for the *gprofiler* and determine the significance of each returned turn retroactively. In this manner we would avoid missing significant terms. 
 
-### Cluster 1
+
+# GO Term Criteria
+
+We had 3 main criteria for chosing which GO terms to investigate further
+1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
+2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
+3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
 
 ```{r}
 gene.clu <- lapply(rnaseq.clusters.cluster1.clusterAgain$lower, labels)
@@ -191,30 +197,29 @@ cluster1.profile <- gprofiler(gene.clu[[1]],
                        hier_filtering = "moderate"
                        )
 cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] ## sort based on p.value
-columns.of.interest <- c(3,4,8,9,12)
-cluster1.profile.sorted[,columns.of.interest] ##make more readable
+columns.of.interest <- c(3,4,9,12)
+head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 
-# GO Term Criteria
-
-We had 3 main criteria for chosing which GO terms to investigate further
-1. Significant p-values - we wanted to investigate meaningful (low p-value) GO terms
-2. Specificity - we wanted to avoid investigating GO terms that were too broad. Since GO terms are organized in a tree structure, we wanted to avoid GO terms "too high up on the tree."
-3. Relevance to paper - we wanted to investigate GO terms that were relevant to the metabolic process or chromatin states. Of course, we didn't want to limit ourselves from finding discoveries in other areas. However, we also didn't want to lose our *focus*. 
 
 ### Cluster 1 - GO Terms and papers 
 
 For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
 
 Citation:
-Kuang Z, Cai L, Zhang X, Ji H, Tu BP, Boeke JD. High-temporal-resolution view of transcription and chromatin states across distinct metabolic states in budding yeast. Nat Struct Mol Biol. 2014 Oct;21(10):854-63. doi: 10.1038/nsmb.2881. PubMed PMID: 25173176; PubMed Central PMCID: PMC4190017.
+Mota, S., Vieira, N., Barbosa, S., Delaveau, T., Torchet, C., Saux, A. L., . . . Paiva, S. (2014). Role of the DHH1 Gene in the Regulation of Monocarboxylic Acids Transporters Expression in Saccharomyces cerevisiae. PLoS ONE, 9(11). doi:10.1371/journal.pone.0111589
+
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.  This is related to the three phases of the yeast metabolic cycle: OX (oxidative), RB (reductive building), RC (reductive charging).
+
+Citation:
+Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
 
 Piggybacking off of the first gene ontology term for this cluster, the final term of interest is **nicotinamide nucleotide metabolic process**.  This term is interesting for its low p-value, as well as its relation to the metabolic process, which is the process of focus of our paper.
 
 Citation:
 Foster JW, Moat AG. Nicotinamide adenine dinucleotide biosynthesis and pyridine nucleotide cycle metabolism in microbial systems. Microbiological Reviews. 1980;44(1):83-105.
 
-### Cluster 2
+### Cluster 2 - GO Terms and papers
 
 ```{r}
 gene.clu2 <- lapply(rnaseq.clusters.cluster3.cutAgain$lower, labels)
@@ -243,7 +248,7 @@ Citation:
 Dragon, F. et al. A large nucleolar U3 ribonucleoprotein required for 18S ribosomal RNA biogenesis.
 Nature 417, 967–970 (2002).
 
-### Cluster 3
+### Cluster 3 - GO Terms and papers
 
 ```{r}
 gene.clu3 <- lapply(rnaseq.clusters.cluster4$lower, labels)
@@ -278,7 +283,9 @@ Metabolism, either directly or indirectly, appears in every cluster.  In the fir
 
 There are no other terms that appear in multiple clusters.
 
-#TF Binding Clusters
+# GO for TF Binding Clusters
+
+Now we carry out GO analysis on clusters we identified in our TF network analyses. Here are steps we did to get our 3 TF clusters (same as in the TF homework):
 
 ```{r}
 
@@ -323,29 +330,27 @@ kuangtf.new <- filter(kuangtf, TF.genes %in% rna.genes.u)
 #now remove last two columns so the times add up
 rna.new <- rna.Genes[,1:15]
 
-dim(rna.new)
-dim(kuangtf.new)
 
 #now extract the different TFs
 Gcn.new <- kuangtf.new[,c(1:15)]
-dim(Gcn.new)
+#dim(Gcn.new)
 Esa.new <- kuangtf.new[,c(1,16:29)]
-dim(Esa.new)
+#dim(Esa.new)
 Set.new <- kuangtf.new[,c(1,30:43)]
-dim(Set.new)
+#dim(Set.new)
 
 #here we see the 69 genes that are in the TF data but not the rnaseq
-length(which( ! TF.genes %in% rna.genes))
+#length(which( ! TF.genes %in% rna.genes))
 
 #sort so that the genes are in the same order
 Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
 Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
 Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
 #preview
-head(Gcn.sorted[,1:5])
-head(Esa.sorted[,1:5])
-head(Set.sorted[,1:5])
-head(rna.new[,1:5])
+#head(Gcn.sorted[,1:5])
+#head(Esa.sorted[,1:5])
+#head(Set.sorted[,1:5])
+#head(rna.new[,1:5])
 
 ```
 
@@ -359,13 +364,13 @@ corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.s
 corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
-head(df.cors)
+#head(df.cors)
 ```
 ```{r}
 # But first lets append the gene names to the df.cors dataframe for more informative display
 df.cors.w.names <- df.cors
 row.names(df.cors.w.names) <- Gcn.sorted$Gene.ID #doesn't matter what set the names comes from - they are all the same 
-head(df.cors.w.names)
+#head(df.cors.w.names)
 ```
 ```{r}
 Gcn.indexes <- which(df.cors.w.names[,1] > .75)
@@ -375,9 +380,9 @@ Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 #print first 10 genes for each TF that meet threshold
-head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
-head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
-head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
+#head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
+#head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
+#head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
 ```
 
 ```{r}
@@ -392,103 +397,79 @@ esa <- filter(df.cors.single.trimmed, TF=="corValues.Esa")
 set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 ```
 
+
+Now that we have the TF clusters from the previous homework, we can run a GO analysis on each cluster.
+
+### TF Cluster 1: Gcn5
+
 ```{r}
 # All GO Terms
-gcn.bp <- gprofiler(gcn, 
+columns.of.interest.tf <- c(3,4,9,10,12)
+gcn.go <- gprofiler(gcn, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-gcn.bp
 
-esa.bp <- gprofiler(esa, 
+gcn.go <- gcn.go[order(gcn.go$p.value),] 
+
+gcn.go[,columns.of.interest.tf] ##make more readable
+
+```
+
+BP: gluconeogenesis, glycolytic process, ATP generation from ADP, hexose biosynthetic process
+
+MF:	protein heterodimerization activity, NADP binding, glyceraldehyde-3-phosphate dehydrogenase (NAD(P)+) (phosphorylating) activity
+
+CC: replication fork protection complex, nuclear nucleosome
+
+### TF Cluster 2: Esa1
+
+```{r}
+esa.go <- gprofiler(esa, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO",
                           hier_filtering = "moderate")
-esa.bp
 
-set.bp <- gprofiler(set, 
+esa.go <- esa.go[order(esa.go$p.value),] 
+esa.go[,columns.of.interest.tf] ##make more readable
+
+```
+Enriched Gene Ontology terms include:
+
+BP: transmembrane transport, cellular respiration
+
+MF:	none
+
+CC: none
+
+### TF Cluster 3: Set1
+
+```{r}
+set.go <- gprofiler(set, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-set.bp
+
+set.go <- set.go[order(set.go$p.value),] 
+
+set.go[,columns.of.interest.tf] ##make more readable
+
 ```
+Enriched Gene Ontology terms include:
 
-```{r}
-# Biological Process
-gcn.bp <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-gcn.bp
+BP: pyrimidine nucleoside transport, hexose biosynthetic process, purine ribonucleoside monophosphate metabolic process, ATP generation from ADP, nucleobase transport, carbohydrate biosynthetic process, glycolytic process
 
-esa.bp <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-esa.bp
+MF:	pyrimidine nucleoside transmembrane transporter activity, nucleobase transmembrane transporter activity, glycerol-1-phosphatase activity
 
-set.bp <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:BP", # only consider GO biological process
-                          hier_filtering = "moderate")
-set.bp
-```
+CC: replication fork protection complex, nuclear nucleosome
 
-```{r}
-# Molecular Function
-gcn.mf <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-gcn.mf
+### Papers in the literature
 
-esa.mf <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-esa.mf
-
-set.mf <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:MF", # only consider GO molecular function
-                          hier_filtering = "moderate")
-set.mf
-```
-```{r}
-# Cellular Component
-gcn.cc <- gprofiler(gcn, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-gcn.cc
-
-esa.cc <- gprofiler(esa, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-esa.cc
-
-set.cc <- gprofiler(set, 
-                          organism = "scerevisiae",
-                          max_p_value = 0.05,  # set p-value cutoff
-                          src_filter = "GO:CC", # only consider GO cellular component
-                          hier_filtering = "moderate")
-set.cc
-```
-
-
-We chose to look up a paper for the term with lowest p-value: **gluconeogenesis**. Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
+We found papers for each of the biological process terms in our gene expression clusters, cited earlier. For our TF clusters, we decided to pick the BP term with the lowest p-value out of all the BP terms for all 3 clusters: **gluconeogenesis**.
+Gluconeogenesis is "a metabolic pathway that results in the generation of glucose from non-carbohydrate carbon substrates such as lactate, glycerol, and glucogenic amino acids".
 
 Citation:
 Giménez-Cassina, A., et. al. (2014). Regulation of hepatic energy metabolism and gluconeogenesis by BAD. Cell Metab, 19(2):272-84. doi: 10.1016/j.cmet.2013.12.001.
