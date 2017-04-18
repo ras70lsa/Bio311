@@ -207,9 +207,9 @@ We had 3 main criteria for chosing which GO terms to investigate further
 For the first cluster, the gene ontology term with the smallest p-value is **monocarboxylic acid metabolic process**.  With a p-value of 5.94e-09, the probability of this term appearing by chances is almost impossible.  This is very encouraging because our assigned paper deals with chromatin states across metabolic processes.
 
 Citation:
-Kuang Z, Cai L, Zhang X, Ji H, Tu BP, Boeke JD. High-temporal-resolution view of transcription and chromatin states across distinct metabolic states in budding yeast. Nat Struct Mol Biol. 2014 Oct;21(10):854-63. doi: 10.1038/nsmb.2881. PubMed PMID: 25173176; PubMed Central PMCID: PMC4190017.
+Mota, S., Vieira, N., Barbosa, S., Delaveau, T., Torchet, C., Saux, A. L., . . . Paiva, S. (2014). Role of the DHH1 Gene in the Regulation of Monocarboxylic Acids Transporters Expression in Saccharomyces cerevisiae. PLoS ONE, 9(11). doi:10.1371/journal.pone.0111589
 
-The next term of note that appeared in this cluster is **oxidation-reduction process**.  This is noteworthy because our assigned paper is analyzing the metabolic process in glucose-limited conditions, so to see a cluster mapped to a resource reduction makes sense. TODO check this. don't think it makes sense
+The next term of note that appeared in this cluster is **oxidation-reduction process**.  Contrary to what one may infer from the name, oxidation-reduction is a chemical reaction that involves a transfer of electrons between two species.
 
 Citation:
 Le Fourn, C., Brasseur, G., Brochier-Armanet, C., Pieulle, L., Brioukhanov, A., Ollivier, B. and Dolla, A. (2011), An oxygen reduction chain in the hyperthermophilic anaerobe Thermotoga maritima highlights horizontal gene transfer between Thermococcales and Thermotogales. Environmental Microbiology, 13: 2132–2145. doi:10.1111/j.1462-2920.2011.02439.x
@@ -404,6 +404,7 @@ Now that we have the TF clusters from the previous homework, we can run a GO ana
 
 ```{r}
 # All GO Terms
+columns.of.interest.tf <- c(3,4,9,10,12)
 gcn.go <- gprofiler(gcn, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
@@ -411,7 +412,8 @@ gcn.go <- gprofiler(gcn,
                           hier_filtering = "moderate")
 
 gcn.go <- gcn.go[order(gcn.go$p.value),] 
-gcn.go[,columns.of.interest] ##make more readable
+
+gcn.go[,columns.of.interest.tf] ##make more readable
 
 ```
 Enriched Gene Ontology terms include:
@@ -432,7 +434,7 @@ esa.go <- gprofiler(esa,
                           hier_filtering = "moderate")
 
 esa.go <- esa.go[order(esa.go$p.value),] 
-head(esa.go[,columns.of.interest]) ##make more readable
+esa.go[,columns.of.interest.tf] ##make more readable
 
 ```
 Enriched Gene Ontology terms include:
@@ -453,7 +455,8 @@ set.go <- gprofiler(set,
                           hier_filtering = "moderate")
 
 set.go <- set.go[order(set.go$p.value),] 
-set.go[,columns.of.interest] ##make more readable
+
+set.go[,columns.of.interest.tf] ##make more readable
 
 ```
 Enriched Gene Ontology terms include:
