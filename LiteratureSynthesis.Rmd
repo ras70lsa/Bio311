@@ -401,6 +401,7 @@ set <- filter(df.cors.single.trimmed, TF=="corValues.Set")
 Now that we have the TF clusters from the previous homework, we can run a GO analysis on each cluster.
 ```{r}
 # All GO Terms
+columns.of.interest.tf <- c(3,4,9,10,12)
 gcn.go <- gprofiler(gcn, 
                           organism = "scerevisiae",
                           max_p_value = 0.05,  # set p-value cutoff
@@ -408,7 +409,7 @@ gcn.go <- gprofiler(gcn,
                           hier_filtering = "moderate")
 
 gcn.go <- gcn.go[order(gcn.go$p.value),] 
-head(gcn.go[,columns.of.interest]) ##make more readable
+head(gcn.go[,columns.of.interest.tf]) ##make more readable
 
 ```
 ### TF Cluster 1: Gcn5
@@ -429,7 +430,7 @@ esa.go <- gprofiler(esa,
                           hier_filtering = "moderate")
 
 esa.go <- esa.go[order(esa.go$p.value),] 
-head(esa.go[,columns.of.interest]) ##make more readable
+head(esa.go[,columns.of.interest.tf]) ##make more readable
 
 ```
 ### TF Cluster 2: Esa1
@@ -449,7 +450,7 @@ set.go <- gprofiler(set,
                           hier_filtering = "moderate")
 
 set.go <- set.go[order(set.go$p.value),] 
-head(set.go[,columns.of.interest]) ##make more readable
+head(set.go[,columns.of.interest.tf]) ##make more readable
 
 ```
 ### TF Cluster 3: Set1
