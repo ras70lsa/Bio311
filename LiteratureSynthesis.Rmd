@@ -191,7 +191,7 @@ cluster1.profile <- gprofiler(gene.clu[[1]],
                        hier_filtering = "moderate"
                        )
 cluster1.profile.sorted <- cluster1.profile[order(cluster1.profile$p.value),] ## sort based on p.value
-columns.of.interest <- c(3,4,8,9,12)
+columns.of.interest <- c(3,4,9,12)
 head(cluster1.profile.sorted[,columns.of.interest]) ##make more readable
 ```
 
@@ -330,29 +330,27 @@ kuangtf.new <- filter(kuangtf, TF.genes %in% rna.genes.u)
 #now remove last two columns so the times add up
 rna.new <- rna.Genes[,1:15]
 
-dim(rna.new)
-dim(kuangtf.new)
 
 #now extract the different TFs
 Gcn.new <- kuangtf.new[,c(1:15)]
-dim(Gcn.new)
+#dim(Gcn.new)
 Esa.new <- kuangtf.new[,c(1,16:29)]
-dim(Esa.new)
+#dim(Esa.new)
 Set.new <- kuangtf.new[,c(1,30:43)]
-dim(Set.new)
+#dim(Set.new)
 
 #here we see the 69 genes that are in the TF data but not the rnaseq
-length(which( ! TF.genes %in% rna.genes))
+#length(which( ! TF.genes %in% rna.genes))
 
 #sort so that the genes are in the same order
 Gcn.sorted <- Gcn.new[match(rna.new[,1], Gcn.new[,1]),]
 Esa.sorted <- Esa.new[match(rna.new[,1], Esa.new[,1]),]
 Set.sorted <- Set.new[match(rna.new[,1], Set.new[,1]),]
 #preview
-head(Gcn.sorted[,1:5])
-head(Esa.sorted[,1:5])
-head(Set.sorted[,1:5])
-head(rna.new[,1:5])
+#head(Gcn.sorted[,1:5])
+#head(Esa.sorted[,1:5])
+#head(Set.sorted[,1:5])
+#head(rna.new[,1:5])
 
 ```
 
@@ -366,13 +364,13 @@ corValues.Gcn <- sapply(1:nrow(Gcn.sorted.cor), function(i) cor(as.numeric(Gcn.s
 corValues.Esa <- sapply(1:nrow(Esa.sorted.cor), function(i) cor(as.numeric(Esa.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 corValues.Set <- sapply(1:nrow(Set.sorted.cor), function(i) cor(as.numeric(Set.sorted.cor[i,]), as.numeric(rna.new.cor[i,])))
 df.cors <- data.frame(corValues.Gcn, corValues.Esa, corValues.Set) 
-head(df.cors)
+#head(df.cors)
 ```
 ```{r}
 # But first lets append the gene names to the df.cors dataframe for more informative display
 df.cors.w.names <- df.cors
 row.names(df.cors.w.names) <- Gcn.sorted$Gene.ID #doesn't matter what set the names comes from - they are all the same 
-head(df.cors.w.names)
+#head(df.cors.w.names)
 ```
 ```{r}
 Gcn.indexes <- which(df.cors.w.names[,1] > .75)
@@ -382,9 +380,9 @@ Esa.genes.above <- kuangtf.new[Esa.indexes, 1]
 Set.indexes <- which(df.cors[,3] > .75)
 Set.genes.above <- kuangtf.new[Set.indexes, 1]
 #print first 10 genes for each TF that meet threshold
-head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
-head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
-head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
+#head(df.cors.w.names[Gcn.indexes,1, drop = FALSE], 10) 
+#head(df.cors.w.names[Esa.indexes,2, drop = FALSE], 10) 
+#head(df.cors.w.names[Set.indexes,3, drop = FALSE], 10) 
 ```
 
 ```{r}
@@ -408,7 +406,10 @@ gcn.go <- gprofiler(gcn,
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-gcn.go
+
+gcn.go <- gcn.go[order(gcn.go$p.value),] 
+head(gcn.go[,columns.of.interest]) ##make more readable
+
 ```
 Cluster 1: Gcn5
 Enriched Gene Ontology terms include:
@@ -423,7 +424,10 @@ esa.go <- gprofiler(esa,
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO",
                           hier_filtering = "moderate")
-esa.go
+
+esa.go <- esa.go[order(esa.go$p.value),] 
+head(esa.go[,columns.of.interest]) ##make more readable
+
 ```
 Cluster 2: Esa1
 Enriched Gene Ontology terms include:
@@ -437,7 +441,10 @@ set.go <- gprofiler(set,
                           max_p_value = 0.05,  # set p-value cutoff
                           src_filter = "GO", 
                           hier_filtering = "moderate")
-set.go
+
+set.go <- set.go[order(set.go$p.value),] 
+head(set.go[,columns.of.interest]) ##make more readable
+
 ```
 Cluster 3: Set1
 Enriched terms include
