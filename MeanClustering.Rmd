@@ -1,0 +1,77 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Need to run other files 
+
+```{r}
+clust1 <- rnaseq.clusters.cluster1.clusterAgain$lower[[1]]
+clusterf1.genes <- as.character(labels(clust1))
+
+clust2 <- rnaseq.clusters.cluster3.cutAgain$lower[[2]]
+clusterf2.genes <- as.character(labels(clust2))
+
+clust3 <- rnaseq.clusters.cluster4$lower[[4]]
+clusterf3.genes <- as.character(labels(clust3))
+
+```
+
+```{r}
+cluster1 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf1.genes) %>%
+  mutate(cluster = "1")
+
+cluster2 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf2.genes) %>%
+  mutate(cluster = "2")
+
+cluster3 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf3.genes) %>%
+  mutate(cluster = "3")
+
+combined.df <- rbind(cluster1, cluster2, cluster3)
+head(combined.df)
+
+cluster.means <- combined.df %>%
+  group_by(cluster, time) %>%
+  summarize(mean.exp = mean(expression, na.rm = TRUE))
+
+head(cluster1.means)
+
+ggplot(cluster1.means, aes(x = time, y = mean.exp)) + 
+  geom_line() 
+
+combined.df %>%
+  ggplot(aes(time, expression, group=gene)) +
+  geom_line(alpha=0.25) + 
+  geom_line(aes(time, mean.exp, group=NULL,color=cluster),
+            data = cluster.means,
+            size=1.1) +
+  facet_wrap(~cluster, ncol=3)
+```
+
+```{r}
+cluster.means %>%
+  ggplot(aes(x = time, y = mean.exp, color = cluster)) + geom_line()
+```
+
+```{r}
+cluster1 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf1.genes.first5) %>%
+  mutate(cluster = 1)
+
+cluster2 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf2.genes.first5) %>%
+  mutate(cluster = 2)
+
+cluster3 <- kuang_t.time.long.fitered %>%
+  filter(gene %in% clusterf3.genes.first5) %>%
+  mutate(cluster = 3)
+
+combined.df <- rbind(cluster1, cluster2, cluster3)
+ggplot(combined.df, aes(x = time, y = expression, 
+                        color = cluster, group = gene)) + 
+  geom_line(alpha=0.5) 
+```
+
